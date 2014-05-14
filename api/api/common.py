@@ -18,8 +18,8 @@ admin_emails = None
 
 __connection = None
 
-mongo_addr    = "127.0.0.1"
-mongo_port    = 27017
+mongo_addr = "127.0.0.1"
+mongo_port = 27017
 mongo_db_name = ""
 
 
