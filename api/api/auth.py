@@ -54,8 +54,8 @@ def login():
 def logout():
     """Logout
 
-    If the user has a uid in the session it is removed and success:1 is returned.
-    If uid is not in session success:0 is returned.
+    If the user has a uid in the session it is removed and status:1 is returned.
+    If uid is not in session status:0 is returned.
     """
     if 'uid' in session:
         session.clear()
@@ -69,10 +69,10 @@ def logout():
 def is_logged_in():
     """Check if the user is currently logged in.
 
-    If the user has a teamID in their session return success:1 and a message
-    If they are not logged in return a message saying so and success:0
+    If the user has a uid in their session return status:1 and a message
+    If they are not logged in return a message saying so and status:0
     """
-    if 'tid' in session:
+    if 'uid' in session:
         return 1, None, "You are logged in."
     else:
         return 0, None, "You are not logged in."
@@ -81,6 +81,11 @@ def is_logged_in():
 @app.route('/api/isadmin')
 @return_json
 def is_admin():
-    if session.get('admin'):
+    """Check if the user is an admin.
+
+    If the user as the 'admin' flag set in their session. If so return status:1,
+    if not return status:0.
+    """
+    if session.get('admin', False):
         return 1, None, "You have admin permissions."
     return 0, None, "You do not have admin permissions."
