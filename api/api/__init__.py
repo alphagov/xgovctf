@@ -32,7 +32,7 @@ def after_request(response):
 
 
 def initialize():
-    print("Loading...")
+    print("Loading Configuration...")
     config = configparser.ConfigParser()
     config.read('mister.config')
     if config.get('debug', 'admin_emails') is not None:
@@ -52,6 +52,19 @@ def initialize():
     app.config['SESSION_COOKIE_NAME'] = config.get('flask', 'SESSION_COOKIE_NAME')
 
     common.session_cookie_domain = config.get('flask', 'SESSION_COOKIE_DOMAIN')
+
+    mongo_addr = config.get("mongodb", "addr")
+    if mongo_addr is not None:
+        print("Setting mongo address to '%s'" % mongo_addr)
+        common.mongo_addr = mongo_addr
+    mongo_port = config.getint("mongodb", "port")
+    if mongo_port is not None:
+        print("Setting mongo port to '%d'" % mongo_port)
+        common.mongo_port = mongo_port
+    mongo_db_name = config.get("mongodb", "db_name")
+    if mongo_db_name is not None:
+        print("Setting mongo db_name to '%s'" %mongo_db_name)
+        common.mongo_db_name = mongo_db_name
 
     for protocol in config.get('security','allowed_protocols').split(','):
         common.allowed_protocols.append(protocol.strip())

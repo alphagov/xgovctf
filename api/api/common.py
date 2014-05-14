@@ -1,5 +1,10 @@
 """ The common module contains general-purpose functions potentially used by multiple modules in the system."""
-__author__ = 'Peter Chapman'
+__author__ = ["Collin Petty", "Peter Chapman"]
+__copyright__ = "Carnegie Mellon University"
+__license__ = "MIT"
+__maintainer__ = ["Collin Petty", "Peter Chapman", "Jonathan Burket"]
+__email__ = ["collin@cmu.edu", "peter@cmu.edu", "jburket@cmu.edu"]
+__status__ = "Production"
 
 from pymongo import MongoClient
 from werkzeug.contrib.cache import SimpleCache
@@ -13,11 +18,20 @@ admin_emails = None
 
 __connection = None
 
+mongo_addr    = "127.0.0.1"
+mongo_port    = 27017
+mongo_db_name = ""
+
 
 def get_conn():
+    """Get a database connection
+
+    Ensures that only one global database connection exists per thread.
+    If the connection does not exist a new one is created and returned.
+    """
     global __connection
     if not __connection:
-        __connection = MongoClient('localhost', 27017)['pico']
+        __connection = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
     return __connection
 
 
