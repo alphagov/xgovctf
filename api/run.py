@@ -1,4 +1,4 @@
-print("loading app from api")
+
+print("Starting the API...")
 from api import app
-print("app loaded from api, calling app.run()")
 app.run(host="0.0.0.0", port=8000)

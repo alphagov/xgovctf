@@ -3,7 +3,7 @@ from api.annotations import *
 from flask import Flask
 app = Flask(__name__)
 
-from api import admin, utilities, annotations, scoreboard, problem
+from api import admin, utilities, annotations, scoreboard, problem, user
 import configparser
 import logging
 

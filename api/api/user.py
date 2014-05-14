@@ -6,10 +6,13 @@ from api.annotations import *
 import bcrypt
 
 
-def user_exists(name):
+def get_user(name):
     db = common.get_conn()
     users = db.users.find({'name': name})
-    return False if users.count() == 0 else True
+    if users.count() == 0:
+        return None
+    user = users[0]  # Pull the top entry off the cursor
+    return user
 
 
 def create_user(name, email, pwhash):
@@ -60,7 +63,7 @@ def register_user(request):
 
     if '' in {email, name, pwd}:
         return 0, None, "Please fill out all required fields."
-    if user_exists(name):
+    if get_user(name) is not None:
         return 0, None, "A user with that name has already registered."
     uid = create_user(name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
     if uid is None:

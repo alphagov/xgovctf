@@ -1,7 +1,6 @@
 from api import common
 
 __author__ = 'Collin Petty'
-import json
 import imp
 import os
 from os.path import basename

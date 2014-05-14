@@ -9,6 +9,7 @@ __status__ = "Production"
 import bcrypt
 from api.annotations import *
 from api import app
+import api
 debug_disable_general_login = False
 
 
@@ -17,13 +18,11 @@ debug_disable_general_login = False
 def login():
     """Authenticates a user.
 
-    Takes POSTed auth credentials (teamname and password) and validates to mongo, adds the teamID to the session dict.
-    If the debug_disable_general_login flag is set only accounts with 'debugaccount' set to true will be able
-    to authenticate.
+    Verify that the user is not already logged in. Verify that the username/password are not empty.
+    Query for the user from the user interface matching on username. Check if passwords match, if so add the
+    corresponding 'uid' to the session, if not inform the user of incorrect credentials.
     """
-
-    db = common.get_conn()
-    if 'tid' in session:  # we assume that if there is a tid in the session dict then the user is authenticated
+    if 'uid' in session:  # we assume that if there is a uid in the session then the user is authenticated
         return 1, None, "You are already logged in."
     username = request.form.get('username', None)  # get the teamname and password from the POSTed form
     password = request.form.get('password', None)
@@ -33,24 +32,18 @@ def login():
         return 0, None, "Password cannot be empty."
     if len(username) > 250:
         return 0, None, "STAHP!"
-    user_cursor = db.users.find({'name': username})
-    if user_cursor.count() == 0:  # No results returned from mongo when searching for the user
-        return 0, None, "User '%s' was not found." % username
-    if user_cursor.count() > 1:
-        return 0, None, "An error occurred querying for your account information."
-    user = user_cursor[0]
+    user = api.user.get_user(username)
+    if user is None:
+        return 0, None, "Incorrect username."
     pwhash = user['pwhash']  # The pw hash from the db
     if bcrypt.hashpw(password, pwhash) == pwhash:
-        if user_cursor.get('debugaccount', None):
+        if user.get('debugaccount', False):
             session['debugaccount'] = True
         if debug_disable_general_login:
-            if 'debugaccount' not in user_cursor or not user_cursor['debugaccount']:
+            if session.get('debugaccount', False):
                 return 2, None, "Correct credentials! But the game has not started yet..."
         if user['uid'] is not None:
             session['uid'] = user['uid']
-        else:  # SET THE 'uid' TO str('_id') FOR MIGRATION PURPOSES AND ADD THE 'uid' TO THE DOCUMENT
-            session['uid'] = str(user['_id'])
-            db.teams.update({'_id': user['_id']}, {'uid': str(user['_id'])})
         return 1, None, "Successfully logged in as '%s'." % username
     return 0, None, "Incorrect Password"
 
