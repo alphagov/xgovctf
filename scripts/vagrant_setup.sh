@@ -15,6 +15,7 @@ sudo apt-get -y install mongodb
 #sudo apt-get -y install python-setuptools python-dev build-essential
 sudo apt-get -y install gunicorn
 sudo apt-get -y install git
+sudo apt-get install libzmq-dev
 #sudo apt-get -y install exiv2
 #sudo apt-get -y install python-imaging
 #sudo easy_install pip
@@ -30,7 +31,7 @@ sudo apt-get -y install git
 sudo pip3 install Flask
 sudo pip3 install py3k-bcrypt
 sudo pip3 install pymongo
-
+sudo pip3 install pyzmq
 
 #configure nginx
 
