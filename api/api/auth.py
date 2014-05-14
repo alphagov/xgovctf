@@ -54,8 +54,8 @@ def login():
 def logout():
     """Logout
 
-    If the user has a teamID in the session it is removed and success:1 is returned.
-    If teamID is not in session success:0 is returned.
+    If the user has a uid in the session it is removed and success:1 is returned.
+    If uid is not in session success:0 is returned.
     """
     if 'uid' in session:
         session.clear()
