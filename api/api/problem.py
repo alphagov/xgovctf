@@ -27,8 +27,8 @@ def _get_solved_pids(uid=None):
 @app.route('/api/problems', methods=['GET'])
 @require_login
 @return_json
-def load_unlocked_problems():
-    """Gets the list of all unlocked problems for a team.
+def load_viewable_problems():
+    """Gets the list of all viewable problems for a team.
 
     First check for 'unlocked_<tid>' in the cache, if it exists return it otherwise rebuild the unlocked list.
     Query all problems from the database as well as all submissions from the current team.
