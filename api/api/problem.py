@@ -16,8 +16,10 @@ auto_generators = dict()
 def acquire_problem_instance(pid, uid):
     return None
 
-
-def load_unlocked_problems(uid):
+@app.route('/api/problems', methods=['GET'])
+@require_login
+@return_json
+def load_unlocked_problems():
     """Gets the list of all unlocked problems for a team.
 
     First check for 'unlocked_<tid>' in the cache, if it exists return it otherwise rebuild the unlocked list.
@@ -26,6 +28,7 @@ def load_unlocked_problems(uid):
     Increment the threshold counter for solved weightmap problems.
     If the threshold counter is higher than the problem threshold then add the problem to the return list (ret).
     """
+    uid = session['uid']
     db = common.get_conn()
     #unlocked = cache.get('unlocked_' + uid)  # Get the teams list of unlocked problems from the cache
     #if unlocked is not None:  # Return this if it is not empty in the cache
@@ -159,14 +162,6 @@ def get_all_problems():
 
 def _full_auto_prob_path():
     return root_web_path + relative_auto_prob_path
-
-
-@app.route('/api/problems', methods=['GET'])
-@require_login
-@return_json
-@log_request
-def load_unlocked_problems_hook():
-    return load_unlocked_problems(session['uid'])
 
 
 @app.route('/api/problems/solved', methods=['GET'])
