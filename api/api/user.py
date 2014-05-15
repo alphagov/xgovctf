@@ -55,8 +55,6 @@ def register_user(request):
     If 'joingroup' is not set/false but 'group' exists then we create the new group and add the user as an owner/member,
     we already know that the group does not exist (would have been caught at the beginning).
     """
-
-    db = common.get_conn()
     email = request.form.get('email', '')
     name = request.form.get('username', '')
     pwd = request.form.get('pass', '')

@@ -1,11 +1,11 @@
 from api.annotations import *
 import logging
+import configparser
 
 from flask import Flask
 app = Flask(__name__)
 
 from api import admin, auth, utilities, annotations, scoreboard, problem, user
-import configparser
 
 
 @app.after_request
