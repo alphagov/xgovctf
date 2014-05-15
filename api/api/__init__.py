@@ -6,13 +6,8 @@ app = Flask(__name__)
 from api import admin, utilities, annotations, scoreboard, problem, user
 import configparser
 import logging
-
-
-@app.before_first_request
-def setup_logging():
-    if not app.debug:
-        app.logger.addHandler(logging.StreamHandler())
-        app.logger.setLevel(logging.INFO)
+import zmq
+from zmq.log.handlers import *
 
 
 @app.after_request
@@ -32,7 +27,17 @@ def after_request(response):
 
 
 def initialize():
-    print("Loading Configuration...")
+    context = zmq.Context()
+    pub = context.socket(zmq.PUB)
+    pub.bind('tcp://127.0.0.1:7979')
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    handler = PUBHandler(pub)
+    handler.root_topic = 'pico'
+    logger.addHandler(handler)
+    logger.info("Loading the configuration file")
+
+
     config = configparser.ConfigParser()
     config.read('mister.config')
     if config.get('debug', 'admin_emails') is not None:
