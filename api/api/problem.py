@@ -63,7 +63,7 @@ def load_viewable_problems():
 
     unlocked.sort(key=lambda k: k['basescore'] if 'basescore' in k else 99999)
     #cache.set('unlocked_' + uid, json.dumps(unlocked), 60 * 60)
-    return unlocked
+    return 1, unlocked
 
 
 def get_solved_problems():
@@ -74,12 +74,12 @@ def get_solved_problems():
     Finds all problems with a PID in the list of correct submissions.
     All solved problems are returned as a pid and display name.
     """
-    uid= session['uid']
+    uid = session['uid']
     db = common.get_conn()
     #solved = cache.get('solved_' + uid)
     #if solved is not None:
     #    return json.loads(solved)
-    solved_pids = _get_solved_pids(session['uid'])
+    solved_pids = _get_solved_pids()
     probs = list(db.problems.find({"pid": {"$in": list(solved_pids)}}, {'pid': 1, 'displayname': 1, 'basescore': 1}))
     solved = sorted([{'pid': p['pid'],
                       'displayname': p.get('displayname', None),
