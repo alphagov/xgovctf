@@ -1,13 +1,11 @@
 from api.annotations import *
+import logging
 
 from flask import Flask
 app = Flask(__name__)
 
 from api import admin, utilities, annotations, scoreboard, problem, user
 import configparser
-import logging
-import zmq
-from zmq.log.handlers import *
 
 
 @app.after_request
@@ -27,28 +25,20 @@ def after_request(response):
 
 
 def initialize():
-    context = zmq.Context()
-    pub = context.socket(zmq.PUB)
-    pub.bind('tcp://127.0.0.1:7979')
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    handler = PUBHandler(pub)
-    handler.root_topic = 'pico'
-    logger.addHandler(handler)
-    logger.info("Loading the configuration file")
-
-
+    app.logger.setLevel(logging.INFO)
+    app.logger.info("Parsing the configuration file")
     config = configparser.ConfigParser()
     config.read('mister.config')
     if config.get('debug', 'admin_emails') is not None:
         common.admin_emails = list()
     for email in config.get('debug', 'admin_emails').split(','):
+        app.logger.info(" Adding '%s' to admin_emails" % email)
         common.admin_emails.append(email.strip())
 
     app.config['DEBUG'] = False
     secret_key = config.get('flask', 'secret_key')
     if secret_key == '':
-        common.log('The Flask secret key specified in the config file is empty.')
+        app.logger.error('The Flask secret key specified in the config file is empty.')
         exit()
     app.secret_key = secret_key
     app.config['SESSION_COOKIE_HTTPONLY'] = False
