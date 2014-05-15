@@ -4,7 +4,7 @@ import logging
 from flask import Flask
 app = Flask(__name__)
 
-from api import admin, utilities, annotations, scoreboard, problem, user
+from api import admin, auth, utilities, annotations, scoreboard, problem, user
 import configparser
 
 
