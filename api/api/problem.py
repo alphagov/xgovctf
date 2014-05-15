@@ -3,7 +3,7 @@ import imp
 
 from api.common import cache
 from api.annotations import *
-from api import app, team
+from api import app, team, user
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 
@@ -24,6 +24,11 @@ def _get_solved_pids(uid=None):
     return {p['pid'] for p in db.submissions.find({'uid': uid, 'correct': True})}
 
 
+def _get_teammate_uids(tid):
+    db = common.get_conn()
+    return {t['uid'] for t in db.users.find({'tid': tid}, {{'uid': 1}})}
+
+
 @app.route('/api/problems', methods=['GET'])
 @require_login
 @return_json
@@ -41,21 +46,22 @@ def load_viewable_problems():
     #unlocked = cache.get('unlocked_' + uid)  # Get the teams list of unlocked problems from the cache
     #if unlocked is not None:  # Return this if it is not empty in the cache
     #    return json.loads(unlocked)
-    user = db.users.find_one({'uid': uid})
-    if 'probinstance' not in user:
+    uacct = user.get_user()
+    if 'probinstance' not in uacct:
         db.teams.update({'uid': uid}, {'$set': {'probinstance': {}}})
-        user['probinstance'] = dict()
+        uacct['probinstance'] = dict()
     solved_pids = _get_solved_pids()
     if 'tid' in user:
-        for teammate in db.users.find({'tid': user['tid']}):
-            solved_pids |= _get_solved_pids(teammate['uid'])
+        uids = _get_teammate_uids(uacct['tid']) - {uid}
+        for tuid in uids:
+            solved_pids |= _get_solved_pids(tuid)
     unlocked = [{'pid':         p['pid'],
                  'displayname': p.get('displayname'),
                  'hint':        p.get('hint'),
                  'basescore':   p.get('basescore'),
                  'correct':     True if p['pid'] in solved_pids else False,
                  'desc':        p.get('desc') if not p.get('autogen', False) else
-                 user['probinstance'][p['pid']].get('desc', None) if p['pid'] in user['probinstance'] else
+                 uacct['probinstance'][p['pid']].get('desc', None) if p['pid'] in uacct['probinstance'] else
                  acquire_problem_instance(p['pid'], uid).get('desc')}
                 for p in db.problems.find() if 'weightmap' not in p or
                                                'threshold' not in p or
@@ -74,20 +80,26 @@ def get_solved_problems():
     Finds all problems with a PID in the list of correct submissions.
     All solved problems are returned as a pid and display name.
     """
-    uid = session['uid']
     db = common.get_conn()
     #solved = cache.get('solved_' + uid)
     #if solved is not None:
     #    return json.loads(solved)
+    uid = session['uid']
+    uacct = user.get_user()
     solved_pids = _get_solved_pids()
+    if 'tid' in uacct:
+        uids = _get_teammate_uids(user['tid']) - {uid}
+        for tuid in uids:
+            solved_pids |= _get_solved_pids(tuid)
+
     probs = list(db.problems.find({"pid": {"$in": list(solved_pids)}}, {'pid': 1, 'displayname': 1, 'basescore': 1}))
     solved = sorted([{'pid': p['pid'],
                       'displayname': p.get('displayname', None),
                       'basescore': p.get('basescore', None)} for p in probs],
                     key=lambda k: k['basescore'] if 'basescore' in k else 99999,
                     reverse=True)
-    cache.set('solved_' + uid, json.dumps(solved), 60 * 60)
-    return solved
+    #cache.set('solved_' + uid, json.dumps(solved), 60 * 60)
+    return 1, solved
 
 
 def get_single_problem(pid, uid):
@@ -96,7 +108,7 @@ def get_single_problem(pid, uid):
     Grab all problems from load_unlocked_problems (most likely cached). Iterate over the problems looking for the
     desired pid. Return the problem if found. If not found return status:0 with an error message.
     """
-    for prob in load_unlocked_problems(uid):
+    for prob in load_viewable_problems(uid):
         if prob['pid'] == pid:
             return prob
     return {'status': 0, 'message': 'Internal error, problem not found.'}

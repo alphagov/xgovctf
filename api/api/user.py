@@ -6,8 +6,10 @@ from api.annotations import *
 import bcrypt
 
 
-def get_user(name):
+def get_user(name=None):
     db = common.get_conn()
+    if 'uid' in session:
+        return db.users.find_one({'uid': session['uid']})
     users = db.users.find({'name': name})
     if users.count() == 0:
         return None
