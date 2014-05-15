@@ -13,6 +13,10 @@ relative_auto_prob_path = ""
 auto_generators = dict()
 
 
+def acquire_problem_instance(pid, uid):
+    return None
+
+
 def load_unlocked_problems(uid):
     """Gets the list of all unlocked problems for a team.
 
@@ -23,28 +27,29 @@ def load_unlocked_problems(uid):
     If the threshold counter is higher than the problem threshold then add the problem to the return list (ret).
     """
     db = common.get_conn()
-    unlocked = cache.get('unlocked_' + uid)  # Get the teams list of unlocked problems from the cache
-    if unlocked is not None:  # Return this if it is not empty in the cache
-        return json.loads(unlocked)
-    unlocked = []
-    team = db.teams.find_one({'uid': uid})
-    if 'probinstance' not in team.keys():
+    #unlocked = cache.get('unlocked_' + uid)  # Get the teams list of unlocked problems from the cache
+    #if unlocked is not None:  # Return this if it is not empty in the cache
+    #    return json.loads(unlocked)
+    user = db.users.find_one({'uid': uid})
+    if 'probinstance' not in user:
         db.teams.update({'uid': uid}, {'$set': {'probinstance': {}}})
-        team['probinstance'] = dict()
-    correctPIDs = {p['pid'] for p in list(db.submissions.find({"uid": uid, "correct": True}))}
-    for p in list(db.problems.find()):
-        if 'weightmap' not in p or 'threshold' not in p or sum([p['weightmap'][pid] for pid in correctPIDs if pid in p['weightmap']]) >= p['threshold']:
-            unlocked.append({'pid':            p['pid'],
-                             'displayname':    p.get('displayname', None),
-                             'hint':           p.get('hint', None),
-                             'basescore':      p.get('basescore', None),
-                             'correct':        True if p['pid'] in correctPIDs else False,
-                             'desc':           p.get('desc') if not p.get('autogen', False)
-                             else team['probinstance'][p['pid']].get('desc', None) if p['pid'] in team.get('probinstance', dict())
-                             else build_problem_instance(p, uid)})
+        user['probinstance'] = dict()
+    correct_pids = {p['pid'] for p in list(db.submissions.find({"uid": uid, "correct": True}))}
+
+    unlocked = [{'pid':         p['pid'],
+                 'displayname': p.get('displayname'),
+                 'hint':        p.get('hint'),
+                 'basescore':   p.get('basescore'),
+                 'correct':     True if p['pid'] in correct_pids else False,
+                 'desc':        p.get('desc') if not p.get('autogen', False) else
+                 user['probinstance'][p['pid']].get('desc', None) if p['pid'] in user['probinstance'] else
+                 acquire_problem_instance(p['pid'], uid).get('desc')}
+                for p in db.problems.find() if 'weightmap' not in p or
+                                               'threshold' not in p or
+                                               sum(p['weightmap'].get(pid, 0) for pid in correct_pids) >= p.get('threshold', 0)]
 
     unlocked.sort(key=lambda k: k['basescore'] if 'basescore' in k else 99999)
-    cache.set('unlocked_' + uid, json.dumps(unlocked), 60 * 60)
+    #cache.set('unlocked_' + uid, json.dumps(unlocked), 60 * 60)
     return unlocked
 
 
