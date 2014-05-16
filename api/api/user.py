@@ -40,7 +40,7 @@ def get_all_users():
 
 @app.route('/api/register', methods=['POST'])
 @return_json
-def register_user(request):
+def register_user():
     """Register a new team.
 
     Checks that an email address, team name, adviser name, affiliation, and password were sent from the browser.
