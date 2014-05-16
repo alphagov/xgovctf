@@ -6,6 +6,7 @@ from flask import Flask, url_for
 app = Flask(__name__)
 
 from api import annotations
+from api import common
 from api import admin, problem, user, utilities
 
 
@@ -40,7 +41,7 @@ def site_map():
     return 1, links, "This is a message."
 
 
-def initialize():
+def load_config():
     app.logger.setLevel(logging.INFO)
     app.logger.info("Parsing the configuration file")
     config = configparser.ConfigParser()
@@ -108,3 +109,7 @@ def initialize():
     if write_logs_to_db:
         print("Enabling 'write logs to database'")
         annotations.write_logs_to_db = write_logs_to_db
+
+
+def check_database_indexes():
+    pass
