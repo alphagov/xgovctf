@@ -9,7 +9,9 @@ getRegData = ->
   return post
 
 window.submit_registration = ->
+  console.log("submit_registration function")
   post = getRegData()
+  console.log(post)
   $.ajax(type: 'POST', url: '/api/register', dataType: 'json', data: post)
   .done (data) ->
     if data['status'] == 0
@@ -17,9 +19,10 @@ window.submit_registration = ->
       console.log(data.message)
     else if data['status'] == 1
       #$.ambiance({message: data['message'], type: 'success', timeout: 7})
-      #clear()
+      clear()
       #_gaq.push(['_trackEvent', 'Registration', 'TeamRegister', 'Success'])
       console.log(data.message)
+  return false;
 
 
 $(document).ready ->

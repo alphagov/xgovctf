@@ -2,10 +2,11 @@ from api.annotations import *
 import logging
 import configparser
 
-from flask import Flask
+from flask import Flask, url_for
 app = Flask(__name__)
 
-from api import admin, auth, utilities, annotations, scoreboard, problem, user
+from api import annotations
+from api import admin, user, utilities
 
 
 @app.after_request
@@ -22,6 +23,18 @@ def after_request(response):
     response.headers.add('Cache-Control', 'no-store')
     response.mimetype = 'application/json'
     return response
+
+
+@app.route("/api/sitemap", methods=["GET"])
+def site_map():
+    links = []
+    for rule in app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and len(rule.defaults) >= len(rule.arguments):
+            url = url_for(rule.endpoint)
+            links.append((url, rule.endpoint))
+    return links
 
 
 def initialize():
