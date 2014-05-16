@@ -45,17 +45,6 @@ def register_user():
 
     Checks that an email address, team name, adviser name, affiliation, and password were sent from the browser.
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
-    Verifies that no teams exist with the specified name, if one exists a status:0 with a message is returned.
-    If the 'joingroup' flag is empty or false and the passed 'group' is not empty we check to see if a group with that
-    name exists in the database, if it does we return a status:2 and a message saying the the group exists, and give
-    the user the option to join it.
-    If no failure at this point the function hashes the password and inserts the data into a new db document
-    in the teams collection.
-    If the passed 'group' was empty we now return a status:1 with a successful registration message. If the 'joingroup'
-    flag was set/true (and 'group' exists) we search for the group, if it does NOT exist we create it and add the new
-    team as an owner and member.  If it does exist we add the team as a member of the group.
-    If 'joingroup' is not set/false but 'group' exists then we create the new group and add the user as an owner/member,
-    we already know that the group does not exist (would have been caught at the beginning).
     """
     email = request.form.get('email', '')
     name = request.form.get('username', '')
