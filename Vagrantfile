@@ -9,6 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, guest: 8000, host: 8000
   #config.vm.synced_folder "deploy", "/deploy"
   config.vm.synced_folder "api", "/home/vagrant/api"
+  config.vm.synced_folder "web", "/home/vagrant/web"
   config.vm.provision :shell, :path => "scripts/vagrant_setup.sh"
   config.ssh.forward_agent = true
 end
