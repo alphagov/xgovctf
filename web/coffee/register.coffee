@@ -22,8 +22,6 @@ window.submit_registration = ->
       clear()
       #_gaq.push(['_trackEvent', 'Registration', 'TeamRegister', 'Success'])
       console.log(data.message)
-  return false;
-
 
 $(document).ready ->
   $('#reg-email').focus()
