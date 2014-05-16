@@ -6,7 +6,7 @@ from flask import Flask, url_for
 app = Flask(__name__)
 
 from api import annotations
-from api import admin, user, utilities
+from api import admin, problem, user, utilities
 
 
 @app.after_request
@@ -26,15 +26,18 @@ def after_request(response):
 
 
 @app.route("/api/sitemap", methods=["GET"])
+@return_json
 def site_map():
+    print("Building sitemap")
     links = []
-    for rule in app.url_map.iter_rules():
-        # Filter out rules we can't navigate to in a browser
-        # and rules that require parameters
-        if "GET" in rule.methods and len(rule.defaults) >= len(rule.arguments):
-            url = url_for(rule.endpoint)
-            links.append((url, rule.endpoint))
-    return links
+    for rule in app.url_map._rules:
+        if "GET" in rule.methods or "POST" in rule.methods:
+            try:
+                url = url_for(rule.endpoint)
+                links.append(url)
+            except:
+                pass
+    return 1, links, "This is a message."
 
 
 def initialize():
