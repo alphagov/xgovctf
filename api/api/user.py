@@ -6,23 +6,23 @@ from api.annotations import *
 import bcrypt
 
 
-def get_user(name=None):
+def get_user(username=None):
     db = common.get_conn()
     if 'uid' in session:
         return db.users.find_one({'uid': session['uid']})
-    users = db.users.find({'name': name})
+    users = db.users.find({'username': username})
     if users.count() == 0:
         return None
     user = users[0]  # Pull the top entry off the cursor
     return user
 
 
-def create_user(name, email, pwhash):
+def create_user(username, email, pwhash):
     db = common.get_conn()
     uid = common.token()
     try:
         db.users.insert({'uid': uid,
-                         'name': name,
+                         'username': username,
                          'email': email,
                          'pwhash': pwhash})
     except Exception as e:
@@ -34,7 +34,7 @@ def create_user(name, email, pwhash):
 def get_all_users():
     db = common.get_conn()
     return [{'uid': u['uid'],
-             'name': u['name'],
+             'username': u['username'],
              'email': u['email']} for u in db.users.find({})]
 
 
@@ -47,17 +47,17 @@ def register_user():
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
     email = request.form.get('email', '')
-    name = request.form.get('username', '')
+    username = request.form.get('username', '')
     pwd = request.form.get('pass', '')
 
-    if '' in {email, name, pwd}:
+    if '' in {email, username, pwd}:
         return 0, None, "Please fill out all required fields."
-    if get_user(name) is not None:
+    if get_user(username) is not None:
         return 0, None, "A user with that name has already registered."
-    uid = create_user(name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
+    uid = create_user(username, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
     if uid is None:
         return 0, None, "There was an error creating your account."
-    return 1, None, "User '%s' created successfully!" % name
+    return 1, None, "User '%s' created successfully!" % username
 
 
 @app.route('/api/updatepass', methods=['POST'])

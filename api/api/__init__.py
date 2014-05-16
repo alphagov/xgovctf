@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 from api import annotations
 from api import common
-from api import admin, problem, user, utilities
+from api import admin, auth, problem, user, utilities
 
 
 @app.after_request
@@ -112,4 +112,16 @@ def load_config():
 
 
 def check_database_indexes():
-    pass
+    db = common.get_conn()
+
+    print("##### Ensuring indexes ######")
+
+    print(" 'users' collection...")
+    print("  'uid' unique")
+    db.users.ensure_index("uid", unique=True, name="unique uid")
+    print("  'username' unique")
+    db.users.ensure_index("username", unique=True, name="unique username")
+
+    print(" 'problems' collection...")
+    print("  'pid' unique")
+    db.problems.ensure_index("pid", unique=True, name="unique pid")
