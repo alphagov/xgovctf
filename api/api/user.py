@@ -8,13 +8,11 @@ import bcrypt
 
 def get_user(username=None):
     db = common.get_conn()
+    if username is not None:
+        return db.users.find_one({'username': username})
     if 'uid' in session:
         return db.users.find_one({'uid': session['uid']})
-    users = db.users.find({'username': username})
-    if users.count() == 0:
-        return None
-    user = users[0]  # Pull the top entry off the cursor
-    return user
+    return None
 
 
 def create_user(username, email, pwhash):

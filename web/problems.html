@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes ">
+    <meta name="description" content="picoCTF">
+    <meta name="author" content="Carnegie Mellon Univeristy">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Problems</title>
+    <link href="css/main.css" rel="stylesheet" media="screen">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner">
+        <a class="brand" href="/">CTFX</a>
+        <ul id="navbar" class="nav">
+        </ul>
+    </div>
+</div>
+<div class="container-narrow">
+    <div id="problems_holder"></div>
+    <div id="footer"></div>
+
+</div>
+<script src="js/problems.js"></script>
+<script>
+    $(function () {
+        display_navbar();
+        load_footer();
+    })
+</script>
+</body>
+</html>
