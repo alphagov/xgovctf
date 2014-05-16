@@ -17,13 +17,6 @@ def acquire_problem_instance(pid, uid):
     return None
 
 
-def _get_solved_pids(uid=None):
-    if uid is None:
-        uid = session['uid']
-    db = common.get_conn()
-    return {p['pid'] for p in db.submissions.find({'uid': uid, 'correct': True})}
-
-
 def _get_teammate_uids(tid):
     db = common.get_conn()
     return {t['uid'] for t in db.users.find({'tid': tid}, {{'uid': 1}})}
@@ -48,6 +41,24 @@ def get_solved_pids_for_cat(uid=None, tid=None, gid=None):
     return None
 
 
+def get_viewable_pids_for_cat(uid=None, tid=None, gid=None):
+    solved_pids = get_solved_pids_for_cat(**locals())
+    db = common.get_conn()
+    return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
+                                                    'threshold' not in p or
+                                                    sum(p['weightmap'].get(pid, 0) for pid in solved_pids >= p['threshold'])}
+
+
+def get_viewable_pids_for_solved(pids):
+    if pids is None:
+        return None
+    db = common.get_conn()
+    return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
+                                                    'threshold' not in p or
+                                                    sum(p['weightmap'].get(pid, 0) for pid in pids >= p['threshold'])}
+
+
+
 @app.route('/api/problems', methods=['GET'])
 @require_login
 @return_json
@@ -60,35 +71,22 @@ def load_viewable_problems():
     Increment the threshold counter for solved weightmap problems.
     If the threshold counter is higher than the problem threshold then add the problem to the return list (ret).
     """
-    uid = session['uid']
-    db = common.get_conn()
-    #unlocked = cache.get('unlocked_' + uid)  # Get the teams list of unlocked problems from the cache
-    #if unlocked is not None:  # Return this if it is not empty in the cache
-    #    return json.loads(unlocked)
-    uacct = user.get_user()
-    if 'probinstance' not in uacct:
-        db.teams.update({'uid': uid}, {'$set': {'probinstance': {}}})
-        uacct['probinstance'] = dict()
-    solved_pids = _get_solved_pids()
+    useracct = user.get_user()
     if 'tid' in user:
-        uids = _get_teammate_uids(uacct['tid']) - {uid}
-        for tuid in uids:
-            solved_pids |= _get_solved_pids(tuid)
-    unlocked = [{'pid':         p['pid'],
-                 'displayname': p.get('displayname'),
-                 'hint':        p.get('hint'),
-                 'basescore':   p.get('basescore'),
-                 'correct':     True if p['pid'] in solved_pids else False,
-                 'desc':        p.get('desc') if not p.get('autogen', False) else
-                 uacct['probinstance'][p['pid']].get('desc', None) if p['pid'] in uacct['probinstance'] else
-                 acquire_problem_instance(p['pid'], uid).get('desc')}
-                for p in db.problems.find() if 'weightmap' not in p or
-                                               'threshold' not in p or
-                                               sum(p['weightmap'].get(pid, 0) for pid in solved_pids) >= p.get('threshold', 0)]
+        solved_pids = get_solved_pids_for_cat(tid=useracct['tid'])
+    else:
+        solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
+    viewable_pids = get_viewable_pids_for_solved(solved_pids)
 
-    unlocked.sort(key=lambda k: k['basescore'] if 'basescore' in k else 99999)
-    #cache.set('unlocked_' + uid, json.dumps(unlocked), 60 * 60)
-    return 1, unlocked
+    db = common.get_conn()
+    probs = ({'pid':         p['pid'],
+              'displayname': p.get('displayname'),
+              'hint':        p.get('hint'),
+              'basescore':   p.get('basescore'),
+              'correct':     True if p['pid'] in solved_pids else False,
+              'desc':        'figure this out'} for p in db.problems.find({'pid': {"$in": list(viewable_pids)}}))
+
+    return 1, probs
 
 
 def get_solved_problems():
