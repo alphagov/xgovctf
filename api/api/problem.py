@@ -180,7 +180,8 @@ def get_all_problems():
              'displayname': p['displayname'],
              'basescore': p['basescore'],
              'hardlock': p.get('hardlock', False),
-             'ignorethresh': p.get('ignorethresh', False)} for p in db.problems.find({})]
+             'ignorethresh': p.get('ignorethresh', False),
+             'autogen': p.get('autogen', False)} for p in db.problems.find({})]
 
 
 def _full_auto_prob_path():

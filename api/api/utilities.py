@@ -2,7 +2,7 @@ __author__ = "Collin Petty"
 __copyright__ = "Carnegie Mellon University"
 __license__ = "MIT"
 __maintainer__ = ["Collin Petty", "Peter Chapman"]
-__credits__ = ["David Brumely", "Collin Petty", "Peter Chapman", "Tyler Nighswander", "Garrett Barboza"]
+__credits__ = ["David Brumley", "Collin Petty", "Peter Chapman", "Tyler Nighswander", "Garrett Barboza"]
 __email__ = ["collin@cmu.edu", "peter@cmu.edu"]
 __status__ = "Production"
 
