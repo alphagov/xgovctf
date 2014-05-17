@@ -89,6 +89,9 @@ def load_viewable_problems():
     return 1, probs
 
 
+@app.route('/api/problems/solved', methods=['GET'])
+@require_login
+@return_json
 def get_solved_problems():
     """Returns a list of all problems the team has solved.
 
@@ -97,26 +100,19 @@ def get_solved_problems():
     Finds all problems with a PID in the list of correct submissions.
     All solved problems are returned as a pid and display name.
     """
-    db = common.get_conn()
-    #solved = cache.get('solved_' + uid)
-    #if solved is not None:
-    #    return json.loads(solved)
-    uid = session['uid']
-    uacct = user.get_user()
-    solved_pids = _get_solved_pids()
-    if 'tid' in uacct:
-        uids = _get_teammate_uids(user['tid']) - {uid}
-        for tuid in uids:
-            solved_pids |= _get_solved_pids(tuid)
+    useracct = user.get_user()
+    if 'tid' in user:
+        solved_pids = get_solved_pids_for_cat(tid=useracct['tid'])
+    else:
+        solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
 
-    probs = list(db.problems.find({"pid": {"$in": list(solved_pids)}}, {'pid': 1, 'displayname': 1, 'basescore': 1}))
-    solved = sorted([{'pid': p['pid'],
-                      'displayname': p.get('displayname', None),
-                      'basescore': p.get('basescore', None)} for p in probs],
-                    key=lambda k: k['basescore'] if 'basescore' in k else 99999,
-                    reverse=True)
-    #cache.set('solved_' + uid, json.dumps(solved), 60 * 60)
-    return 1, solved
+    db = common.get_conn()
+    probs = [{'pid':         p['pid'],
+              'displayname': p.get('displayname'),
+              'basescore':   p.get('basescore')} for p in db.problems.find({'pid': {"$in": list(solved_pids)}})]
+    probs.sort(key=lambda k: k.get('basescore', 99999), reverse=True)
+
+    return 1, probs
 
 
 def get_single_problem(pid, uid):
@@ -203,14 +199,6 @@ def get_all_problems():
 
 def _full_auto_prob_path():
     return root_web_path + relative_auto_prob_path
-
-
-@app.route('/api/problems/solved', methods=['GET'])
-@require_login
-@return_json
-@log_request
-def get_solved_problems_hook():
-    return get_solved_problems(session['uid'])
 
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
