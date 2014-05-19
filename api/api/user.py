@@ -1,6 +1,6 @@
 __author__ = 'collinpetty'
 
-from api import app, common
+from api import app, common, team
 
 from api.annotations import *
 import bcrypt
@@ -36,7 +36,7 @@ def get_all_users():
              'email': u['email']} for u in db.users.find({})]
 
 
-@app.route('/api/user/register', methods=['POST'])
+@app.route('/api/user/create', methods=['POST'])
 @return_json
 def register_user():
     """Register a new team.
@@ -50,14 +50,22 @@ def register_user():
     teamname = request.form.get('teamname')
     confirm = request.form.get('confirm', False)
 
-    if '' in {email, username, pwd, teamname}:
+    db = common.get_conn()
+    if None in {email, username, pwd, teamname}:
         return 0, None, "Please fill out all required fields."
     if get_user(username) is not None:
         return 0, None, "A user with that name has already registered."
-    uid = create_user(username, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
-    if uid is None:
-        return 0, None, "There was an error creating your account."
-    return 1, None, "User '%s' created successfully!" % username
+    teamacct = team.get_team(teamname=teamname)
+    if confirm and teamacct is not None:
+        useracct = create_user(username, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
+        if useracct is None:
+            return 0, None, "There was an error during registration."
+        db.users.update({'uid': useracct['uid']}, {'$set': {'tid': teamacct['tid']}})
+        return 1, None, "User '%s' registered successfully!" % username
+    elif not confirm and teamacct is not None:
+        return 2, None, "The team name you have entered exists, would like to join it?"
+    elif teamacct is None:
+        return 3, None, "The specified team does not exist, would you like to create it?"
 
 
 @app.route('/api/updatepass', methods=['POST'])
