@@ -45,23 +45,23 @@ def register_user():
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
     email = request.form.get('email')
-    username = request.form.get('username')
+    user_name = request.form.get('user_name')
     pwd = request.form.get('pass')
-    teamname = request.form.get('teamname')
+    team_name = request.form.get('team_name')
     confirm = request.form.get('confirm', False)
 
     db = common.get_conn()
-    if None in {email, username, pwd, teamname}:
+    if None in {email, user_name, pwd, team_name}:
         return 0, None, "Please fill out all required fields."
-    if get_user(username) is not None:
+    if get_user(user_name) is not None:
         return 0, None, "A user with that name has already registered."
-    teamacct = team.get_team(teamname=teamname)
+    teamacct = team.get_team(team_name=team_name)
     if confirm and teamacct is not None:
-        useracct = create_user(username, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
+        useracct = create_user(user_name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
         if useracct is None:
             return 0, None, "There was an error during registration."
         db.users.update({'uid': useracct['uid']}, {'$set': {'tid': teamacct['tid']}})
-        return 1, None, "User '%s' registered successfully!" % username
+        return 1, None, "User '%s' registered successfully!" % user_name
     elif not confirm and teamacct is not None:
         return 2, None, "The team name you have entered exists, would like to join it?"
     elif teamacct is None:
