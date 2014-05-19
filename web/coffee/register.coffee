@@ -1,5 +1,3 @@
-fields = ['email', 'username', 'pass']
-
 clear = ->
   $('#reg-'+field).val('') for field in fields
 
