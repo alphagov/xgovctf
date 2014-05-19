@@ -36,7 +36,7 @@ def get_all_users():
              'email': u['email']} for u in db.users.find({})]
 
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/user/register', methods=['POST'])
 @return_json
 def register_user():
     """Register a new team.
@@ -44,11 +44,13 @@ def register_user():
     Checks that an email address, team name, adviser name, affiliation, and password were sent from the browser.
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
-    email = request.form.get('email', '')
-    username = request.form.get('username', '')
-    pwd = request.form.get('pass', '')
+    email = request.form.get('email')
+    username = request.form.get('username')
+    pwd = request.form.get('pass')
+    teamname = request.form.get('teamname')
+    confirm = request.form.get('confirm', False)
 
-    if '' in {email, username, pwd}:
+    if '' in {email, username, pwd, teamname}:
         return 0, None, "Please fill out all required fields."
     if get_user(username) is not None:
         return 0, None, "A user with that name has already registered."
