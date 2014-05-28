@@ -1,0 +1,10 @@
+server {
+        server_name picoctf.com;
+        listen       80;
+        root   /srv/http/ctf;
+
+        location = / {
+                default_type text/html;
+                index  index.html;
+        }
+}

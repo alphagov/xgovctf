@@ -1,23 +1,22 @@
 #!/bin/bash
 
-#updates and package installation
+# Updates
+apt-get -y update 
+apt-get -y upgrade
 
-echo root:root|chpasswd
+# CTF-Platform Dependencies
+apt-get -y install python3-pip
+apt-get -y install nginx
+apt-get -y install mongodb
+apt-get -y install gunicorn
+apt-get -y install git
+apt-get install libzmq-dev
+pip3 install Flask
+pip3 install py3k-bcrypt
+pip3 install pymongo
+pip3 install pyzmq
 
-sudo apt-get -y update 
-sudo apt-get -y upgrade
-sudo apt-get -y install python3-pip
-sudo apt-get -y install nginx
-sudo apt-get -y install mongodb
-sudo apt-get -y install gunicorn
-sudo apt-get -y install git
-sudo apt-get install libzmq-dev
-
-#extra packages
-sudo pip3 install Flask
-sudo pip3 install py3k-bcrypt
-sudo pip3 install pymongo
-sudo pip3 install pyzmq
-
-#configure nginx
-
+# Configure Nginx
+cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
+rm /etc/nginx/sites-enabled/default
+service nginx restart
