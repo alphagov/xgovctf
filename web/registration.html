@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes ">
+    <meta name="description" content="picoCTF">
+    <meta name="author" content="Carnegie Mellon Univeristy">
+    <title>Registration</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="sjs/jquery.noty.packaged.min.js"></script>
+</head>
+<body>
+    <header><a href="/">CTFX</a></header>
+
+    <div class="container-narrow">
+        <div class="contentbox row-fluid">
+            <div class="row-fluid">
+                <div class="offset1 span10">
+                    <form class="form-horizontal">
+                        <div class="control-group">
+                            <label class="control-label" for="reg-email">Email</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-email" placeholder="Email" type="email">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="reg-user-name">Username</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-user-name" placeholder="Username" type="text">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="reg-pass">Password</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-pass" placeholder="Password" type="password">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="reg-team-name">Team Name</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-team-name" placeholder="Team Name" type="text">
+                            </div>
+                        </div>
+                        <div class="control-group" id="reg-team-adv-name-cont" style="display:none;">
+                            <label class="control-label" for="reg-team-adv-name">Adviser Name</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-team-adv-name" placeholder="Adviser Name" type="text">
+                            </div>
+                        </div>
+                        <div class="control-group" id="reg-team-adv-email-cont" style="display:none;">
+                            <label class="control-label" for="reg-team-adv-email">Adviser Email</label>
+                            <div class="controls registration-controls">
+                                <input id="reg-team-adv-email" placeholder="Adviser Email" type="text">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="controls registration-controls">
+                                <button id="register-button" type="submit" class="btn btn-primary" onclick="submit_registration(); return false;">
+                                    Register
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="footer"></div>
+    </div>
+    <script src="js/register.js"></script>
+    <script>
+        $(function () {
+            display_navbar();
+            load_footer();
+        })
+    </script>
+</body>
+</html>
