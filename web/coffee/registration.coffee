@@ -12,13 +12,10 @@ window.submit_registration = ->
   console.log(post)
   $.ajax(type: 'POST', url: '/api/register', dataType: 'json', data: post)
   .done (data) ->
-    if data['status'] == 0
-      #$.ambiance({message: data['message'], type: 'error', timeout: 10})
+    if data['status'] == 0      
       console.log(data.message)
     else if data['status'] == 1
-      #$.ambiance({message: data['message'], type: 'success', timeout: 7})
       clear()
-      #_gaq.push(['_trackEvent', 'Registration', 'TeamRegister', 'Success'])
       console.log(data.message)
 
 $(document).ready ->
