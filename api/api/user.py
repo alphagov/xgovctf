@@ -46,26 +46,63 @@ def register_user():
     """
     email = request.form.get('email')
     user_name = request.form.get('user_name')
-    pwd = request.form.get('pass')
-    team_name = request.form.get('team_name')
-    confirm = request.form.get('confirm', False)
+    pwd = request.form.get('pass')   # JB: Consider adding password validation
+
+
+    create_new = request.form.get('create_new_team')
+
+    # Creating a new team / password
+    team_name_new = request.form.get('team_name_new')
+    team_password_new = request.form.get('team_name_new')  # JB: Consider adding password validation
+    team_advisor_name_new = request.form.get('team_advisor_name_new')
+    team_advisor_email_new = request.form.get('team_advisor_email_new')
+    team_school_new = request.form.get('team_school_new')
+
+    # Joining an existing team
+    team_name_existing = request.form.get('team_name_existing')
+    team_password_existing = request.form.get('team_name_existing')
 
     db = common.get_conn()
-    if None in {email, user_name, pwd, team_name}:
+
+    # Check for missing fields
+    missing_data = (None in {email, user_name, pwd} or
+                    create_new and None in {team_name_new, team_password_new, team_advisor_email_new,
+                                            team_advisor_name_new, team_school_new} or
+                    not create_new and None in {team_name_existing, team_password_existing})
+    if missing_data:
         return 0, None, "Please fill out all required fields."
+
+    # Check for duplicate usernames
     if get_user(user_name) is not None:
         return 0, None, "A user with that name has already registered."
-    teamacct = team.get_team(team_name=team_name)
-    if confirm and teamacct is not None:
-        useracct = create_user(user_name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
-        if useracct is None:
-            return 0, None, "There was an error during registration."
-        db.users.update({'uid': useracct['uid']}, {'$set': {'tid': teamacct['tid']}})
-        return 1, None, "User '%s' registered successfully!" % user_name
-    elif not confirm and teamacct is not None:
-        return 2, None, "The team name you have entered exists, would like to join it?"
-    elif teamacct is None:
-        return 3, None, "The specified team does not exist, would you like to create it?"
+
+    if create_new:
+        teamacct = team.get_team(team_name=team_name_new)
+        if teamacct is not None:
+            return 2, None, "A team with that name already exists"
+        # Potentially insert some password validation stuff here (i.e. certain lengths of passwords, etc.)
+        join_team = team.create_team(team_name_new, team_advisor_name_new, team_advisor_email_new,
+                                     team_school_new, team_password_new)
+        if join_team is None:
+            return 4, None, "Failed to create new team"
+    else:
+        teamacct = team.get_team(team_name=team_name_existing)
+        if teamacct is None:
+            return 3, None, "There is no existing team called '%s'" % team_name_existing
+        if teamacct.password != team_password_existing:
+            return 5, None, "Your team password is incorrect"
+        join_team = teamacct.tid
+
+    # Create new user
+    useracct = create_user(user_name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
+    if useracct is None:
+        return 0, None, "There was an error during registration."
+
+    # Have the new user join the correct team
+    db.users.update({'uid': useracct}, {'$set': {'tid': join_team}})
+
+    return 1, None, "User '%s' registered successfully!" % user_name
+
 
 
 @app.route('/api/updatepass', methods=['POST'])
