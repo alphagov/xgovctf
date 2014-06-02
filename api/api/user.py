@@ -54,8 +54,8 @@ def register_user():
     # Creating a new team / password
     team_name_new = request.form.get('team_name_new')
     team_password_new = request.form.get('team_name_new')  # JB: Consider adding password validation
-    team_advisor_name_new = request.form.get('team_advisor_name_new')
-    team_advisor_email_new = request.form.get('team_advisor_email_new')
+    team_adviser_name_new = request.form.get('team_adviser_name_new')
+    team_adviser_email_new = request.form.get('team_adviser_email_new')
     team_school_new = request.form.get('team_school_new')
 
     # Joining an existing team
@@ -66,8 +66,8 @@ def register_user():
 
     # Check for missing fields
     missing_data = (None in {email, user_name, pwd} or
-                    create_new and None in {team_name_new, team_password_new, team_advisor_email_new,
-                                            team_advisor_name_new, team_school_new} or
+                    create_new and None in {team_name_new, team_password_new, team_adviser_email_new,
+                                            team_adviser_name_new, team_school_new} or
                     not create_new and None in {team_name_existing, team_password_existing})
     if missing_data:
         return 0, None, "Please fill out all required fields."
@@ -81,7 +81,7 @@ def register_user():
         if teamacct is not None:
             return 2, None, "A team with that name already exists"
         # Potentially insert some password validation stuff here (i.e. certain lengths of passwords, etc.)
-        join_team = team.create_team(team_name_new, team_advisor_name_new, team_advisor_email_new,
+        join_team = team.create_team(team_name_new, team_adviser_name_new, team_adviser_email_new,
                                      team_school_new, team_password_new)
         if join_team is None:
             return 4, None, "Failed to create new team"

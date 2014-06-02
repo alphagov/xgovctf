@@ -10,7 +10,12 @@ apt-get -y install nginx
 apt-get -y install mongodb
 apt-get -y install gunicorn
 apt-get -y install git
-apt-get install libzmq-dev
+apt-get -y install libzmq-dev
+apt-get -y install nodejs-legacy
+apt-get -y install npm
+
+npm install -g coffee-script
+
 pip3 install Flask
 pip3 install py3k-bcrypt
 pip3 install pymongo

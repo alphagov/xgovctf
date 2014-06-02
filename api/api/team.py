@@ -12,6 +12,7 @@ def get_team(tid=None, team_name=None):
         return db.teams.find_one({'team_name': team_name})
     return None
 
+
 def create_team(team_name, adviser_name, adviser_email, school, password):
     db = common.get_conn()
     tid = common.token()
