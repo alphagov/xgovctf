@@ -10,6 +10,7 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, guest: 27017, host: 27017
   config.vm.synced_folder "api", "/home/vagrant/api"
   config.vm.synced_folder "web", "/srv/http/ctf"
+  config.vm.synced_folder "minigames", "/srv/http/ctf/minigames"
   config.vm.provision :shell, :path => "scripts/vagrant_setup.sh"
   config.ssh.forward_agent = true
 end
