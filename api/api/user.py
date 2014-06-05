@@ -45,22 +45,22 @@ def register_user():
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
     email = request.form.get('email')
-    user_name = request.form.get('user_name')
+    user_name = request.form.get('username')
     pwd = request.form.get('pass')   # JB: Consider adding password validation
 
-
-    create_new = request.form.get('create_new_team')
+    create_new = request.form.get('create-new-team') == 'true'
+    print(create_new)
 
     # Creating a new team / password
-    team_name_new = request.form.get('team_name_new')
-    team_password_new = request.form.get('team_name_new')  # JB: Consider adding password validation
-    team_adviser_name_new = request.form.get('team_adviser_name_new')
-    team_adviser_email_new = request.form.get('team_adviser_email_new')
-    team_school_new = request.form.get('team_school_new')
+    team_name_new = request.form.get('team-name-new')
+    team_password_new = request.form.get('team-pass-new')  # JB: Consider adding password validation
+    team_adviser_name_new = request.form.get('team-adv-name-new')
+    team_adviser_email_new = request.form.get('team-adv-email-new')
+    team_school_new = request.form.get('school-new')
 
     # Joining an existing team
-    team_name_existing = request.form.get('team_name_existing')
-    team_password_existing = request.form.get('team_name_existing')
+    team_name_existing = request.form.get('team-name-existing')
+    team_password_existing = request.form.get('team-name-existing')
 
     db = common.get_conn()
 
@@ -79,19 +79,20 @@ def register_user():
     if create_new:
         teamacct = team.get_team(team_name=team_name_new)
         if teamacct is not None:
-            return 2, None, "A team with that name already exists"
+            return 0, None, "A team with that name already exists"
         # Potentially insert some password validation stuff here (i.e. certain lengths of passwords, etc.)
         join_team = team.create_team(team_name_new, team_adviser_name_new, team_adviser_email_new,
                                      team_school_new, team_password_new)
         if join_team is None:
-            return 4, None, "Failed to create new team"
+            return 0, None, "Failed to create new team"
     else:
         teamacct = team.get_team(team_name=team_name_existing)
+        print(teamacct)
         if teamacct is None:
-            return 3, None, "There is no existing team called '%s'" % team_name_existing
-        if teamacct.password != team_password_existing:
-            return 5, None, "Your team password is incorrect"
-        join_team = teamacct.tid
+            return 0, None, "There is no existing team called '%s'" % team_name_existing
+        if teamacct['password'] != team_password_existing:
+            return 0, None, "Your team password is incorrect"
+        join_team = teamacct['tid']
 
     # Create new user
     useracct = create_user(user_name, email, bcrypt.hashpw(str(pwd), bcrypt.gensalt(8)))
