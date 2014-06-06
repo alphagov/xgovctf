@@ -63,3 +63,20 @@ def sec_token():
     """
     return token()
 
+
+class ValidationException(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
+def validate(string_input, field_name, min_length=None, max_length=None):
+    if min_length is not None:
+        if len(string_input) < min_length:
+            if len(string_input) == 0:
+                raise ValidationException("{0} cannot be blank".format(field_name, min_length))
+            else:
+                raise ValidationException("{0} must me at lease {1} characters".format(field_name, min_length))
+    if max_length is not None:
+        if len(string_input) > max_length:
+            raise ValidationException("{0} cannot exceed {1} characters".format(field_name, max_length))
+    return string_input

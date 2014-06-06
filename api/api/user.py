@@ -2,6 +2,7 @@ __author__ = 'collinpetty'
 
 from api import app, common, team
 
+from api.common import validate, ValidationException
 from api.annotations import *
 import bcrypt
 
@@ -44,33 +45,34 @@ def register_user():
     Checks that an email address, team name, adviser name, affiliation, and password were sent from the browser.
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
-    email = request.form.get('email')
-    user_name = request.form.get('username')
-    pwd = request.form.get('pass')   # JB: Consider adding password validation
 
-    create_new = request.form.get('create-new-team') == 'true'
-    print(create_new)
+    try:
+        email = validate(request.form.get('email'), 'Email', min_length=1, max_length=100)
+        user_name = validate(request.form.get('username'), 'Username', max_length=50, min_length=3)
+        pwd = request.form.get('pass')   # JB: Consider adding password validation
 
-    # Creating a new team / password
-    team_name_new = request.form.get('team-name-new')
-    team_password_new = request.form.get('team-pass-new')  # JB: Consider adding password validation
-    team_adviser_name_new = request.form.get('team-adv-name-new')
-    team_adviser_email_new = request.form.get('team-adv-email-new')
-    team_school_new = request.form.get('school-new')
+        create_new = request.form.get('create-new-team') == 'true'
 
-    # Joining an existing team
-    team_name_existing = request.form.get('team-name-existing')
-    team_password_existing = request.form.get('team-name-existing')
+        # Creating a new team / password
+        if create_new:
+            team_name_new = validate(request.form.get('team-name-new'), 'Team Name', max_length=50, min_length=3)
+            team_password_new = validate(request.form.get('team-pass-new'), 'Team Password',
+                                         max_length=50, min_length=3)  # JB: Consider adding password validation
+            team_adviser_name_new = validate(request.form.get('team-adv-name-new'), 'Adviser Name',
+                                             max_length=50, min_length=3)
+            team_adviser_email_new = validate(request.form.get('team-adv-email-new'), 'Adviser Email',
+                                              max_length=50, min_length=3)
+            team_school_new = validate(request.form.get('school-new'), 'School Name', max_length=50, min_length=3)
+
+        else:
+            # Joining an existing team
+            team_name_existing = request.form.get('team-name-existing')
+            team_password_existing = request.form.get('team-pass-existing')
+
+    except common.ValidationException as validation_failure:
+        return 0, None, validation_failure.value
 
     db = common.get_conn()
-
-    # Check for missing fields
-    missing_data = (None in {email, user_name, pwd} or
-                    create_new and None in {team_name_new, team_password_new, team_adviser_email_new,
-                                            team_adviser_name_new, team_school_new} or
-                    not create_new and None in {team_name_existing, team_password_existing})
-    if missing_data:
-        return 0, None, "Please fill out all required fields."
 
     # Check for duplicate usernames
     if get_user(user_name) is not None:
@@ -80,7 +82,6 @@ def register_user():
         teamacct = team.get_team(team_name=team_name_new)
         if teamacct is not None:
             return 0, None, "A team with that name already exists"
-        # Potentially insert some password validation stuff here (i.e. certain lengths of passwords, etc.)
         join_team = team.create_team(team_name_new, team_adviser_name_new, team_adviser_email_new,
                                      team_school_new, team_password_new)
         if join_team is None:
