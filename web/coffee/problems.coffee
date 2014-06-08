@@ -43,5 +43,5 @@ window.load_problems = ->
       $(".hint-toggle").click ->
          $("#" + $(this).attr("hint")).toggle('fast')
          _gaq.push(['_trackEvent', 'ProblemViewer', 'Hint', "Success"])
-      $(".solved").parent().parent().next().hide()
+      $(".solved").parent().parent().next().hide() # JB: WTF is this??
       $(".unsolved").parent().parent().next().hide()

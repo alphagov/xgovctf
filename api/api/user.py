@@ -15,6 +15,12 @@ MIN_ADVISER_LENGTH = 1; MAX_ADVISER_LENGTH = 100
 MIN_ADVISEREMAIL_LENGTH = 1; MAX_ADVISEREMAIL_LENGTH = 100
 MIN_SCHOOL_LENGTH = 1; MAX_SCHOOL_LENGTH = 150
 
+
+def get_tid_from_uid(uid):
+    db = common.get_conn()
+    return db.users.find_one({'uid': uid})['tid']
+
+
 def get_user(username=None):
     db = common.get_conn()
     if username is not None:

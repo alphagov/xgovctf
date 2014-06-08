@@ -1,7 +1,7 @@
 __author__ = 'Collin Petty'
 import imp
 
-from api.common import cache
+from api.common import cache, validate, ValidationException
 from api.annotations import *
 from api import app, team, user
 from pymongo.errors import DuplicateKeyError
@@ -58,11 +58,7 @@ def get_viewable_pids_for_solved(pids):
                                                     sum(p['weightmap'].get(pid, 0) for pid in pids) >= p['threshold']}
 
 
-
-@app.route('/api/problems', methods=['GET'])
-@require_login
-@return_json
-def load_viewable_problems():
+def load_viewable_problems(tid):
     """Gets the list of all viewable problems for a team.
 
     First check for 'unlocked_<tid>' in the cache, if it exists return it otherwise rebuild the unlocked list.
@@ -71,13 +67,8 @@ def load_viewable_problems():
     Increment the threshold counter for solved weightmap problems.
     If the threshold counter is higher than the problem threshold then add the problem to the return list (ret).
     """
-    useracct = user.get_user()
-    if 'tid' in useracct:
-        solved_pids = get_solved_pids_for_cat(tid=useracct['tid'])
-    else:
-        solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
+    solved_pids = get_solved_pids_for_cat(tid=tid)
     viewable_pids = get_viewable_pids_for_solved(solved_pids)
-
     db = common.get_conn()
     probs = []
     for p in db.problems.find({'pid': {"$in": list(viewable_pids)}}):
@@ -86,9 +77,17 @@ def load_viewable_problems():
                       'hint':        p.get('hint'),
                       'basescore':   p.get('basescore'),
                       'correct':     True if p['pid'] in solved_pids else False,
-                      'desc':        'figure this out'})
+                      'desc':        p.get('desc')})
 
-    return 1, probs
+    return probs
+
+
+@app.route('/api/problems', methods=['GET'])
+@require_login
+@return_json
+def load_viewable_problems_hook():
+    useracct = user.get_user()
+    return 1, load_viewable_problems(user.get_tid_from_uid(useracct['uid']))
 
 
 @app.route('/api/problems/solved', methods=['GET'])
@@ -117,13 +116,13 @@ def get_solved_problems():
     return 1, probs
 
 
-def get_single_problem(pid, uid):
+def get_single_problem(pid, tid):
     """Retrieve a single problem.
 
     Grab all problems from load_unlocked_problems (most likely cached). Iterate over the problems looking for the
     desired pid. Return the problem if found. If not found return status:0 with an error message.
     """
-    for prob in load_viewable_problems(uid):
+    for prob in load_viewable_problems(tid):
         if prob['pid'] == pid:
             return prob
     return {'status': 0, 'message': 'Internal error, problem not found.'}
@@ -141,32 +140,37 @@ def submit_problem():
     has been tried.
     """
     uid = session['uid']
+    tid = user.get_tid_from_uid(uid)
     db = common.get_conn()
-    pid = request.form.get('pid', '').strip()
-    key = request.form.get('key', '').strip()
+    try:
+        pid = validate(request.form.get('pid', '').strip(), "Problem ID", min_length=1)
+        key = validate(request.form.get('key', '').strip(), "Answer", min_length=1)
+    except ValidationException as validation_failure:
+        return 0, None, validation_failure.value
+
     correct = False
-    if pid == '':
-        return {"status": 0, "points": 0, "message": "Problem ID cannot be empty."}
-    if key == '':
-        return {"status": 0, "points": 0, "message": "Answer cannot be empty."}
-    if pid not in [p['pid'] for p in load_unlocked_problems(uid)]:
-        return {"status": 0, "points": 0, "message": "You cannot submit problems you have not unlocked."}
+    if pid not in [p['pid'] for p in load_viewable_problems(uid)]:
+        return 0, {'points': 0}, "You cannot submit problems you have not unlocked."
+
     prob = db.problems.find_one({"pid": pid})
     if prob is None:
-        return {"status": 0, "points": 0, "message": "Problem ID not found in the database."}
+        return 0, {'points': 0}, "Problem ID not found in the database."
 
     if not prob.get('autogen', False):  # This is a standard problem, not auto-generated
         (correct, message) = imp.load_source(prob['grader'][:-3], "./graders/" + prob['grader']).grade(uid, key)
-    else:  # This is an auto-generated problem, grading is different.
-        team = db.teams.find_one({'uid': uid})
-        grader_type = prob.get('grader', 'script')
-        if grader_type == 'script':
-            (correct, message) = imp.load_source(team['probinstance'][pid]['grader'][:-3],
-                                                 team['probinstance'][pid]['grader']).grade(uid, key)
-        elif grader_type == 'key':
-            correct = team['probinstance'][pid]['key'] == key
-            message = prob.get('correct_msg', 'Correct!') if correct else prob.get('wrong_msg', 'Nope!')
+
+    # else:  # This is an auto-generated problem, grading is different.
+    #     team = db.teams.find_one({'uid': uid})
+    #     grader_type = prob.get('grader', 'script')
+    #     if grader_type == 'script':
+    #         (correct, message) = imp.load_source(team['probinstance'][pid]['grader'][:-3],
+    #                                              team['probinstance'][pid]['grader']).grade(uid, key)
+    #     elif grader_type == 'key':
+    #         correct = team['probinstance'][pid]['key'] == key
+    #         message = prob.get('correct_msg', 'Correct!') if correct else prob.get('wrong_msg', 'Nope!')
+
     submission = {'uid': uid,
+                  'tid': tid,
                   'timestamp': datetime.now(),
                   'pid': pid,
                   'ip': request.headers.get('X-Real-IP', None),
@@ -180,15 +184,17 @@ def submit_problem():
         try:
             db.submissions.insert(submission)
         except DuplicateKeyError:
-            return {"status": 0, "points": 0, "message": "You have already solved this problem!"}
+            return 0, {"points": 0}, "You or one of your teammates has already solved this challenge."
     else:
         try:
             db.submissions.insert(submission)
         except DuplicateKeyError:
-            return {"status": 0, "points": 0, "message": "You already tried that!"}
-    return {"status": 1 if correct else 0, "points": prob.get('basescore', 0), "message": message}
+            return 0, {"points": 0}, "You or one of your teammates has already tried this solution."
+
+    return (1 if correct else 0), {"points": prob.get('basescore', 0)}, message
 
 
+# JB: This needs updating
 def get_all_problems():
     db = common.get_conn()
     return [{'pid': p['pid'],
@@ -208,7 +214,8 @@ def _full_auto_prob_path():
 @return_json
 @log_request
 def get_single_problem_hook(pid):
-    problem_info = get_single_problem(pid, session['uid'])
+    print("SINGLE PROBLEM %s" % session)
+    problem_info = get_single_problem(pid, user.get_tid_from_uid(user.get_user()['uid']))
     if 'status' not in problem_info:
         problem_info.update({"status": 1})
-    return problem_info
+    return 1, problem_info

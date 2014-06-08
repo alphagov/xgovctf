@@ -22,9 +22,11 @@
     <div id="footer"></div>
 
 </div>
+<script src="js/dependencies.js"></script>
 <script src="js/problems.js"></script>
 <script>
     $(function () {
+        redirect_if_not_logged_in();
         load_problems();
         display_navbar();                
         load_footer();        
