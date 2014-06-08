@@ -15,6 +15,7 @@ apt-get -y install nodejs-legacy
 apt-get -y install npm
 
 npm install -g coffee-script
+npm install -g react-tools
 
 pip3 install Flask
 pip3 install py3k-bcrypt
