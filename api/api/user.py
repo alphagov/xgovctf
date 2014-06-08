@@ -6,6 +6,14 @@ from api.common import validate, ValidationException
 from api.annotations import *
 import bcrypt
 
+MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
+MIN_USERNAME_LENGTH = 3; MAX_USERNAME_LENGTH = 50
+MIN_PASSWORD_LENGTH = 3; MAX_PASSWORD_LENGTH = 50
+MIN_TEAMNAME_LENGTH = 3; MAX_TEAMNAME_LENGTH = 50
+MIN_TEAMPASS_LENGTH = 3; MAX_TEAMPASS_LENGTH = 50
+MIN_ADVISER_LENGTH = 1; MAX_ADVISER_LENGTH = 100
+MIN_ADVISEREMAIL_LENGTH = 1; MAX_ADVISEREMAIL_LENGTH = 100
+MIN_SCHOOL_LENGTH = 1; MAX_SCHOOL_LENGTH = 150
 
 def get_user(username=None):
     db = common.get_conn()
@@ -47,27 +55,33 @@ def register_user():
     """
 
     try:
-        email = validate(request.form.get('email'), 'Email', min_length=1, max_length=100)
-        user_name = validate(request.form.get('username'), 'Username', max_length=50, min_length=3)
-        pwd = request.form.get('pass')   # JB: Consider adding password validation
+        email = validate(request.form.get('email'), 'Email',
+                         min_length=MIN_EMAIL_LENGTH, max_length=MAX_EMAIL_LENGTH)
+        user_name = validate(request.form.get('username'), 'Username',
+                             max_length=MAX_USERNAME_LENGTH, min_length=MIN_USERNAME_LENGTH)
+        pwd = validate(request.form.get('pass'), 'Password',  # JB: Consider adding password validation
+                       max_length=MAX_PASSWORD_LENGTH, min_length=MIN_PASSWORD_LENGTH)
 
         create_new = request.form.get('create-new-team') == 'true'
 
         # Creating a new team / password
         if create_new:
-            team_name_new = validate(request.form.get('team-name-new'), 'Team Name', max_length=50, min_length=3)
-            team_password_new = validate(request.form.get('team-pass-new'), 'Team Password',
-                                         max_length=50, min_length=3)  # JB: Consider adding password validation
+            team_name_new = validate(request.form.get('team-name-new'), 'Team Name',
+                                     max_length=MAX_TEAMNAME_LENGTH, min_length=MIN_TEAMNAME_LENGTH)
+            team_password_new = validate(request.form.get('team-pass-new'), 'Team Password', # JB: Consider adding password validation
+                                         max_length=MAX_TEAMPASS_LENGTH, min_length=MIN_TEAMPASS_LENGTH)
             team_adviser_name_new = validate(request.form.get('team-adv-name-new'), 'Adviser Name',
-                                             max_length=50, min_length=3)
+                                             max_length=MAX_ADVISER_LENGTH, min_length=MIN_ADVISER_LENGTH)
             team_adviser_email_new = validate(request.form.get('team-adv-email-new'), 'Adviser Email',
-                                              max_length=50, min_length=3)
+                                              max_length=MAX_ADVISEREMAIL_LENGTH, min_length=MIN_ADVISEREMAIL_LENGTH)
             team_school_new = validate(request.form.get('school-new'), 'School Name', max_length=50, min_length=3)
 
         else:
             # Joining an existing team
-            team_name_existing = request.form.get('team-name-existing')
-            team_password_existing = request.form.get('team-pass-existing')
+            team_name_existing = validate(request.form.get('team-name-existing'),
+                                          max_length=MAX_TEAMNAME_LENGTH, min=MIN_TEAMNAME_LENGTH)
+            team_password_existing = validate(request.form.get('team-pass-existing'),
+                                              max_length=MAX_TEAMPASS_LENGTH, min=MIN_TEAMPASS_LENGTH)
 
     except common.ValidationException as validation_failure:
         return 0, None, validation_failure.value

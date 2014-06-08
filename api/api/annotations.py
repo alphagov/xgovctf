@@ -23,7 +23,7 @@ def return_json(f):
 def require_login(f):
     @wraps(f)
     def wrapper(*args, **kwds):
-        if 'tid' not in session:
+        if 'uid' not in session:
             abort(403)
         #if not auth.csrf_check(request.headers):
         #   abort(403)

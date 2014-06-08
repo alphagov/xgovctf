@@ -9,7 +9,9 @@ __status__ = "Production"
 import bcrypt
 from api.annotations import *
 from api import app
+from api.common import validate
 import api
+import api.user
 debug_disable_general_login = False
 
 
@@ -24,17 +26,20 @@ def login():
     """
     if 'uid' in session:  # we assume that if there is a uid in the session then the user is authenticated
         return 1, None, "You are already logged in."
-    username = request.form.get('username', None)  # get the teamname and password from the POSTed form
-    password = request.form.get('password', None)
-    if username is None or username == '':
-        return 0, None, "Username cannot be empty."
-    if password is None or password == '':  # No password submitted
-        return 0, None, "Password cannot be empty."
-    if len(username) > 250:
-        return 0, None, "STAHP!"
+
+    # Read in submitted username and password
+    try:
+        username = validate(request.form.get('username'), 'Username',
+                            min_length=user.MIN_USERNAME_LENGTH, max_length=user.MAX_USERNAME_LENGTH)
+        password = validate(request.form.get('password'), 'Password',
+                            min_length=user.MIN_PASSWORD_LENGTH, max_length=user.MAX_PASSWORD_LENGTH)
+    except common.ValidationException as validation_failure:
+        return 0, None, validation_failure.value
+
     user = api.user.get_user(username)
     if user is None:
         return 0, None, "Incorrect username."
+
     pwhash = user['pwhash']  # The pw hash from the db
     if bcrypt.hashpw(password, pwhash) == pwhash:
         if user.get('debugaccount', False):
@@ -44,7 +49,9 @@ def login():
                 return 2, None, "Correct credentials! But the game has not started yet..."
         if user['uid'] is not None:
             session['uid'] = user['uid']
-        return 1, None, "Successfully logged in as '%s'." % username
+            return 1, None, "Successfully logged in as '%s'." % username
+        else:
+            return 0, None, "Login Error"
     return 0, None, "Incorrect Password"
 
 

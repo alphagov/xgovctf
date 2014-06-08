@@ -1,9 +1,10 @@
 window.load_problems = ->
   $.ajax(type: "GET", cache: false, url: "/api/problems", dataType: "json")
     .done (data) ->
+      console.log(data)
       html = '<div class="contentbox row-fluid">'
-      for d in data
-        id = d['pid']
+      for d in data.data
+        id = d['pid']        
         html += """
                 <div class="row-fluid">
                 <div class="offset1 span10">

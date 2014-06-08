@@ -46,7 +46,7 @@ def get_viewable_pids_for_cat(uid=None, tid=None, gid=None):
     db = common.get_conn()
     return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
                                                     'threshold' not in p or
-                                                    sum(p['weightmap'].get(pid, 0) for pid in solved_pids >= p['threshold'])}
+                                                    sum(p['weightmap'].get(pid, 0) for pid in solved_pids) >= p['threshold']}
 
 
 def get_viewable_pids_for_solved(pids):
@@ -55,7 +55,7 @@ def get_viewable_pids_for_solved(pids):
     db = common.get_conn()
     return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
                                                     'threshold' not in p or
-                                                    sum(p['weightmap'].get(pid, 0) for pid in pids >= p['threshold'])}
+                                                    sum(p['weightmap'].get(pid, 0) for pid in pids) >= p['threshold']}
 
 
 
@@ -72,19 +72,21 @@ def load_viewable_problems():
     If the threshold counter is higher than the problem threshold then add the problem to the return list (ret).
     """
     useracct = user.get_user()
-    if 'tid' in user:
+    if 'tid' in useracct:
         solved_pids = get_solved_pids_for_cat(tid=useracct['tid'])
     else:
         solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
     viewable_pids = get_viewable_pids_for_solved(solved_pids)
 
     db = common.get_conn()
-    probs = ({'pid':         p['pid'],
-              'displayname': p.get('displayname'),
-              'hint':        p.get('hint'),
-              'basescore':   p.get('basescore'),
-              'correct':     True if p['pid'] in solved_pids else False,
-              'desc':        'figure this out'} for p in db.problems.find({'pid': {"$in": list(viewable_pids)}}))
+    probs = []
+    for p in db.problems.find({'pid': {"$in": list(viewable_pids)}}):
+        probs.append({'pid':         p['pid'],
+                      'displayname': p.get('displayname'),
+                      'hint':        p.get('hint'),
+                      'basescore':   p.get('basescore'),
+                      'correct':     True if p['pid'] in solved_pids else False,
+                      'desc':        'figure this out'})
 
     return 1, probs
 

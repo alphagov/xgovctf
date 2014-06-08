@@ -70,10 +70,12 @@ class ValidationException(Exception):
 
 
 def validate(string_input, field_name, min_length=None, max_length=None):
+    if string_input is None and min_length > 0:
+        raise ValidationException("{0} cannot be blank".format(field_name))
     if min_length is not None:
         if len(string_input) < min_length:
             if len(string_input) == 0:
-                raise ValidationException("{0} cannot be blank".format(field_name, min_length))
+                raise ValidationException("{0} cannot be blank".format(field_name))
             else:
                 raise ValidationException("{0} must me at lease {1} characters".format(field_name, min_length))
     if max_length is not None:
