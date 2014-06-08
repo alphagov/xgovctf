@@ -21,6 +21,9 @@ pip3 install py3k-bcrypt
 pip3 install pymongo
 pip3 install pyzmq
 
+# Configure Environment
+echo "PATH=$PATH:/home/vagrant/scripts" >> /etc/profile
+
 # Configure Nginx
 cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
 rm /etc/nginx/sites-enabled/default

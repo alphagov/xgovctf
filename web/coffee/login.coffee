@@ -1,4 +1,5 @@
 window.submit_login = ->
+  alert("yo!")
   $.ajax(type: "POST", cache: false, url: "/api/login", dataType: "json", data: {'username': $("#login-username").val(), 'password': $("#login-pass").val()})
   .done (data) ->
     if data['status'] == 0

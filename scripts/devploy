@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Transpile the CoffeeScript files
+echo "Transpiling Coffeescript"
+coffee -c -o /home/vagrant/web/js/ /home/vagrant/web/coffee/
+
+# Shutdown the server
+echo "Shutting down nginx"
+sudo service nginx stop
+
+# Clean out the old files
+echo "Cleaning up old files"
+sudo rm -rf /srv/http/ctf/*
+
+# Copy files to the server
+echo "Copying files to server"
+sudo cp /home/vagrant/web/*.html /srv/http/ctf
+sudo cp -r /home/vagrant/web/js /srv/http/ctf 
+sudo cp -r /home/vagrant/web/sjs /srv/http/ctf
+sudo cp -r /home/vagrant/web/css /srv/http/ctf
+sudo cp -r /home/vagrant/minigames /srv/http/ctf
+
+# Start the server
+echo "Restarting the server"
+sudo service nginx start
