@@ -28,4 +28,4 @@ echo "PATH=$PATH:/home/vagrant/scripts" >> /etc/profile
 # Configure Nginx
 cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
 rm /etc/nginx/sites-enabled/default
-service nginx restart
+mkdir -p /srv/http/ctf
