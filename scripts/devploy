@@ -15,10 +15,11 @@ sudo rm -rf /srv/http/ctf/*
 # Copy files to the server
 echo "Copying files to server"
 sudo cp /home/vagrant/web/*.html /srv/http/ctf
-sudo cp -r /home/vagrant/web/js /srv/http/ctf 
+sudo cp -r /home/vagrant/web/js /srv/http/ctf
 sudo cp -r /home/vagrant/web/sjs /srv/http/ctf
 sudo cp -r /home/vagrant/web/css /srv/http/ctf
 sudo cp -r /home/vagrant/minigames /srv/http/ctf
+sudo cp -r /home/vagrant/game /srv/http/ctf
 
 # Start the server
 echo "Restarting the server"
