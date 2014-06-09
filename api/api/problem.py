@@ -17,11 +17,6 @@ def acquire_problem_instance(pid, uid):
     return None
 
 
-def _get_teammate_uids(tid):
-    db = common.get_conn()
-    return {t['uid'] for t in db.users.find({'tid': tid}, {{'uid': 1}})}
-
-
 def get_solved_pids_for_cat(uid=None, tid=None, gid=None):
     """Gets all solved PIDs for the given category
     """

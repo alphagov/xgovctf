@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes ">
+    <meta name="description" content="picoCTF">
+    <meta name="author" content="Carnegie Mellon Univeristy">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Team</title>
+    <link href="css/main.css" rel="stylesheet" media="screen">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="sjs/jquery.noty.packaged.min.js"></script>
+</head>
+<body>
+    <header><a href="/">CTFX</a></header>
+    <div class="container-narrow">
+        <div id="team_info_holder"></div>        
+    </div>
+    <script src="js/dependencies.js"></script>
+    <script src="js/team.js"></script>
+    <script>
+        $(function () {
+            redirect_if_not_logged_in();
+            load_team_info();
+        })
+    </script>
+</body>
+</html>

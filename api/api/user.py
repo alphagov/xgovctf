@@ -1,9 +1,9 @@
 __author__ = 'collinpetty'
 
-from api import app, common, team
-
+from api import app, common
 from api.common import validate, ValidationException
 from api.annotations import *
+import api.user
 import bcrypt
 
 MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
