@@ -4,6 +4,9 @@
 echo "Transpiling Coffeescript"
 coffee -c -o /home/vagrant/web/js/ /home/vagrant/web/coffee/
 
+echo "Transpiling JSX"
+jsx -x jsx /home/vagrant/minigames/jsx/ /home/vagrant/minigames/js/ 
+
 # Shutdown the server
 echo "Shutting down nginx"
 sudo service nginx stop
