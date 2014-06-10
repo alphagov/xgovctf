@@ -204,6 +204,19 @@ def _full_auto_prob_path():
     return root_web_path + relative_auto_prob_path
 
 
+@app.route('/api/game/categorystats', methods=['GET'])
+@return_json
+@require_login
+def get_category_statistics():
+    return 1, [{'type': 'Forensics', 'solved': 5, 'total': 5},
+               {'type': 'Binary Exploitation', 'solved': 5, 'total': 5},
+               {'type': 'Web Exploitation', 'solved': 2, 'total': 15},
+               {'type': 'Cryptography', 'solved': 4, 'total': 7},
+               {'type': 'Reverse Engineering', 'solved': 5, 'total': 5},
+               {'type': 'Script Exploitation', 'solved': 5, 'total': 5},
+               {'type': 'Misc.', 'solved': 5, 'total': 5}]
+
+
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
 @return_json
