@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 from api import annotations
 from api import common
-from api import admin, auth, problem, user, utilities
+from api import admin, auth, problem, user, utilities, game
 
 
 @app.after_request

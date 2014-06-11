@@ -85,9 +85,6 @@ def load_viewable_problems_hook():
     return 1, load_viewable_problems(user.get_tid_from_uid(useracct['uid']))
 
 
-@app.route('/api/problems/solved', methods=['GET'])
-@require_login
-@return_json
 def get_solved_problems():
     """Returns a list of all problems the team has solved.
 
@@ -97,7 +94,7 @@ def get_solved_problems():
     All solved problems are returned as a pid and display name.
     """
     useracct = user.get_user()
-    if 'tid' in user:
+    if 'tid' in useracct:
         solved_pids = get_solved_pids_for_cat(tid=useracct['tid'])
     else:
         solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
@@ -108,7 +105,14 @@ def get_solved_problems():
               'basescore':   p.get('basescore')} for p in db.problems.find({'pid': {"$in": list(solved_pids)}})]
     probs.sort(key=lambda k: k.get('basescore', 99999), reverse=True)
 
-    return 1, probs
+    return probs
+
+
+@app.route('/api/problems/solved', methods=['GET'])
+@require_login
+@return_json
+def get_solved_problems_hook():
+    return 1, get_solved_problems()
 
 
 def get_single_problem(pid, tid):
@@ -202,19 +206,6 @@ def get_all_problems():
 
 def _full_auto_prob_path():
     return root_web_path + relative_auto_prob_path
-
-
-@app.route('/api/game/categorystats', methods=['GET'])
-@return_json
-@require_login
-def get_category_statistics():
-    return 1, [{'type': 'Forensics', 'solved': 5, 'total': 5},
-               {'type': 'Binary Exploitation', 'solved': 5, 'total': 5},
-               {'type': 'Web Exploitation', 'solved': 2, 'total': 15},
-               {'type': 'Cryptography', 'solved': 4, 'total': 7},
-               {'type': 'Reverse Engineering', 'solved': 5, 'total': 5},
-               {'type': 'Script Exploitation', 'solved': 5, 'total': 5},
-               {'type': 'Misc.', 'solved': 5, 'total': 5}]
 
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
