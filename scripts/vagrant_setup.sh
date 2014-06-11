@@ -13,9 +13,11 @@ apt-get -y install git
 apt-get -y install libzmq-dev
 apt-get -y install nodejs-legacy
 apt-get -y install npm
+apt-get -y install libclosure-compiler-java
 
 npm install -g coffee-script
 npm install -g react-tools
+npm install -g jsxhint
 
 pip3 install Flask
 pip3 install py3k-bcrypt
