@@ -1,5 +1,5 @@
 """ The common module contains general-purpose functions potentially used by multiple modules in the system."""
-__author__ = ["Collin Petty", "Peter Chapman"]
+__author__ = ["Collin Petty", "Peter Chapman", "Jonathan Burket"]
 __copyright__ = "Carnegie Mellon University"
 __license__ = "MIT"
 __maintainer__ = ["Collin Petty", "Peter Chapman", "Jonathan Burket"]

@@ -30,9 +30,9 @@ def login():
     # Read in submitted username and password
     try:
         username = validate(request.form.get('username'), 'Username',
-                            min_length=user.MIN_USERNAME_LENGTH, max_length=user.MAX_USERNAME_LENGTH)
+                            min_length=api.user.MIN_USERNAME_LENGTH, max_length=api.user.MAX_USERNAME_LENGTH)
         password = validate(request.form.get('password'), 'Password',
-                            min_length=user.MIN_PASSWORD_LENGTH, max_length=user.MAX_PASSWORD_LENGTH)
+                            min_length=api.user.MIN_PASSWORD_LENGTH, max_length=api.user.MAX_PASSWORD_LENGTH)
     except common.ValidationException as validation_failure:
         return 0, None, validation_failure.value
 
