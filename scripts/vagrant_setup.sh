@@ -38,7 +38,7 @@ fi;
 #kill the auto starting one?
 killall shellinaboxd &> /dev/null
 
-shellinaboxd -b -p 1337 --static-file=ShellInABox.js:/home/vagrant/minigames/shellinabox/ShellInABox.hax.js 
+shellinaboxd -b -p 1337 -u vagrant --static-file=ShellInABox.js:/home/vagrant/minigames/shellinabox/ShellInABox.hax.js 
 
 # Configure Nginx
 cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
