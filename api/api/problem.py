@@ -71,6 +71,7 @@ def load_viewable_problems(tid):
                       'displayname': p.get('displayname'),
                       'hint':        p.get('hint'),
                       'basescore':   p.get('basescore'),
+                      'category':    p.get('category'),
                       'correct':     True if p['pid'] in solved_pids else False,
                       'desc':        p.get('desc')})
 
@@ -102,7 +103,8 @@ def get_solved_problems():
     db = common.get_conn()
     probs = [{'pid':         p['pid'],
               'displayname': p.get('displayname'),
-              'basescore':   p.get('basescore')} for p in db.problems.find({'pid': {"$in": list(solved_pids)}})]
+              'basescore':   p.get('basescore'),
+              'category': p.get('category')} for p in db.problems.find({'pid': {"$in": list(solved_pids)}})]
     probs.sort(key=lambda k: k.get('basescore', 99999), reverse=True)
 
     return probs

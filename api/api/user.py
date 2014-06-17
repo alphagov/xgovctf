@@ -37,7 +37,10 @@ def create_user(username, email, pwhash):
         db.users.insert({'uid': uid,
                          'username': username,
                          'email': email,
-                         'pwhash': pwhash})
+                         'pwhash': pwhash,
+                         'avatar': 3,
+                         'eventid': 0,
+                         'level': 'Not Started'})
     except Exception as e:
         print("Error creating the user account.")
         return None

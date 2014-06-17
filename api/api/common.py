@@ -69,7 +69,7 @@ class ValidationException(Exception):
         self.value = value
 
 
-def validate(string_input, field_name, min_length=None, max_length=None):
+def validate(string_input, field_name, min_length=None, max_length=None, is_int=None):
     if string_input is None and min_length > 0:
         raise ValidationException("{0} cannot be blank".format(field_name))
     if min_length is not None:
@@ -81,4 +81,10 @@ def validate(string_input, field_name, min_length=None, max_length=None):
     if max_length is not None:
         if len(string_input) > max_length:
             raise ValidationException("{0} cannot exceed {1} characters".format(field_name, max_length))
+    if is_int is not None:
+        try:
+            int(string_input)
+        except ValueError:
+            raise ValidationException("{0} must be an integer".format(field_name))
+
     return string_input
