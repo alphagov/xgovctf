@@ -34,4 +34,4 @@ mkdir -p /srv/http/ctf
 service nginx restart
 
 # call minigames setup (this should be removed for release)
-/home/vagrant/minigames/setup.sh
+/home/vagrant/minigames/scripts/setup.sh
