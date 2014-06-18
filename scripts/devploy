@@ -4,24 +4,8 @@
 echo "Transpiling Coffeescript"
 coffee -c -o /home/vagrant/web/js/ /home/vagrant/web/coffee/
 
-echo "Running jsxhint"
-jsxhint /home/vagrant/minigames/jsx/*.jsx
-
-echo "Transpiling jsx -> js"
-jsx -x jsx /home/vagrant/minigames/jsx/ /home/vagrant/minigames/js/
-
-echo "Compiling js files"
-java -jar /usr/share/java/closure-compiler.jar --language_in ECMASCRIPT5 --formatting PRETTY_PRINT --compilation_level WHITESPACE_ONLY --js /home/vagrant/minigames/js/*.js --js_output_file /home/vagrant/minigames/js/libs/IPF.min.js
-
-# Run shellinaboxd
-
-sudo /etc/init.d/shellinabox stop &> /dev/null
-
-pgrep "shellinaboxd" &> /dev/null
-if [[ $? == 1 ]]; then
-  echo "Starting shellinaboxd"
-  shellinaboxd -b -p 1337 -u vagrant --static-file=ShellInABox.js:/home/vagrant/minigames/shellinabox/ShellInABox.hax.js 
-fi;
+# Run minigames devploy (this should be removed for release)
+/home/vagrant/minigames/devploy
 
 # Shutdown the server
 echo "Shutting down nginx"

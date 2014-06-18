@@ -14,7 +14,6 @@ apt-get -y install libzmq-dev
 apt-get -y install nodejs-legacy
 apt-get -y install npm
 apt-get -y install libclosure-compiler-java
-apt-get -y install shellinabox
 
 npm install -g coffee-script
 npm install -g react-tools
@@ -28,17 +27,11 @@ pip3 install pyzmq
 # Configure Environment
 echo "PATH=$PATH:/home/vagrant/scripts" >> /etc/profile
 
-# Configure shellinabox user
-id -u box &> /dev/null
-if [[ $? != 0 ]]; then
-  echo "Creating box test user"
-  useradd -m box -p $(echo "box" | openssl passwd -1 -stdin)
-  chsh box -s /bin/bash
-fi;
-
-
 # Configure Nginx
 cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
 rm /etc/nginx/sites-enabled/default
 mkdir -p /srv/http/ctf
 service nginx restart
+
+# call minigames setup (this should be removed for release)
+/home/vagrant/minigames/setup.sh
