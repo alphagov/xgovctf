@@ -33,6 +33,7 @@ id -u box &> /dev/null
 if [[ $? != 0 ]]; then
   echo "Creating box test user"
   useradd -m box -p $(echo "box" | openssl passwd -1 -stdin)
+  chsh box -s /bin/bash
 fi;
 
 
