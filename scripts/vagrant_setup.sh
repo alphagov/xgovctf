@@ -14,6 +14,8 @@ apt-get -y install libzmq-dev
 apt-get -y install nodejs-legacy
 apt-get -y install npm
 apt-get -y install libclosure-compiler-java
+apt-get -y install ruby-dev
+apt-get -y install dos2unix
 
 npm install -g coffee-script
 npm install -g react-tools
@@ -24,8 +26,11 @@ pip3 install py3k-bcrypt
 pip3 install pymongo
 pip3 install pyzmq
 
+# Jekyll
+gem install jekyll
+
 # Configure Environment
-echo "PATH=$PATH:/home/vagrant/scripts" >> /etc/profile
+echo 'PATH=$PATH:/home/vagrant/scripts' >> /etc/profile
 
 # Configure Nginx
 cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf

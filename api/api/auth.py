@@ -85,7 +85,7 @@ def is_logged_in():
         return 0, None, "You are not logged in."
 
 
-@app.route('/api/isadmin')
+@app.route('/api/isadmin', methods=['GET'])
 @return_json
 def is_admin():
     """Check if the user is an admin.

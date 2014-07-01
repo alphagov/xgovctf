@@ -28,6 +28,6 @@ window.redirect_if_not_logged_in = ->
     url: "/api/isloggedin"
     cache: false
   ).done((data) ->
-    window.location.href = "/login" if data["success"] is 0 
+    window.location.href = "/login" if data["status"] is 0
   ).fail ->
     window.location.href = "/"    
