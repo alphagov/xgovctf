@@ -1,0 +1,4 @@
+Flask==0.10.1
+py3k-bcrypt==0.3
+pymongo==2.7.1
+pyzmq==14.3.1
