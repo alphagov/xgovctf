@@ -12,13 +12,15 @@ write_logs_to_db = False # Default value, can be overwritten by api.py
 def return_json(f):
     @wraps(f)
     def wrapper(*args, **kwds):
-        ret = f(*args, **kwds)
-        status = ret[0]
-        data = ret[1]
-        msg = ret[2] if len(ret) > 2 else ""
-        return json.dumps({'status': status, 'data': data, 'message': msg})
+        try:
+            ret = f(*args, **kwds)
+            status = ret[0]
+            data = ret[1]
+            msg = ret[2] if len(ret) > 2 else ""
+            return json.dumps({'status': status, 'data': data, 'message': msg})
+        except APIException as error: #This doesn't exist yet, but it will soon
+            return json.dumps(dict(zip(['status','data','message'], error.args)))
     return wrapper
-
 
 def require_login(f):
     @wraps(f)

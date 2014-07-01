@@ -65,7 +65,7 @@ def get_ssh_account_hook():
 @return_json
 def login_hook():
     return auth.login(request.form.get('username'), 
-                      request.form.get('password'), session)
+                      request.form.get('password'))
 
 
 @app.route('/api/logout', methods=['GET'])
