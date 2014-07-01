@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  {% include head.html %}
+
+<body>
+
+    {% include header.html %}
+
+    <div class="page-content">
+        <div class="wrap">
+            {{ content }}
+        </div>
+    </div>
+
+    {% include footer.html %}
+
+    {% for js_file in page.post_scripts %}
+        <script src="{{ js_file }}"></script>
+    {% endfor %}
+
+    <script>
+    $(function () {
+        {% for func in page.startup_functions %}
+            {{ func }};
+        {% endfor %}
+    })
+    </script>
+</body>
+</html>
