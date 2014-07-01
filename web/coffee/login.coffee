@@ -16,6 +16,7 @@ window.submit_login = ->
     if data['status'] == 0
       if (typeof(Storage) != "undefined")
         sessionStorage.signInStatus = "notLoggedIn"
+#$('#error-alert').text(data['message']).show().delay(3000).fadeOut()
       console.log(data.message)
     else if data['status'] == 1
       if (typeof(Storage) != "undefined")

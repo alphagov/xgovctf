@@ -6,6 +6,8 @@ from api.annotations import *
 import api.user
 import bcrypt
 
+import api.team
+
 MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
 MIN_USERNAME_LENGTH = 3; MAX_USERNAME_LENGTH = 50
 MIN_PASSWORD_LENGTH = 3; MAX_PASSWORD_LENGTH = 50
@@ -102,15 +104,15 @@ def register_user():
         return 0, None, "A user with that name has already registered."
 
     if create_new:
-        teamacct = team.get_team(team_name=team_name_new)
+        teamacct = api.team.get_team(team_name=team_name_new)
         if teamacct is not None:
             return 0, None, "A team with that name already exists"
-        join_team = team.create_team(team_name_new, team_adviser_name_new, team_adviser_email_new,
+        join_team = api.team.create_team(team_name_new, team_adviser_name_new, team_adviser_email_new,
                                      team_school_new, team_password_new)
         if join_team is None:
             return 0, None, "Failed to create new team"
     else:
-        teamacct = team.get_team(team_name=team_name_existing)
+        teamacct = api.team.get_team(team_name=team_name_existing)
         print(teamacct)
         if teamacct is None:
             return 0, None, "There is no existing team called '%s'" % team_name_existing
