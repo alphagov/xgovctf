@@ -29,3 +29,8 @@ sudo cp -r /home/vagrant/game /srv/http/ctf
 # Start the server
 echo "Restarting the server"
 sudo service nginx start
+
+#Start picoCTF API
+echo "Starting the picoCTF API"
+tmux kill-session -t picoapi 2> /dev/null
+tmux new-session -s picoapi -d "cd /home/vagrant/api && python3 run.py"
