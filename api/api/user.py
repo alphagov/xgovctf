@@ -1,7 +1,8 @@
 __author__ = 'collinpetty'
 
+from flask import session
 from api.common import validate, ValidationException
-from api import common
+from api import common, auth
 import bcrypt
 
 MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
@@ -23,7 +24,7 @@ def get_user(username=None):
     db = common.get_conn()
     if username is not None:
         return db.users.find_one({'username': username})
-    if 'uid' in session:
+    if auth.is_logged_in():
         return db.users.find_one({'uid': session['uid']})
     return None
 

@@ -6,13 +6,14 @@ __credits__ = ["David Brumley", "Collin Petty", "Peter Chapman", "Tyler Nighswan
 __email__ = ["collin@cmu.edu", "peter@cmu.edu"]
 __status__ = "Production"
 
+from flask import session
 from api.common import validate
 import api.user
 import bcrypt
 
 debug_disable_general_login = False
 
-def login(username, password, session):
+def login(username, password):
     """Authenticates a user.
 
     Verify that the user is not already logged in. Verify that the username/password are not empty.
@@ -48,7 +49,7 @@ def login(username, password, session):
     return 0, None, "Incorrect Password"
 
 
-def logout(session):
+def logout():
     """Logout
 
     If the user has a uid in the session it is removed.
@@ -56,7 +57,7 @@ def logout(session):
     session.clear()
 
 
-def is_logged_in(session):
+def is_logged_in():
     """Check if the user is currently logged in.
 
     If the user has a uid in their session, they are logged in
@@ -64,7 +65,7 @@ def is_logged_in(session):
     return 'uid' in session
 
 
-def is_admin(session):
+def is_admin():
     """Check if the user is an admin.
 
     If the user as the 'admin' flag set in their session, they are an admin.

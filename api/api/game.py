@@ -8,9 +8,6 @@ from api.common import validate, ValidationException
 from api import app
 
 
-@app.route('/api/game/categorystats', methods=['GET'])
-@return_json
-@require_login
 def get_category_statistics():
     db = api.common.get_conn()
     category_scores = {}
@@ -97,17 +94,11 @@ pid_map["517b49f917f5e16305000001"] = 57  # Broken RSA
 
 etcid_map = {v: k for k, v in pid_map.items()}
 
-@app.route('/api/game/solvedindices', methods=['GET'])
-@return_json
-@require_login
 def get_solved_indices():
     solved_problems = api.problem.get_solved_problems()
     return 1, sorted([pid_map[p['pid']] for p in solved_problems])
 
 
-@app.route('/api/game/getproblem/<path:etcid>', methods=['GET'])
-@return_json
-@require_login
 def get_game_problem(etcid):
     useracct = api.user.get_user()
     try:
@@ -124,9 +115,6 @@ def get_game_problem(etcid):
     return 1, p
 
 
-@app.route('/api/game/to_pid/<path:etcid>', methods=['GET'])
-@return_json
-@require_login
 def etcid_to_pid(etcid):
     try:
         pid = etcid_map[int(etcid)]
@@ -135,9 +123,6 @@ def etcid_to_pid(etcid):
         return 0, None, "Invalid Problem"
 
 
-@app.route('/api/game/get_state', methods=['GET'])
-@return_json
-@require_login
 def get_state():
     useracct = api.user.get_user()
     return 1, {'level': useracct['level'],
@@ -145,16 +130,12 @@ def get_state():
                'eventid': useracct['eventid']}
 
 
-@app.route('/api/game/update_state', methods=['POST'])
-@return_json
-@require_login
-def update_state():
+def update_state(avatar, eventid, level):
     db = api.common.get_conn()
     useracct = api.user.get_user()
     try:
-        avatar = int(validate(request.form.get('avatar'), "Avatar Value", is_int=True))
-        eventid = int(validate(request.form.get('eventid'), "Event Id", is_int=True))
-        level = request.form.get('level')
+        avatar = int(validate(avatar, "Avatar Value", is_int=True))
+        eventid = int(validate(eventid, "Event Id", is_int=True))
     except ValidationException as validation_failure:
         return 0, None, validation_failure.value
     db.users.update({'uid': useracct['uid']},

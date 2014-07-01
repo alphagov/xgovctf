@@ -56,17 +56,13 @@ def send_email_to_list(recips, subject, body):
             send_email(recip, subject, body)
 
 
-@app.route('/api/resetpassword', methods=['POST'])
-@return_json
-def reset_password(request):
+def reset_password(token, newpw):
     """Perform the password update operation.
 
     Gets a token and new password from a submitted form, if the token is found in a team object in the database
     the new password is hashed and set, the token is then removed and an appropriate response is returned.
     """
     db = common.get_conn()
-    token = str(request.form.get('token', None))
-    newpw = str(request.form.get('newpw', None))
     if token is None or token == '':
         return {"status": 0, "message": "Reset token cannot be emtpy."}
     if newpw is None or newpw == '':
@@ -83,9 +79,7 @@ def reset_password(request):
     return {"status": 1, "message": "Your password has been reset."}
 
 
-@app.route('/api/requestpasswordreset', methods=['POST'])
-@return_json
-def request_password_reset():
+def request_password_reset(teamname):
     """Emails a user a link to reset their password.
 
     Checks that a teamname was submitted to the function and grabs the relevant team info from the db.
@@ -95,12 +89,11 @@ def request_password_reset():
     is hashed and updated in the db.
     """
     db = common.get_conn()
-    teamname = request.form.get('teamname', None)
     if teamname is None or teamname == '':
-        return {"success": 0, "message": "Teamname cannot be emtpy."}
+        return {"status": 0, "message": "Teamname cannot be emtpy."}
     team = db.teams.find_one({'teamname': teamname})
     if team is None:
-        return {"success": 0, "message": "No registration found for '%s'." % teamname}
+        return {"status": 0, "message": "No registration found for '%s'." % teamname}
     teamEmail = team['email']
     token = common.sec_token()
     db.teams.update({'tid': team['tid']}, {'$set': {'passrestoken': token}})
@@ -111,18 +104,15 @@ def request_password_reset():
     """ % (teamname, token)
 
     send_email(teamEmail, "'CTF Platform' Password Reset", msgBody)
-    return {"success": 1, "message": "A password reset link has been sent to the email address provided during registration."}
+    return {"status": 1, "message": "A password reset link has been sent to the email address provided during registration."}
 
 
-@app.route('/api/lookupteamname', methods=['POST'])
-@return_json
-def lookup_team_names():
+def lookup_team_names(email):
     """Get all team names associated with an email address.
 
     Queries db for all teams with email equal to the provided email address, sends the names of all the team names
     to the email address.
     """
-    email = request.form.get('email', '')
     db = common.get_conn()
     if email == '':
         return {"status": 0, "message": "Email Address cannot be empty."}
@@ -148,8 +138,6 @@ def lookup_team_names():
     return {"status": 1, "message": "An email has been sent with your registered teamnames."}
 
 
-@app.route('/api/news', methods=['GET'])
-@return_json
 def load_news():
     """Get news to populate the news page.
 

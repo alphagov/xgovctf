@@ -1,7 +1,6 @@
 import logging
 import configparser
 
-from api.annotations import *
 from api import annotations, common, utilities, problem
 
 def load_config(app):
