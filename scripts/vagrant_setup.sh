@@ -21,10 +21,7 @@ npm install -g coffee-script
 npm install -g react-tools
 npm install -g jsxhint
 
-pip3 install Flask
-pip3 install py3k-bcrypt
-pip3 install pymongo
-pip3 install pyzmq
+pip3 install -r /home/vagrant/api/requirements.txt
 
 # Jekyll
 gem install jekyll
