@@ -1,0 +1,9 @@
+# Site settings
+title: picoCTF
+
+destination: /srv/http/ctf
+exclude: ['coffee', 'node_modules']
+
+# Build settings
+markdown: kramdown
+permalink: none
