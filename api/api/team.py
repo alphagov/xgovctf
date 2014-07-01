@@ -1,6 +1,5 @@
 __author__ = 'collinpetty'
 
-from api.annotations import *
 from api import app, common
 import api.user
 
@@ -35,14 +34,8 @@ def get_teammate_uids(tid):
     return [t['uid'] for t in db.users.find({'tid': tid})]
 
 
-@app.route('/api/team', methods=['GET'])
-@return_json
-@require_login
-def team_information():
+def get_team_information(tid, uid):
     db = common.get_conn()
-    useracct = api.user.get_user()
-    uid = useracct['uid']
-    tid = useracct['tid']
     team_cur = db.teams.find_one({'tid': tid})
 
     teammates = []
@@ -54,4 +47,4 @@ def team_information():
                  'adviser_name': team_cur['adviser_name'], 'adviser_email': team_cur['adviser_email'],
                  'school': team_cur['school'],
                  'teammates': teammates}
-    return 1, team_data
+    return team_data

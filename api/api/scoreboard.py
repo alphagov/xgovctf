@@ -1,10 +1,8 @@
-from api import app, common
-from api.annotations import *
-
 __author__ = 'Collin Petty'
 
-from datetime import datetime
 from api.common import cache
+from api import common
+from datetime import datetime
 
 end = datetime(2020, 5, 7, 3, 59, 59)
 
@@ -24,13 +22,3 @@ def get_team_score(uid):
         'pid': {"$in": list(s)}}))])
     cache.set('teamscore_' + uid, score, 60 * 60)
     return score
-
-
-@app.route('/api/score', methods=['GET'])
-@require_login
-@return_json
-def get_team_score_hook():
-    score = get_team_score(session['uid'])
-    if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."

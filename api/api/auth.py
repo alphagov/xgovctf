@@ -6,32 +6,25 @@ __credits__ = ["David Brumley", "Collin Petty", "Peter Chapman", "Tyler Nighswan
 __email__ = ["collin@cmu.edu", "peter@cmu.edu"]
 __status__ = "Production"
 
-import bcrypt
-from api.annotations import *
-from api import app
 from api.common import validate
-import api
 import api.user
+import bcrypt
+
 debug_disable_general_login = False
 
-
-@app.route('/api/login', methods=['POST'])
-@return_json
-def login():
+def login(username, password, session):
     """Authenticates a user.
 
     Verify that the user is not already logged in. Verify that the username/password are not empty.
     Query for the user from the user interface matching on username. Check if passwords match, if so add the
     corresponding 'uid' to the session, if not inform the user of incorrect credentials.
     """
-    if 'uid' in session:  # we assume that if there is a uid in the session then the user is authenticated
-        return 1, None, "You are already logged in."
 
     # Read in submitted username and password
     try:
-        username = validate(request.form.get('username'), 'Username',
+        username = validate(username, 'Username',
                             min_length=api.user.MIN_USERNAME_LENGTH, max_length=api.user.MAX_USERNAME_LENGTH)
-        password = validate(request.form.get('password'), 'Password',
+        password = validate(password, 'Password',
                             min_length=api.user.MIN_PASSWORD_LENGTH, max_length=api.user.MAX_PASSWORD_LENGTH)
     except common.ValidationException as validation_failure:
         return 0, None, validation_failure.value
@@ -55,44 +48,25 @@ def login():
     return 0, None, "Incorrect Password"
 
 
-@app.route('/api/logout', methods=['GET'])
-@return_json
-@log_request
-def logout():
+def logout(session):
     """Logout
 
-    If the user has a uid in the session it is removed and status:1 is returned.
-    If uid is not in session status:0 is returned.
+    If the user has a uid in the session it is removed.
     """
-    if 'uid' in session:
-        session.clear()
-        return 1, None, "Successfully logged out."
-    else:
-        return 0, None, "You do not appear to be logged in."
+    session.clear()
 
 
-@app.route('/api/isloggedin', methods=['GET'])
-@return_json
-def is_logged_in():
+def is_logged_in(session):
     """Check if the user is currently logged in.
 
-    If the user has a uid in their session return status:1 and a message
-    If they are not logged in return a message saying so and status:0
+    If the user has a uid in their session, they are logged in
     """
-    if 'uid' in session:
-        return 1, None, "You are logged in."
-    else:
-        return 0, None, "You are not logged in."
+    return 'uid' in session
 
 
-@app.route('/api/isadmin', methods=['GET'])
-@return_json
-def is_admin():
+def is_admin(session):
     """Check if the user is an admin.
 
-    If the user as the 'admin' flag set in their session. If so return status:1,
-    if not return status:0.
+    If the user as the 'admin' flag set in their session, they are an admin.
     """
-    if session.get('admin', False):
-        return 1, None, "You have admin permissions."
-    return 0, None, "You do not have admin permissions."
+    return session.get('admin', False)

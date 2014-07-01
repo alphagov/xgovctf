@@ -1,12 +1,8 @@
 __author__ = 'collinpetty'
 
-from api import app, common
 from api.common import validate, ValidationException
-from api.annotations import *
-import api.user
+from api import common
 import bcrypt
-
-import api.team
 
 MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
 MIN_USERNAME_LENGTH = 3; MAX_USERNAME_LENGTH = 50
@@ -56,9 +52,7 @@ def get_all_users():
              'email': u['email']} for u in db.users.find({})]
 
 
-@app.route('/api/user/create', methods=['POST'])
-@return_json
-def register_user():
+def register_user(params):
     """Register a new team.
 
     Checks that an email address, team name, adviser name, affiliation, and password were sent from the browser.
@@ -66,33 +60,33 @@ def register_user():
     """
 
     try:
-        email = validate(request.form.get('email'), 'Email',
-                         min_length=MIN_EMAIL_LENGTH, max_length=MAX_EMAIL_LENGTH)
-        user_name = validate(request.form.get('username'), 'Username',
-                             max_length=MAX_USERNAME_LENGTH, min_length=MIN_USERNAME_LENGTH)
-        pwd = validate(request.form.get('pass'), 'Password',  # JB: Consider adding password validation
+        email = validate(params['email'], 'Email', 
+                       max_length=MAX_EMAIL_LENGTH, min_length=MIN_EMAIL_LENGTH)
+        user_name = validate(params['username'], 'Username', 
+                       max_length=MAX_USERNAME_LENGTH, min_length=MIN_USERNAME_LENGTH)
+        pwd = validate(params['pass'], 'Password',  # JB: Consider adding password validation
                        max_length=MAX_PASSWORD_LENGTH, min_length=MIN_PASSWORD_LENGTH)
 
-        create_new = request.form.get('create-new-team') == 'true'
+        create_new = params['create-new-team'] == 'true'
 
         # Creating a new team / password
         if create_new:
-            team_name_new = validate(request.form.get('team-name-new'), 'Team Name',
+            team_name_new = validate(params['team-name-new'], 'Team Name',
                                      max_length=MAX_TEAMNAME_LENGTH, min_length=MIN_TEAMNAME_LENGTH)
-            team_password_new = validate(request.form.get('team-pass-new'), 'Team Password', # JB: Consider adding password validation
+            team_password_new = validate(params['team-pass-new'], 'Team Password', # JB: Consider adding password validation
                                          max_length=MAX_TEAMPASS_LENGTH, min_length=MIN_TEAMPASS_LENGTH)
-            team_adviser_name_new = validate(request.form.get('team-adv-name-new'), 'Adviser Name',
+            team_adviser_name_new = validate(params['team-adv-name-new'], 'Adviser Name',
                                              max_length=MAX_ADVISER_LENGTH, min_length=MIN_ADVISER_LENGTH)
-            team_adviser_email_new = validate(request.form.get('team-adv-email-new'), 'Adviser Email',
+            team_adviser_email_new = validate(params['team-adv-email-new'], 'Adviser Email',
                                               max_length=MAX_ADVISEREMAIL_LENGTH, min_length=MIN_ADVISEREMAIL_LENGTH)
-            team_school_new = validate(request.form.get('school-new'), 'School Name', max_length=50, min_length=3)
+            team_school_new = validate(params['school-new'], 'School Name', max_length=50, min_length=3)
 
         else:
             # Joining an existing team
-            team_name_existing = validate(request.form.get('team-name-existing'),
-                                          max_length=MAX_TEAMNAME_LENGTH, min=MIN_TEAMNAME_LENGTH)
-            team_password_existing = validate(request.form.get('team-pass-existing'),
-                                              max_length=MAX_TEAMPASS_LENGTH, min=MIN_TEAMPASS_LENGTH)
+            team_name_existing = validate(params['team-name-existing'], 'Team Name',
+                                          max_length=MAX_TEAMNAME_LENGTH, min_length=MIN_TEAMNAME_LENGTH)
+            team_password_existing = validate(params['team-pass-existing'], 'Team Password',
+                                              max_length=MAX_TEAMPASS_LENGTH, min_length=MIN_TEAMPASS_LENGTH)
 
     except common.ValidationException as validation_failure:
         return 0, None, validation_failure.value
@@ -131,11 +125,7 @@ def register_user():
     return 1, None, "User '%s' registered successfully!" % user_name
 
 
-
-@app.route('/api/updatepass', methods=['POST'])
-@return_json
-@require_login
-def update_password(uid, request):
+def update_password(uid, password, confirm):
     """Update account password.
 
     Gets the new password and the password entered into the 'confirm password' box and verifies that 1) The new pw is
@@ -144,28 +134,21 @@ def update_password(uid, request):
     """
 
     db = common.get_conn()
-    pwd = request.form.get('pwd', '')
-    conf = request.form.get('conf', '')
-    if pwd == '':
+    if password == '':
         return 0, None, "Your password cannot be empty."
-    if pwd != conf:
+    if password != confirm:
         return 0, None, "Your passwords do not match."
-    db.users.update({'uid': uid}, {'$set': {'pwhash': bcrypt.hashpw(pwd, bcrypt.gensalt(8))}})
+    db.users.update({'uid': uid}, {'$set': {'pwhash': bcrypt.hashpw(password, bcrypt.gensalt(8))}})
     return 1, None, "Your password has been successfully updated!"
 
-
-@app.route('/api/getsshacct', methods=['GET'])
-@return_json
-@require_login
-def get_ssh_account():
+def get_ssh_account(uid):
     """Get a webshell account.
 
-    Searches the sshaccts collection for a document that has the current team's tid, if one is found the creds are
+    Searches the sshaccts collection for a document that has the given uid, if one is found the creds are
     returned. If no ssh account is associated with the user an account with no tid is selected and assigned to the
     current team. The credentials are then returned. If no unused accounts are found an error email is sent to the
     admin_emails list and an error is returned.
     """
-    uid = session['uid']
     db = common.get_conn()
     sshacct = db.sshaccts.find_one({'uid': uid})
     if sshacct is not None:

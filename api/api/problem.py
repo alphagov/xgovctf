@@ -2,8 +2,7 @@ __author__ = 'Collin Petty'
 import imp
 
 from api.common import cache, validate, ValidationException
-from api.annotations import *
-from api import app, team, user
+from api import team, user
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 
@@ -78,14 +77,6 @@ def load_viewable_problems(tid):
     return probs
 
 
-@app.route('/api/problems', methods=['GET'])
-@require_login
-@return_json
-def load_viewable_problems_hook():
-    useracct = user.get_user()
-    return 1, load_viewable_problems(user.get_tid_from_uid(useracct['uid']))
-
-
 def get_solved_problems():
     """Returns a list of all problems the team has solved.
 
@@ -110,13 +101,6 @@ def get_solved_problems():
     return probs
 
 
-@app.route('/api/problems/solved', methods=['GET'])
-@require_login
-@return_json
-def get_solved_problems_hook():
-    return 1, get_solved_problems()
-
-
 def get_single_problem(pid, tid):
     """Retrieve a single problem.
 
@@ -129,10 +113,8 @@ def get_single_problem(pid, tid):
     return {'status': 0, 'message': 'Internal error, problem not found.'}
 
 
-@app.route('/api/submit', methods=['POST'])
-@return_json
-@require_login
-def submit_problem():
+#TODO: Decide where to strip pid, key
+def submit_problem(tid, pid, key):
     """Handle problem submission.
 
     Gets the key and pid from the submitted problem, calls the respective grading function if the values aren't empty.
@@ -140,12 +122,10 @@ def submit_problem():
     (an attempt is made). A relevant message is returned if the problem has already been solved or the answer
     has been tried.
     """
-    uid = session['uid']
-    tid = user.get_tid_from_uid(uid)
     db = common.get_conn()
     try:
-        pid = validate(request.form.get('pid', '').strip(), "Problem ID", min_length=1)
-        key = validate(request.form.get('key', '').strip(), "Answer", min_length=1)
+        pid = validate(pid.strip(), "Problem ID", min_length=1)
+        key = validate(key.strip(), "Answer", min_length=1)
     except ValidationException as validation_failure:
         return 0, None, validation_failure.value
 
@@ -220,15 +200,3 @@ def get_all_problems():
 
 def _full_auto_prob_path():
     return root_web_path + relative_auto_prob_path
-
-
-@app.route('/api/problems/<path:pid>', methods=['GET'])
-@require_login
-@return_json
-@log_request
-def get_single_problem_hook(pid):
-    print("SINGLE PROBLEM %s" % session)
-    problem_info = get_single_problem(pid, user.get_tid_from_uid(user.get_user()['uid']))
-    if 'status' not in problem_info:
-        problem_info.update({"status": 1})
-    return 1, problem_info
