@@ -74,34 +74,33 @@ class APIException(Exception):
     #TODO: Find correct way to validate tuple property.
     pass
 
-def validate(msg, code, *callbacks):
+def check(*callback_tuples):
     """
     Voluptuous wrapper function to raise our APIException
 
     Args:
-        msg: Error message of the three tuple.
-        callbacks: Any number of function pointers used to validate the value.
+        callback_tuples: a callback_tuple should contain (status, msg, callbacks)
     Returns:
-        Validate returns a function callback for a Schema
+        Returns a function callback for the Schema
     """
-    def check(value):
+    def validate(value):
         """
-        Trys to validate the value with the given call backs.
+        Trys to validate the value with the given callbacks.
 
         Args:
             value: the item to validate
         Raises:
-            APIException
+            APIException with the given error code and msg.
         Returns:
-            The value if all callbacks are satisfied
+            The value if the validation callbacks are satisfied.
         """
-        for callback in callbacks:
-            try:
-                ret = callback(value)
-                if not ret:
-                    raise Invalid()
-            except Exception:
-                raise APIException(code, None, msg)
+        for status, msg, callbacks in callback_tuples:
+            for callback in callbacks:
+                try:
+                    if not callback(value):
+                        raise Invalid()
+                except Exception:
+                    raise APIException(status, None, msg)
         return value
-    return check
+    return validate
 
