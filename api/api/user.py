@@ -1,19 +1,52 @@
 __author__ = 'collinpetty'
 
 from flask import session
-from api.common import validate, ValidationException
-from api import common, auth
-import bcrypt
+from voluptuous import Schema, Required, All, Length, MultipleInvalid
+from common import check, ValidationException
+import bcrypt, common
 
-MIN_EMAIL_LENGTH = 1; MAX_EMAIL_LENGTH = 100
-MIN_USERNAME_LENGTH = 3; MAX_USERNAME_LENGTH = 50
-MIN_PASSWORD_LENGTH = 3; MAX_PASSWORD_LENGTH = 50
-MIN_TEAMNAME_LENGTH = 3; MAX_TEAMNAME_LENGTH = 50
-MIN_TEAMPASS_LENGTH = 3; MAX_TEAMPASS_LENGTH = 50
-MIN_ADVISER_LENGTH = 1; MAX_ADVISER_LENGTH = 100
-MIN_ADVISEREMAIL_LENGTH = 1; MAX_ADVISEREMAIL_LENGTH = 100
-MIN_SCHOOL_LENGTH = 1; MAX_SCHOOL_LENGTH = 150
+#With this tiered validation scheme, we could impose some serious validation properties.
+#For example: Checking that the email isn't already in the db, etc.
+#For now it's going to seem redundant. :(
+user_schema = Schema({
+    Required('email'): check(
+        (0, "Email must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    ),
+    Required('username'): check(
+        (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        (-1, "This username already exists.", [lambda name: get_user(name) != None])
+    ),
+    Required('password'): check(
+        (0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    )
+}, extra=True)
 
+new_team_schema = Schema({
+    Required('team-name-new'): check(
+        (0, "The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    ),
+    Required('team-pass-new'): check(
+        (0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    ),
+    Required('team-adv-name-new'): check(
+        (0, "Adviser names should be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    ),
+    Required('team-adv-email-new'): check(
+        (0, "Adviser emails must be between 5 and 100 characters.", [str, Length(min=5, max=100)])
+    ),
+    Required('school-new'): check(
+        (0, "School names must be between 3 and 150 characters.", [str, Length(min=3, max=150)])
+    )
+}, extra=True)
+
+existing_team_schema = Schema({
+    Required('team-name-existing'): check(
+        (0, "Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    ),
+    Required('team-pass-existing'): check(
+        (0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    )
+})
 
 def get_tid_from_uid(uid):
     db = common.get_conn()
@@ -60,37 +93,13 @@ def register_user(params):
     If any of these are missing a status:0 is returned with a message saying that all fields must be provided.
     """
 
-    try:
-        email = validate(params['email'], 'Email', 
-                       max_length=MAX_EMAIL_LENGTH, min_length=MIN_EMAIL_LENGTH)
-        user_name = validate(params['username'], 'Username', 
-                       max_length=MAX_USERNAME_LENGTH, min_length=MIN_USERNAME_LENGTH)
-        pwd = validate(params['pass'], 'Password',  # JB: Consider adding password validation
-                       max_length=MAX_PASSWORD_LENGTH, min_length=MIN_PASSWORD_LENGTH)
+    
+    user_schema(params)
 
-        create_new = params['create-new-team'] == 'true'
-
-        # Creating a new team / password
-        if create_new:
-            team_name_new = validate(params['team-name-new'], 'Team Name',
-                                     max_length=MAX_TEAMNAME_LENGTH, min_length=MIN_TEAMNAME_LENGTH)
-            team_password_new = validate(params['team-pass-new'], 'Team Password', # JB: Consider adding password validation
-                                         max_length=MAX_TEAMPASS_LENGTH, min_length=MIN_TEAMPASS_LENGTH)
-            team_adviser_name_new = validate(params['team-adv-name-new'], 'Adviser Name',
-                                             max_length=MAX_ADVISER_LENGTH, min_length=MIN_ADVISER_LENGTH)
-            team_adviser_email_new = validate(params['team-adv-email-new'], 'Adviser Email',
-                                              max_length=MAX_ADVISEREMAIL_LENGTH, min_length=MIN_ADVISEREMAIL_LENGTH)
-            team_school_new = validate(params['school-new'], 'School Name', max_length=50, min_length=3)
-
-        else:
-            # Joining an existing team
-            team_name_existing = validate(params['team-name-existing'], 'Team Name',
-                                          max_length=MAX_TEAMNAME_LENGTH, min_length=MIN_TEAMNAME_LENGTH)
-            team_password_existing = validate(params['team-pass-existing'], 'Team Password',
-                                              max_length=MAX_TEAMPASS_LENGTH, min_length=MIN_TEAMPASS_LENGTH)
-
-    except common.ValidationException as validation_failure:
-        return 0, None, validation_failure.value
+    if params.get("create-new-team", None) == "true":
+        new_team_schema(params)
+    else:
+        existing_team_schema(params)
 
     db = common.get_conn()
 
