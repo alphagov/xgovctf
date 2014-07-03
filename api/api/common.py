@@ -8,7 +8,9 @@ __status__ = "Production"
 
 from pymongo import MongoClient
 from werkzeug.contrib.cache import SimpleCache
+from voluptuous import Invalid
 import uuid
+
 
 allowed_protocols = []
 allowed_ports = []
@@ -64,27 +66,42 @@ def sec_token():
     return token()
 
 
-class ValidationException(Exception):
-    def __init__(self, value):
-        self.value = value
+class APIException(Exception):
+    """
+    Exception thrown by the API.
+    It should always be raised with a three tuple
+    """
+    #TODO: Find correct way to validate tuple property.
+    pass
 
+def validate(msg, code, *callbacks):
+    """
+    Voluptuous wrapper function to raise our APIException
 
-def validate(string_input, field_name, min_length=None, max_length=None, is_int=None):
-    if string_input is None and min_length > 0:
-        raise ValidationException("{0} cannot be blank".format(field_name))
-    if min_length is not None:
-        if len(string_input) < min_length:
-            if len(string_input) == 0:
-                raise ValidationException("{0} cannot be blank".format(field_name))
-            else:
-                raise ValidationException("{0} must me at lease {1} characters".format(field_name, min_length))
-    if max_length is not None:
-        if len(string_input) > max_length:
-            raise ValidationException("{0} cannot exceed {1} characters".format(field_name, max_length))
-    if is_int is not None:
-        try:
-            int(string_input)
-        except ValueError:
-            raise ValidationException("{0} must be an integer".format(field_name))
+    Args:
+        msg: Error message of the three tuple.
+        callbacks: Any number of function pointers used to validate the value.
+    Returns:
+        Validate returns a function callback for a Schema
+    """
+    def check(value):
+        """
+        Trys to validate the value with the given call backs.
 
-    return string_input
+        Args:
+            value: the item to validate
+        Raises:
+            APIException
+        Returns:
+            The value if all callbacks are satisfied
+        """
+        for callback in callbacks:
+            try:
+                ret = callback(value)
+                if not ret:
+                    raise Invalid()
+            except Exception:
+                raise APIException(code, None, msg)
+        return value
+    return check
+
