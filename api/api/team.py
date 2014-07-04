@@ -1,18 +1,34 @@
-__author__ = 'collinpetty'
+"""
+API functions relating to team management.
+"""
 
-from api import app, common
-import api.user
+from api import app, common, user
 
-def get_team(tid=None, team_name=None):
+def get_team(tid=None, name=None):
+    """
+    Retrieve a team based on a property (tid, name, etc.).
+
+    Args:
+        tid: team id
+        name: team name
+    Returns:
+        Returns the corresponding team object or None if it could not be found
+    """
+
     db = common.get_conn()
     if tid is not None:
         return db.teams.find_one({'tid': tid})
-    elif team_name is not None:
-        return db.teams.find_one({'team_name': team_name})
+    elif name is not None:
+        return db.teams.find_one({'team_name': name})
     return None
 
-
+#TODO: Considering everything is a key value pair, we could consider passing these all
+#      in their own dictionary. There quite a few lines of code just turning dicts into
+#      singletons to become dicts again.
 def create_team(team_name, adviser_name, adviser_email, school, password):
+    """
+    Directly inserts team into the database. Assumes all fields have been validated.
+    """
     db = common.get_conn()
     tid = common.token()
     try:
