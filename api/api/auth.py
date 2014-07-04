@@ -7,11 +7,22 @@ __email__ = ["collin@cmu.edu", "peter@cmu.edu"]
 __status__ = "Production"
 
 from flask import session
-from api.common import validate
+from voluptuous import Schema, Required, Length
+
 import api.user
+from api.user import check
 import bcrypt
 
 debug_disable_general_login = False
+
+user_login_schema = Schema({
+    Required('username'): check(
+        (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+    ),
+    Required('password'): check(
+        (0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+    )
+})
 
 def login(username, password):
     """Authenticates a user.
@@ -22,14 +33,10 @@ def login(username, password):
     """
 
     # Read in submitted username and password
-    try:
-        username = validate(username, 'Username',
-                            min_length=api.user.MIN_USERNAME_LENGTH, max_length=api.user.MAX_USERNAME_LENGTH)
-        password = validate(password, 'Password',
-                            min_length=api.user.MIN_PASSWORD_LENGTH, max_length=api.user.MAX_PASSWORD_LENGTH)
-    except common.ValidationException as validation_failure:
-        return 0, None, validation_failure.value
-
+    user_login_schema({
+        "username": username,
+        "password": password
+    })
     user = api.user.get_user(username)
     if user is None:
         return 0, None, "Incorrect username."
