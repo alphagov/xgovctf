@@ -143,10 +143,8 @@ def register_user(params):
         team-password-new: Password to join team.
 
     """
-    print(params)
     user_schema(params)
 
-    #request.form is a multidict
     if params.get("create-new-team", None) == "true":
         new_team_schema(params)
 
