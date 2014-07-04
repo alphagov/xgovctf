@@ -51,6 +51,17 @@ existing_team_schema = Schema({
         check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 })
 
+def hash_password(password):
+    """
+    Hash plaintext password.
+
+    Args:
+        password: plaintext password
+    Returns:
+        Secure hash of password.
+    """
+    return bcrypt.hashpw(password, bcrypt.gensalt(8))
+
 def get_tid_from_uid(uid):
     """
     Retrieve the the corresponding tid to the user's uid.
@@ -181,7 +192,7 @@ def register_user(params):
     user_account = create_user(
         params["username"],
         params["email"],
-        bcrypt.hashpw(params["pass"], bcrypt.gensalt(8))
+        hash_password(params["password"])
     )
 
     if user_account is None:
@@ -205,7 +216,7 @@ def update_password(uid, password):
     if len(password) == 0:
         raise APIException(0, None, "Your password cannot be empty.")
 
-    db.users.update({'uid': uid}, {'$set': {'pwhash': bcrypt.hashpw(password, bcrypt.gensalt(8))}})
+    db.users.update({'uid': uid}, {'$set': {'pwhash': hash_password(password)}})
 
 def get_ssh_account(uid):
     """

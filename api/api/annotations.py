@@ -19,7 +19,7 @@ def return_json(f):
             msg = ret[2] if len(ret) > 2 else ""
             return json.dumps({'status': status, 'data': data, 'message': msg})
         except APIException as error: #This doesn't exist yet, but it will soon
-            return json.dumps(dict(zip(['status','data','message'], error.args)))
+            return json.dumps(dict(zip(['status', 'data', 'message'], error.args)))
     return wrapper
 
 def require_login(f):
