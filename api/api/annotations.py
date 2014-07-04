@@ -1,6 +1,6 @@
 __author__ = ['Peter Chapman', 'Collin Petty']
 
-from api import common
+from api.common import APIException
 import json
 from datetime import datetime
 from functools import wraps

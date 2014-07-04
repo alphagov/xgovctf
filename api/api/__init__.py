@@ -3,8 +3,10 @@ from flask import Flask, url_for, request, session
 app = Flask(__name__)
 
 from api import setup, user, auth, team, problem, scoreboard, utilities, game
+from api.common import APIException
 from api.annotations import return_json, require_login, require_admin, log_request
 
+import api.common
 # Initialize/Sanity check envionment
 setup.load_config(app)
 setup.check_database_indexes()
@@ -35,7 +37,7 @@ def site_map_hook():
             try:
                 url = url_for(rule.endpoint)
                 links.append(url)
-            except:
+            except Exception:
                 pass
     return 1, links, "This is a message."
 
@@ -43,15 +45,23 @@ def site_map_hook():
 @app.route('/api/user/create', methods=['POST'])
 @return_json
 def create_user_hook():
-    #TB: Do not directly return these!
-    return user.register_user(request.values)
+    user.register_user(api.common.flat_multi(request.form))
+    return 1, None, "User '{}' registered successfully!".format(request.form["username"])
 
 
 @app.route('/api/updatepass', methods=['POST'])
 @return_json
 @require_login
 def update_password_hook():
-    return user.update_password(user.get_user()['uid'], request.form.get('pass'), request.form.get('confirm'))
+    uid = user.get_user()["uid"]
+    password = request.form.get("pass")
+    confirm = request.form.get("confirm")
+
+    if password != confirm:
+        raise APIException(0, None, "Your passwords do not match.")
+
+    user.update_password(uid, password, confirm)
+    return 1, None, "Your password has been successfully updated!"
 
 
 @app.route('/api/getsshacct', methods=['GET'])
@@ -64,7 +74,7 @@ def get_ssh_account_hook():
 @app.route('/api/login', methods=['POST'])
 @return_json
 def login_hook():
-    return auth.login(request.form.get('username'), 
+    return auth.login(request.form.get('username'),
                       request.form.get('password'))
 
 
