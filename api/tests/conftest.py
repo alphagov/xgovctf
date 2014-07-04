@@ -5,6 +5,7 @@ other testing modules.
 """
 
 import pytest
+import api.common
 from pymongo import MongoClient
 
 mongo_addr = "127.0.0.1"
@@ -25,4 +26,9 @@ def db(request):
         print("Disclientected from mongodb.")
 
     request.addfinalizer(shutdown)
+
+    #Set debug client for mongo
+    if api.common.external_client is None:
+        api.common.external_client = client
+
     return client

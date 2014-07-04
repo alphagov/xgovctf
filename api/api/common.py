@@ -24,6 +24,7 @@ mongo_addr = "127.0.0.1"
 mongo_port = 27017
 mongo_db_name = ""
 
+external_client = None
 
 def get_conn():
     """Get a database connection
@@ -31,6 +32,10 @@ def get_conn():
     Ensures that only one global database connection exists per thread.
     If the connection does not exist a new one is created and returned.
     """
+
+    if external_client is not None:
+        return external_client
+
     global __connection
     if not __connection:
         __connection = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
