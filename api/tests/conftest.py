@@ -23,7 +23,7 @@ def db(request):
         """ Drops the db and shuts down the mongodb instance. """
         client.connection.drop_database(mongo_db_name)
         client.connection.disconnect()
-        print("Disclientected from mongodb.")
+        print("Disconnected from mongodb.")
 
     request.addfinalizer(shutdown)
 
@@ -32,3 +32,4 @@ def db(request):
         api.common.external_client = client
 
     return client
+
