@@ -1,4 +1,4 @@
-fields = ['email', 'username', 'pass', 'team-name-new', 'team-pass-new', 'school-new', 'team-adv-name-new', 'team-adv-email-new', 'team-name-existing', 'team-pass-existing', 'create-new-team']
+fields = ['email', 'username', 'pass', 'team-name-new', 'team-pass-new', 'team-school-new', 'team-adv-name-new', 'team-adv-email-new', 'team-name-existing', 'team-pass-existing', 'create-new-team']
 
 clear = ->
   $('#reg-'+field).val('') for field in fields
