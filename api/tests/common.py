@@ -3,7 +3,7 @@ import api.common
 
 from functools import wraps
 
-def clear_collections(collections):
+def clear_collections(*collections):
     """
     Clears collections listed after function has completed.
     """
