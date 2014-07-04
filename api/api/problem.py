@@ -1,7 +1,7 @@
 __author__ = 'Collin Petty'
 import imp
 
-from api.common import cache, validate, ValidationException
+from api.common import cache, APIException
 from api import team, user, common
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
