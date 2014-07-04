@@ -6,4 +6,4 @@ if [[ -n "$1" ]]; then
   test_path=$1
 fi
 
-python3.4 -b -m pytest --showlocals "$test_path"
+python3.4 -b -m pytest --showlocals -v "$test_path"
