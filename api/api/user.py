@@ -64,21 +64,28 @@ def get_tid_from_uid(uid):
     return db.users.find_one({'uid': uid})['tid']
 
 
-def get_user(name=None):
+def get_user(name=None, uid=None):
     """
     Retrieve a user based on a property. If the user is logged in,
     it will return that user object.
 
     Args:
         name: the user's username
+        uid: the user's uid
     Returns:
         Returns the corresponding user object or None if it could not be found
     """
     db = api.common.get_conn()
+
     if name is not None:
         return db.users.find_one({'username': name})
+
+    if uid is not None:
+        return db.users.find_one({'uid': uid})
+
     if api.auth.is_logged_in():
         return db.users.find_one({'uid': session['uid']})
+
     return None
 
 
