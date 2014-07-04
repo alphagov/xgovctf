@@ -74,6 +74,21 @@ class APIException(Exception):
     #TODO: Find correct way to validate tuple property.
     pass
 
+def flat_multi(multidict):
+    """
+    Flattens any single element lists in a multidict.
+    
+    Args:
+        multidict: multidict to be flattened.
+    Returns:
+        Partially flattened database.
+    """
+    flat = {}
+    for key, values in multidict.items():
+        flat[key] = values[0] if type(values) == list and len(values) == 1 \
+                    else values
+    return flat
+
 def check(*callback_tuples):
     """
     Voluptuous wrapper function to raise our APIException
