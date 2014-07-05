@@ -100,7 +100,7 @@ def get_user(name=None, uid=None):
     return None
 
 
-def create_user(username, email, pwhash):
+def create_user(username, email, pwhash, tid):
     """
     This inserts a user directly into the database. It assumes all data is valid.
 
@@ -108,6 +108,7 @@ def create_user(username, email, pwhash):
         username: user's username
         email: user's email
         pwhash: a hash of the user's password
+        tid: the team id to join
     Returns:
         Returns the uid of the newly created user
     """
@@ -118,6 +119,7 @@ def create_user(username, email, pwhash):
                          'username': username,
                          'email': email,
                          'pwhash': pwhash,
+                         'tid': tid,
                          'avatar': 3,
                          'eventid': 0,
                          'level': 'Not Started'})
@@ -166,7 +168,7 @@ def register_user(params):
     if params.get("create-new-team", None) == "true":
         new_team_schema(params)
 
-        join_team = api.team.create_team(
+        team = api.team.create_team(
             params["team-name-new"],
             params["team-adv-name-new"],
             params["team-adv-email-new"],
@@ -174,32 +176,28 @@ def register_user(params):
             params["team-pass-new"]
         )
 
-        if join_team is None:
+        if team is None:
             raise APIException(-10, None, "Failed to create new team")
     else:
         existing_team_schema(params)
 
-        team_account = api.team.get_team(name=params["team-name-new"])
+        team = api.team.get_team(name=params["team-name-new"])
 
-        if team_account['password'] != params['team-password-existing']:
+        if team['password'] != params['team-password-existing']:
             raise APIException(0, None, "Your team password is incorrect.")
-
-        join_team = team_account['tid']
 
     db = api.common.get_conn()
 
     # Create new user
-    user_account = create_user(
+    user = create_user(
         params["username"],
         params["email"],
-        hash_password(params["password"])
+        hash_password(params["password"]),
+        team["tid"]
     )
 
-    if user_account is None:
+    if user is None:
         raise APIException(0, None, "There was an error during registration.")
-
-    # Have the new user join the correct team
-    db.users.update({'uid': user_account}, {'$set': {'tid': join_team}})
 
 def update_password(uid, password):
     """
