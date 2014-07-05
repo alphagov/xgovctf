@@ -10,12 +10,15 @@ def clear_collections(*collections):
     def clear(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            result = f(*args, **kwargs)
-
-            db = api.common.get_conn()
-            for collection in collections:
-                db[collection].remove()
-                assert len(list(db[collection].find())) == 0, "Unable to clear collection: " + collection
+            try:
+                result = f(*args, **kwargs)
+            except Exception:
+                raise
+            finally:
+                db = api.common.get_conn()
+                for collection in collections:
+                    db[collection].remove()
+                    assert len(list(db[collection].find())) == 0, "Unable to clear collection: " + collection
 
             return result
         return wrapper
