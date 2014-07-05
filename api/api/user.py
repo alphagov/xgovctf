@@ -12,12 +12,17 @@ import api.auth
 
 import bcrypt
 
+from re import match
+
 user_schema = Schema({
-    Required('email'):
-        check((0, "Email must be between 5 and 100 characters.", [str, Length(min=5, max=100)])),
+    Required('email'): check(
+        (0, "Email must be between 5 and 100 characters.", [str, Length(min=5, max=100)]),
+        (0, "This does not look like an email address.", [
+            lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email)])
+    ),
     Required('username'): check(
         (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (-1, "This username already exists.", [
+        (0, "This username already exists.", [
             lambda name: get_user(name) == None])
     ),
     Required('pass'):
@@ -27,7 +32,7 @@ user_schema = Schema({
 new_team_schema = Schema({
     Required('team-name-new'): check(
         (0, "The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (-1, "A team with that name already exists.", [
+        (0, "A team with that name already exists.", [
             lambda name: api.team.get_team(name=name) == None])
     ),
     Required('team-pass-new'):
@@ -44,12 +49,15 @@ new_team_schema = Schema({
 existing_team_schema = Schema({
     Required('team-name-existing'): check(
         (0, "Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (-1, "There is no existing team named that.", [
-            lambda name: api.team.get_team(name=name) != None])
+        (0, "There is no existing team named that.", [
+            lambda name: api.team.get_team(name=name) != None]),
+        (0, "There are too many members on that team for you to join.", [
+            lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < 4
+        ])
     ),
     Required('team-pass-existing'):
         check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
-})
+}, extra=True)
 
 def hash_password(password):
     """
@@ -112,22 +120,25 @@ def create_user(username, email, pwhash, tid):
     Returns:
         Returns the uid of the newly created user
     """
+
     db = api.common.get_conn()
     uid = api.common.token()
-    try:
-        db.users.insert({'uid': uid,
-                         'username': username,
-                         'email': email,
-                         'pwhash': pwhash,
-                         'tid': tid,
-                         'avatar': 3,
-                         'eventid': 0,
-                         'level': 'Not Started'})
-    except Exception:
-        raise APIException(0, None, "Unable to create user.")
+
+    if get_user(name=username) is not None:
+        raise APIException(0, None, "User {0} already exists!".format(username))
+
+    db.users.insert({
+        'uid': uid,
+        'username': username,
+        'email': email,
+        'pwhash': pwhash,
+        'tid': tid,
+        'avatar': 3,
+        'eventid': 0,
+        'level': 'Not Started'
+    })
 
     return uid
-
 
 def get_all_users():
     """
@@ -135,9 +146,7 @@ def get_all_users():
         Returns the uid, username, and email of all users.
     """
     db = api.common.get_conn()
-    return [{'uid': u['uid'],
-             'username': u['username'],
-             'email': u['email']} for u in db.users.find({})]
+    return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1}))
 
 
 def register_user(params):
@@ -150,17 +159,17 @@ def register_user(params):
         pass: user's password
         email: user's email
         create-new-team:
-            boolean indicating whether or not the user is creating a new team or
+            boolean "true" indicating whether or not the user is creating a new team or
             joining an already existing team.
 
         team-name-existing: Name of existing team to join.
         team-pass-existing: Password of existing team to join.
 
         team-name-new: Name of new team.
-        team-adviser-name-new: Name of adviser.
-        team-adviser-email-new: Adviser's email address.
+        team-adv-name-new: Name of adviser.
+        team-adv-email-new: Adviser's email address.
         team-school-new: Name of the team's school.
-        team-password-new: Password to join team.
+        team-pass-new: Password to join team.
 
     """
     user_schema(params)
@@ -168,7 +177,7 @@ def register_user(params):
     if params.get("create-new-team", None) == "true":
         new_team_schema(params)
 
-        team = api.team.create_team(
+        tid = api.team.create_team(
             params["team-name-new"],
             params["team-adv-name-new"],
             params["team-adv-email-new"],
@@ -176,28 +185,31 @@ def register_user(params):
             params["team-pass-new"]
         )
 
-        if team is None:
+        if tid is None:
             raise APIException(-10, None, "Failed to create new team")
+        team = api.team.get_team(tid=tid)
     else:
         existing_team_schema(params)
 
-        team = api.team.get_team(name=params["team-name-new"])
+        tid = api.team.get_team(name=params["team-name-new"])
+        team = api.team.get_team(tid=tid)
 
-        if team['password'] != params['team-password-existing']:
+        if team['password'] != params['team-pass-existing']:
             raise APIException(0, None, "Your team password is incorrect.")
 
-    db = api.common.get_conn()
 
     # Create new user
-    user = create_user(
+    uid = create_user(
         params["username"],
         params["email"],
-        hash_password(params["password"]),
+        hash_password(params["pass"]),
         team["tid"]
     )
 
-    if user is None:
+    if uid is None:
         raise APIException(0, None, "There was an error during registration.")
+
+    return uid
 
 def update_password(uid, password):
     """
