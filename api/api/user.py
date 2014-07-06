@@ -177,13 +177,15 @@ def register_user(params):
     if params.get("create-new-team", None) == "true":
         new_team_schema(params)
 
-        tid = api.team.create_team(
-            params["team-name-new"],
-            params["team-adv-name-new"],
-            params["team-adv-email-new"],
-            params["team-school-new"],
-            params["team-pass-new"]
-        )
+        team_params = {
+            "team_name": params["team-name-new"],
+            "adviser_name": params["team-adv-name-new"],
+            "adviser_email": params["team-adv-email-new"],
+            "school": params["team-school-new"],
+            "password" : params["team-pass-new"]
+        }
+
+        tid = api.team.create_team(team_params)
 
         if tid is None:
             raise APIException(-10, None, "Failed to create new team")

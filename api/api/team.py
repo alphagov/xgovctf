@@ -24,10 +24,7 @@ def get_team(tid=None, name=None):
         return db.teams.find_one({'team_name': name})
     return None
 
-#CG:   Considering everything is a key value pair, we could consider passing these all
-#      in their own dictionary. There quite a few lines of code just turning dicts into
-#      singletons to become dicts again.
-def create_team(team_name, adviser_name, adviser_email, school, password):
+def create_team(params):
     """
     Directly inserts team into the database. Assumes all fields have been validated.
 
@@ -41,22 +38,15 @@ def create_team(team_name, adviser_name, adviser_email, school, password):
         The newly created team id.
     """
     db = api.common.get_conn()
-    tid = api.common.token()
-    if api.team.get_team(name=team_name) is not None:
-        raise APIException(0, None, "Team {} already exists!".format(team_name))
+    params['tid'] = api.common.token()
+    if api.team.get_team(name=params['team_name']) is not None:
+        raise APIException(0, None, "Team {} already exists!".format(params['team_name']))
 
     # JB: Currently, group passwords are plaintext. We should think
     # whether we should hash them or if we need to display them
-    db.teams.insert({
-        'tid': tid,
-        'team_name': team_name,
-        'adviser_name': adviser_name,
-        'adviser_email': adviser_email,
-        'school': school,
-        'password': password
-    })
+    db.teams.insert(params)
 
-    return tid
+    return params['tid']
 
 
 def get_team_uids(tid):
