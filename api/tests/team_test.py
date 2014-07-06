@@ -16,6 +16,14 @@ class TestTeams(object):
     """
     API Tests for team.py
     """
+
+    base_team = {
+        "team_name": "team",
+        "adviser_name": "Dr. Test",
+        "adviser_email": "test@hs.edu",
+        "school": "Test HS",
+        "password": "much_protected"
+    }
     
     @clear_collections("team")
     def test_create_batch_teams(self, teams=10):
@@ -29,11 +37,9 @@ class TestTeams(object):
         """
         tids = []
         for i in range(teams):
-            name = "team" + str(i)
-            tids.append(api.team.create_team(
-                name, "Dr. Test", "test@hs.edu",
-                "Test HS", "much_protected"
-            ))
+            team = self.base_team.copy()
+            team["team_name"] += str(i)
+            tids.append(api.team.create_team(team))
 
         assert len(set(tids)) == len(tids), "tids are not unique."
 

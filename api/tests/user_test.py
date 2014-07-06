@@ -37,8 +37,17 @@ class TestUsers(object):
         "email": "valid@hs.edu",
         "create-new-team": "false",
 
-        "team-pass-existing": "password",
+        "team-pass-existing": "leet_hax",
         "team-name-existing": "massive_hacks"
+    }
+
+    #TB: This is sort of also testing team.py. Is there a better way to seperate these?
+    base_team = {
+        "team_name" : "massive_hacks",
+        "adviser_name": "Dr. Hacks",
+        "adviser_email": "hacks@hs.edu",
+        "school": "Hacks HS",
+        "password": "leet_hax"
     }
 
     @clear_collections("users", "teams")
@@ -52,11 +61,7 @@ class TestUsers(object):
             user.get_user
         """
 
-        tid = api.team.create_team(
-            "test_team", "Prof. Hacker",
-            "hacker@hs.com", "Hacker HS",
-            "very_secure"
-        )
+        tid = api.team.create_team(self.base_team.copy())
 
         uids = []
         for i in range(users):
@@ -106,13 +111,10 @@ class TestUsers(object):
 
                     if sheep_user["create-new-team"] != "true" and \
                     api.team.get_team(name=sheep_user["team-name-existing"]) is None:
-                        api.team.create_team(
-                            sheep_user["team-name-existing"],
-                            "Dr. Hacks",
-                            "hacks@hs.edu",
-                            "Hacks HS",
-                            sheep_user["team-pass-existing"]
-                        )
+                        team = self.base_team.copy()
+                        team['team_name'] , team['password'] = \
+                                sheep_user["team-name-existing"], sheep_user["team-pass-existing"]
+                        api.team.create_team(team)
 
                     with pytest.raises(APIException):
                         api.user.register_user(sheep_user)
@@ -162,8 +164,15 @@ class TestUsers(object):
             partially: user.register_user
             team.get_team_uids
         """
-        #TODO: implement the rest of this.
-        pass
+
+        tid = api.team.create_team(self.base_team.copy())
+        assert tid, "Team was not created."
+
+        uid = api.user.register_user(self.existing_team_user)
+        assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
+
+        team_uids = api.team.get_team_uids(tid)
+        assert uid in team_uids, "User was not successfully placed into the existing team."
 
     @clear_collections("users", "teams")
     def test_change_pw_user(self):
@@ -175,11 +184,7 @@ class TestUsers(object):
             user.hash_password
         """
 
-        tid = api.team.create_team(
-            "test_team", "Prof. Hacker",
-            "hacker@hs.edu", "Hacker HS",
-            "very_secure"
-        )
+        tid = api.team.create_team(self.base_team.copy())
         uid = api.user.create_user("fred", "fred@gmail.com", "HASH", tid)
 
         old_hash = api.user.get_user(uid=uid)["pwhash"]
