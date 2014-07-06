@@ -193,8 +193,7 @@ def register_user(params):
     else:
         existing_team_schema(params)
 
-        tid = api.team.get_team(name=params["team-name-new"])
-        team = api.team.get_team(tid=tid)
+        team = api.team.get_team(name=params["team-name-existing"])
 
         if team['password'] != params['team-pass-existing']:
             raise APIException(0, None, "Your team password is incorrect.")
