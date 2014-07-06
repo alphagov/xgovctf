@@ -60,7 +60,7 @@ def update_password_hook():
     if password != confirm:
         raise APIException(0, None, "Your passwords do not match.")
 
-    user.update_password(uid, password, confirm)
+    user.update_password(uid, password)
     return 1, None, "Your password has been successfully updated!"
 
 
