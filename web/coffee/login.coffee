@@ -10,23 +10,19 @@ window.check_logged_in = ->
           sessionStorage.signInStatus = "loggedIn"
         document.location.href = "problems.html"
 
+trigger_alert = (message)->
+  $("#error-alert").hide().text(message).show().delay(2000).fadeOut()
+
+
 login = (e) ->
   e.preventDefault()
   $.post("/api/login", $("#login-form").serialize())
   .done (data) ->
     switch data['status']
       when 0
-        if (typeof(Storage) != "undefined")
-          sessionStorage.signInStatus = "notLoggedIn"
-        $("#error-alert").hide().text(data["message"]).show().delay(2000).fadeOut()
+        trigger_alert data['message']
       when 1
-        if (typeof(Storage) != "undefined")
-          sessionStorage.signInStatus = "loggedIn"
         document.location.href = "problems.html"
-      when 2
-        if (typeof(Storage) != "undefined")
-          sessionStorage.signInStatus = "notLoggedIn"
-        console.log(data.message)
 
 $ ->
   $("#error-alert").hide()
