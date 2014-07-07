@@ -9,34 +9,40 @@ from datetime import datetime
 root_web_path = ""
 relative_auto_prob_path = ""
 
-auto_generators = dict()
-
-
-def acquire_problem_instance(pid, uid):
-    return None
-
-
-def get_solved_pids_for_cat(uid=None, tid=None, gid=None):
-    """Gets all solved PIDs for the given category
+def get_solved_pids_for_category(category, uid=None, tid=None, gid=None):
     """
+    Gets all solved PIDs for the given category based on one condition.
+
+    Args:
+        category: the problem category
+
+        uid: the user id
+        tid: the team id
+        gid: the group id
+    Returns:
+        A list of pids of the solved problems.
+    """
+
     db = api.common.get_conn()
+
+    pids = set()
     if gid is not None:
-        pids = set()
         for t in db.teams.find({'gid': gid}):
-            pids |= get_solved_pids_for_cat(tid=t['tid'])
+            pids |= get_solved_pids_for_category(category, tid=t['tid'])
         return pids
     if tid is not None:
-        pids = set()
         for u in db.users.find({'tid': tid}):
-            pids |= get_solved_pids_for_cat(uid=u['uid'])
+            pids |= get_solved_pids_for_category(category, uid=u['uid'])
         return pids
     if uid is not None:
-        return {p['pid'] for p in db.submissions.find({'uid': uid, 'correct': True})}
+        return [p['pid'] for p in db.submissions.find({'uid': uid, 'correct': True, "category": category})]
     return None
 
-
-def get_viewable_pids_for_cat(uid=None, tid=None, gid=None):
-    solved_pids = get_solved_pids_for_cat(**locals())
+def get_viewable_pids_for_category(**kwargs):
+    """
+    
+    """
+    solved_pids = get_solved_pids_for_category(**kwargs)
     db = api.common.get_conn()
     return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
                                                     'threshold' not in p or
