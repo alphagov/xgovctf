@@ -18,8 +18,7 @@ login = (e) ->
       when 0
         if (typeof(Storage) != "undefined")
           sessionStorage.signInStatus = "notLoggedIn"
-#$('#error-alert').text(data['message']).show().delay(3000).fadeOut()
-        console.log(data.message)
+        $("#error-alert").hide().text(data["message"]).show().delay(2000).fadeOut()
       when 1
         if (typeof(Storage) != "undefined")
           sessionStorage.signInStatus = "loggedIn"
@@ -30,4 +29,5 @@ login = (e) ->
         console.log(data.message)
 
 $ ->
+  $("#error-alert").hide()
   $("#login-form").on "submit", login
