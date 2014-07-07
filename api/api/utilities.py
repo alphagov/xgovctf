@@ -13,8 +13,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
 import bcrypt
-from api.annotations import *
-from api import app
+
+import api.common
+import api.user
 
 enable_email = False
 
@@ -56,24 +57,24 @@ def send_email_to_list(recips, subject, body):
             send_email(recip, subject, body)
 
 
-def reset_password(token, newpw):
+def reset_password(token, new_password):
     """Perform the password update operation.
 
     Gets a token and new password from a submitted form, if the token is found in a team object in the database
     the new password is hashed and set, the token is then removed and an appropriate response is returned.
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     if token is None or token == '':
         return {"status": 0, "message": "Reset token cannot be emtpy."}
-    if newpw is None or newpw == '':
+    if new_password is None or new_password == '':
         return {"status": 0, "message": "New password cannot be empty."}
 
-    team = db.teams.find_one({'passrestoken': token})
+    team = db.teams.find_one({'password_reset_token': token})
     if team is None:
         return {"status": 0, "message": "Password reset token is not valid."}
     try:
-        db.teams.update({'tid': team['tid']}, {'$set': {'pwhash': bcrypt.hashpw(newpw, bcrypt.gensalt(8))}})
-        db.teams.update({'tid': team['tid']}, {'$unset': {'passrestoken': 1}})
+        db.teams.update({'tid': team['tid']}, {'$set': {'password_hash': bcrypt.hashpw(new_password, bcrypt.gensalt(8))}})
+        db.teams.update({'tid': team['tid']}, {'$unset': {'password_reset_token': 1}})
     except:
         return {"status": 0, "message": "There was an error updating your password."}
     return {"status": 1, "message": "Your password has been reset."}
@@ -83,20 +84,20 @@ def request_password_reset(teamname):
     """Emails a user a link to reset their password.
 
     Checks that a teamname was submitted to the function and grabs the relevant team info from the db.
-    Generates a secure token and inserts it into the team's document as 'passresttoken'.
+    Generates a secure token and inserts it into the team's document as 'password_reset_token'.
     A link is emailed to the registered email address with the random token in the url.  The user can go to this
     link to submit a new password, if the token submitted with the new password matches the db token the password
     is hashed and updated in the db.
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     if teamname is None or teamname == '':
         return {"status": 0, "message": "Teamname cannot be emtpy."}
     team = db.teams.find_one({'teamname': teamname})
     if team is None:
         return {"status": 0, "message": "No registration found for '%s'." % teamname}
     teamEmail = team['email']
-    token = common.sec_token()
-    db.teams.update({'tid': team['tid']}, {'$set': {'passrestoken': token}})
+    token = api.common.sec_token()
+    db.teams.update({'tid': team['tid']}, {'$set': {'password_reset_token': token}})
 
     msgBody = """
     We recently received a request to reset the password for the following 'CTF Platform' account:\n\n  - %s\n\n
@@ -113,7 +114,7 @@ def lookup_team_names(email):
     Queries db for all teams with email equal to the provided email address, sends the names of all the team names
     to the email address.
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     if email == '':
         return {"status": 0, "message": "Email Address cannot be empty."}
     teams = list(db.teams.find({'email': {'$regex': email, '$options': '-i'}}))
@@ -144,7 +145,7 @@ def load_news():
     Queries the database for all news articles, loads them into a json document and returns them ordered by their date.
     Newest articles are at the beginning of the list to appear at the top of the news page.
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     news = cache.get('news')
     if news is not None:
         return json.loads(news)

@@ -49,12 +49,12 @@ def create_user_hook():
     return 1, None, "User '{}' registered successfully!".format(request.form["username"])
 
 
-@app.route('/api/updatepass', methods=['POST'])
+@app.route('/api/updatepassword', methods=['POST'])
 @return_json
 @require_login
 def update_password_hook():
     uid = user.get_user()["uid"]
-    password = request.form.get("pass")
+    password = request.form.get("password")
     confirm = request.form.get("confirm")
 
     if password != confirm:
@@ -158,7 +158,7 @@ def submit_problem_hook():
     user_account = user.get_user()
     tid = user_account['tid']
 
-    return problem.submit_problem(tid, request.form.get('pid',''), read.form.get('key',''))
+    return problem.submit_problem(tid, request.form.get('pid', ''), read.form.get('key', ''))
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
@@ -204,8 +204,8 @@ def request_password_reset_hook():
 @return_json
 def reset_password_hook(request):
     token = str(request.form.get('token', None))
-    newpw = str(request.form.get('newpw', None))
-    return utilities.reset_password(token, newpw)
+    new_password = str(request.form.get('new-password', None))
+    return utilities.reset_password(token, new_password)
 
 
 @app.route('/api/game/categorystats', methods=['GET'])

@@ -1,8 +1,8 @@
 __author__ = 'Collin Petty'
 import imp
 
-from api.common import cache, APIException
-from api import team, user, common
+from api.common import APIException
+import api.common
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 
@@ -19,7 +19,7 @@ def acquire_problem_instance(pid, uid):
 def get_solved_pids_for_cat(uid=None, tid=None, gid=None):
     """Gets all solved PIDs for the given category
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     if gid is not None:
         pids = set()
         for t in db.teams.find({'gid': gid}):
@@ -37,7 +37,7 @@ def get_solved_pids_for_cat(uid=None, tid=None, gid=None):
 
 def get_viewable_pids_for_cat(uid=None, tid=None, gid=None):
     solved_pids = get_solved_pids_for_cat(**locals())
-    db = common.get_conn()
+    db = api.common.get_conn()
     return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
                                                     'threshold' not in p or
                                                     sum(p['weightmap'].get(pid, 0) for pid in solved_pids) >= p['threshold']}
@@ -46,7 +46,7 @@ def get_viewable_pids_for_cat(uid=None, tid=None, gid=None):
 def get_viewable_pids_for_solved(pids):
     if pids is None:
         return None
-    db = common.get_conn()
+    db = api.common.get_conn()
     return {p['pid'] for p in db.problems.find() if 'weightmap' not in p or
                                                     'threshold' not in p or
                                                     sum(p['weightmap'].get(pid, 0) for pid in pids) >= p['threshold']}
@@ -63,7 +63,7 @@ def load_viewable_problems(tid):
     """
     solved_pids = get_solved_pids_for_cat(tid=tid)
     viewable_pids = get_viewable_pids_for_solved(solved_pids)
-    db = common.get_conn()
+    db = api.common.get_conn()
     probs = []
     for p in db.problems.find({'pid': {"$in": list(viewable_pids)}}):
         probs.append({'pid':         p['pid'],
@@ -91,7 +91,7 @@ def get_solved_problems():
     else:
         solved_pids = get_solved_pids_for_cat(uid=useracct['uid'])
 
-    db = common.get_conn()
+    db = api.common.get_conn()
     probs = [{'pid':         p['pid'],
               'displayname': p.get('displayname'),
               'basescore':   p.get('basescore'),
@@ -122,7 +122,7 @@ def submit_problem(tid, pid, key):
     (an attempt is made). A relevant message is returned if the problem has already been solved or the answer
     has been tried.
     """
-    db = common.get_conn()
+    db = api.common.get_conn()
     try:
         pid = validate(pid.strip(), "Problem ID", min_length=1)
         key = validate(key.strip(), "Answer", min_length=1)
@@ -189,7 +189,7 @@ def submit_problem(tid, pid, key):
 
 # JB: This needs updating
 def get_all_problems():
-    db = common.get_conn()
+    db = api.common.get_conn()
     return [{'pid': p['pid'],
              'displayname': p['displayname'],
              'basescore': p['basescore'],

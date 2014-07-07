@@ -11,6 +11,7 @@ from voluptuous import Schema, Required, Length
 
 import api.user
 from api.user import check
+from api.common import APIException
 import bcrypt
 
 debug_disable_general_login = False
@@ -39,21 +40,21 @@ def login(username, password):
     })
     user = api.user.get_user(username)
     if user is None:
-        return 0, None, "Incorrect username."
+        raise APIException(0, None, "Incorrect username.")
 
-    pwhash = user['pwhash']  # The pw hash from the db
-    if bcrypt.hashpw(password, pwhash) == pwhash:
+    password_hash = user['password_hash']
+    if bcrypt.hashpw(password, password_hash) == password_hash:
         if user.get('debugaccount', False):
             session['debugaccount'] = True
         if debug_disable_general_login:
             if session.get('debugaccount', False):
-                return 2, None, "Correct credentials! But the game has not started yet..."
+                raise APIException(2, None, "Correct credentials! But the game has not started yet...")
         if user['uid'] is not None:
             session['uid'] = user['uid']
-            return 1, None, "Successfully logged in as '%s'." % username
+            raise APIException(1, None, "Successfully logged in as " + username)
         else:
-            return 0, None, "Login Error"
-    return 0, None, "Incorrect Password"
+            raise APIException(0, None, "Login Error")
+    raise APIException(0, None, "Incorrect Password")
 
 
 def logout():

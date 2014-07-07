@@ -20,7 +20,7 @@ class TestUsers(object):
 
     new_team_user = {
         "username": "valid",
-        "pass": "valid",
+        "password": "valid",
         "email": "valid@hs.edu",
         "create-new-team": "true",
 
@@ -28,16 +28,16 @@ class TestUsers(object):
         "team-adv-name-new": "Dr. Hacks",
         "team-adv-email-new": "hacks@hs.edu",
         "team-school-new": "Hacks HS",
-        "team-pass-new": "leet_hax"
+        "team-password-new": "leet_hax"
     }
 
     existing_team_user = {
         "username": "valid",
-        "pass": "valid",
+        "password": "valid",
         "email": "valid@hs.edu",
         "create-new-team": "false",
 
-        "team-pass-existing": "leet_hax",
+        "team-password-existing": "leet_hax",
         "team-name-existing": "massive_hacks"
     }
 
@@ -151,7 +151,7 @@ class TestUsers(object):
                     api.team.get_team(name=sheep_user["team-name-existing"]) is None:
                         team = self.base_team.copy()
                         team['team_name'] , team['password'] = \
-                                sheep_user["team-name-existing"], sheep_user["team-pass-existing"]
+                                sheep_user["team-name-existing"], sheep_user["team-password-existing"]
                         api.team.create_team(team)
 
                     with pytest.raises(APIException):
@@ -220,7 +220,7 @@ class TestUsers(object):
 
         with pytest.raises(APIException):
             invalid_team_user = self.existing_team_user.copy()
-            invalid_team_user["team-pass-existing"] = "Not correct"
+            invalid_team_user["team-password-existing"] = "Not correct"
             api.user.register_user(invalid_team_user)
             assert False, "Was able to join a team with an invalid password."
 
@@ -230,7 +230,7 @@ class TestUsers(object):
         assert len(team_uids) == 1, "Invalid teams were created though the tests passed."
 
     @clear_collections("users", "teams")
-    def test_change_pw_user(self):
+    def test_change_password_user(self):
         """
         Tests password change functionality.
 
@@ -242,12 +242,12 @@ class TestUsers(object):
         tid = api.team.create_team(self.base_team.copy())
         uid = api.user.create_user("fred", "fred@gmail.com", "HASH", tid)
 
-        old_hash = api.user.get_user(uid=uid)["pwhash"]
+        old_hash = api.user.get_user(uid=uid)["password_hash"]
         assert old_hash == "HASH", "Was unable to confirm password was stored correctly."
 
         api.user.update_password(uid, "HACK")
 
-        new_hash = api.user.get_user(uid=uid)["pwhash"]
+        new_hash = api.user.get_user(uid=uid)["password_hash"]
 
         assert bcrypt.hashpw("HACK", new_hash) == new_hash, \
             "Password does not match hashed plaintext after changing it."

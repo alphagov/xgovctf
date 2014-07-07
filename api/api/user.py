@@ -25,7 +25,7 @@ user_schema = Schema({
         (0, "This username already exists.", [
             lambda name: get_user(name) == None])
     ),
-    Required('pass'):
+    Required('password'):
         check((0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
 
@@ -35,7 +35,7 @@ new_team_schema = Schema({
         (0, "A team with that name already exists.", [
             lambda name: api.team.get_team(name=name) == None])
     ),
-    Required('team-pass-new'):
+    Required('team-password-new'):
         check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
     Required('team-adv-name-new'):
         check((0, "Adviser names should be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
@@ -55,7 +55,7 @@ existing_team_schema = Schema({
             lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < 4
         ])
     ),
-    Required('team-pass-existing'):
+    Required('team-password-existing'):
         check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
 
@@ -68,6 +68,7 @@ def hash_password(password):
     Returns:
         Secure hash of password.
     """
+
     return bcrypt.hashpw(password, bcrypt.gensalt(8))
 
 def get_tid_from_uid(uid):
@@ -79,8 +80,9 @@ def get_tid_from_uid(uid):
     Returns:
         The user's teamid.
     """
+
     db = api.common.get_conn()
-    return db.users.find_one({'uid': uid})['tid']
+    return db.users.find_one({'uid': uid}, {'tid': 1})['tid']
 
 
 def get_user(name=None, uid=None):
@@ -94,6 +96,7 @@ def get_user(name=None, uid=None):
     Returns:
         Returns the corresponding user object or None if it could not be found
     """
+
     db = api.common.get_conn()
 
     if name is not None:
@@ -108,14 +111,14 @@ def get_user(name=None, uid=None):
     return None
 
 
-def create_user(username, email, pwhash, tid):
+def create_user(username, email, password_hash, tid):
     """
     This inserts a user directly into the database. It assumes all data is valid.
 
     Args:
         username: user's username
         email: user's email
-        pwhash: a hash of the user's password
+        password_hash: a hash of the user's password
         tid: the team id to join
     Returns:
         Returns the uid of the newly created user
@@ -131,7 +134,7 @@ def create_user(username, email, pwhash, tid):
         'uid': uid,
         'username': username,
         'email': email,
-        'pwhash': pwhash,
+        'password_hash': password_hash,
         'tid': tid,
         'avatar': 3,
         'eventid': 0,
@@ -145,6 +148,7 @@ def get_all_users():
     Returns:
         Returns the uid, username, and email of all users.
     """
+
     db = api.common.get_conn()
     return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1}))
 
@@ -156,22 +160,23 @@ def register_user(params):
 
     Args:
         username: user's username
-        pass: user's password
+        password: user's password
         email: user's email
         create-new-team:
             boolean "true" indicating whether or not the user is creating a new team or
             joining an already existing team.
 
         team-name-existing: Name of existing team to join.
-        team-pass-existing: Password of existing team to join.
+        team-password-existing: Password of existing team to join.
 
         team-name-new: Name of new team.
         team-adv-name-new: Name of adviser.
         team-adv-email-new: Adviser's email address.
         team-school-new: Name of the team's school.
-        team-pass-new: Password to join team.
+        team-password-new: Password to join team.
 
     """
+
     user_schema(params)
 
     if params.get("create-new-team", None) == "true":
@@ -182,7 +187,7 @@ def register_user(params):
             "adviser_name": params["team-adv-name-new"],
             "adviser_email": params["team-adv-email-new"],
             "school": params["team-school-new"],
-            "password" : params["team-pass-new"]
+            "password" : params["team-password-new"]
         }
 
         tid = api.team.create_team(team_params)
@@ -195,7 +200,7 @@ def register_user(params):
 
         team = api.team.get_team(name=params["team-name-existing"])
 
-        if team['password'] != params['team-pass-existing']:
+        if team['password'] != params['team-password-existing']:
             raise APIException(0, None, "Your team password is incorrect.")
 
 
@@ -203,7 +208,7 @@ def register_user(params):
     uid = create_user(
         params["username"],
         params["email"],
-        hash_password(params["pass"]),
+        hash_password(params["password"]),
         team["tid"]
     )
 
@@ -220,6 +225,7 @@ def update_password(uid, password):
         uid: the user id
         password: the new password
     """
+
     db = api.common.get_conn()
 
     #CG: Where should schema's fit in here? We've already defined a password validator
@@ -227,7 +233,7 @@ def update_password(uid, password):
     if len(password) == 0:
         raise APIException(0, None, "Your password cannot be empty.")
 
-    db.users.update({'uid': uid}, {'$set': {'pwhash': hash_password(password)}})
+    db.users.update({'uid': uid}, {'$set': {'password_hash': hash_password(password)}})
 
 def get_ssh_account(uid):
     """
@@ -238,6 +244,7 @@ def get_ssh_account(uid):
     Returns:
         A dict with the username and password of the account.
     """
+
     db = api.common.get_conn()
     sshacct = db.sshaccts.find_one({'uid': uid})
     if sshacct is not None:

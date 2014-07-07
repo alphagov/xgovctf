@@ -25,7 +25,7 @@ class TestTeams(object):
         "password": "much_protected"
     }
     
-    @clear_collections("team")
+    @clear_collections("teams")
     def test_create_batch_teams(self, teams=10):
         """
         Tests team creation.

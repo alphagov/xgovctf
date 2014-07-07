@@ -8,10 +8,10 @@ window.check_logged_in = ->
         else if data['status'] == 1
           if (typeof(Storage) != "undefined")
             sessionStorage.signInStatus = "loggedIn"
-          document.location.href = "problems.html"        
+          document.location.href = "problems.html"
 
-window.submit_login = ->  
-  $.ajax(type: "POST", cache: false, url: "/api/login", dataType: "json", data: {'username': $("#login-username").val(), 'password': $("#login-pass").val()})
+window.submit_login = ->
+  $.ajax(type: "POST", cache: false, url: "/api/login", dataType: "json", data: {'username': $("#login-username").val(), 'password': $("#login-password").val()})
   .done (data) ->
     if data['status'] == 0
       if (typeof(Storage) != "undefined")

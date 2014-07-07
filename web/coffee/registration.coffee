@@ -1,4 +1,4 @@
-fields = ['email', 'username', 'pass', 'team-name-new', 'team-pass-new', 'team-school-new', 'team-adv-name-new', 'team-adv-email-new', 'team-name-existing', 'team-pass-existing', 'create-new-team']
+fields = ['email', 'username', 'password', 'team-name-new', 'team-password-new', 'team-school-new', 'team-adv-name-new', 'team-adv-email-new', 'team-name-existing', 'team-password-existing', 'create-new-team']
 
 clear = ->
   $('#reg-'+field).val('') for field in fields
@@ -14,8 +14,8 @@ window.submit_registration = ->
   post = getRegData()
   console.log(post)
   $.ajax(type: 'POST', url: '/api/user/create', dataType: 'json', data: post)
-  .done (data) ->    
-    if data['status'] == 0      
+  .done (data) ->
+    if data['status'] == 0
       console.log(data.message)
       $('#message-box').html(data.message)
     else if data['status'] == 1
