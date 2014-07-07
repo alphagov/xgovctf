@@ -138,4 +138,4 @@ def validate(schema, data):
     try:
         schema(data)
     except MultipleInvalid as error:
-        raise APIException(1, None, error.msg())
+        raise APIException(1, None, error.msg)
