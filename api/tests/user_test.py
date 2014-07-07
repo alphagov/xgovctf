@@ -83,17 +83,42 @@ class TestUsers(object):
 
             assert user_from_uid == user_from_name, "User lookup from uid and name are not the same."
 
+    @clear_collections("users", "teams")
+    def test_register_user_email_validation(self):
+        """
+        Tests the email validation during user registration.
+        
+        Covers:
+            partially: user.register_user
+        """
+        team = self.base_team.copy()    
+        api.team.create_team(team)
+
+        invalid_email_user = self.existing_team_user.copy()
+        invalid_email_user["email"] = "not_an_email"
+
+        with pytest.raises(APIException):
+            api.user.register_user(invalid_email_user)
+            assert False, "Was able to register a user with something that doesn't look like an email."
+
+        invalid_email_user["email"] = "hax$@test.c"
+
+        with pytest.raises(APIException):
+            api.user.register_user(invalid_email_user)
+            assert False, "Was able to register a user with invalid characters"
+
+        valid_email_user = self.existing_team_user.copy()
+        assert api.user.register_user(valid_email_user), "Was not able to register a valid email."
+
 
     @clear_collections("users", "teams")
-    def test_register_user_validation(self):
+    def test_register_user_general_validation(self):
         """
         Tests the registration form validation functionality.
 
         Covers:
             partially: user.register_user
         """
-        #TODO: Implement lots more.
-
         #Generally invalidate every length requirement
         for bad_length_mod in [0, 200]:
             for user_blueprint in [self.new_team_user, self.existing_team_user]:
