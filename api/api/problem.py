@@ -1,4 +1,4 @@
-__author__ = 'Collin Petty'
+""" Module for interacting with the problems """
 import imp
 
 import api.common
