@@ -222,7 +222,7 @@ def get_unlocked_problems(tid, category=None):
         category: Optional parameter to restrict which problems are returned
 
     Returns:
-        List of unlocked problems dictionaries
+        List of unlocked problem dictionaries
     """
 
     return [get_problem(pid) for pid in get_unlocked_pids(tid, category)]
