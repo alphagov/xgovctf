@@ -7,6 +7,8 @@ import api.user
 
 from api.common import APIException
 
+max_team_users = 4
+
 def get_team(tid=None, name=None):
     """
     Retrieve a team based on a property (tid, name, etc.).

@@ -52,7 +52,7 @@ existing_team_schema = Schema({
         (0, "There is no existing team named that.", [
             lambda name: api.team.get_team(name=name) != None]),
         (0, "There are too many members on that team for you to join.", [
-            lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < 4
+            lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < api.team.max_team_users
         ])
     ),
     Required('team-pass-existing'):
