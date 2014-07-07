@@ -5,87 +5,93 @@ post_scripts:
  - js/registration.js
 startup_functions:
 ---
-    <form class="form-horizontal" id="user-registration-form">
-        <div class="control-group">
-            <label class="control-label" for="email">Email</label>
-            <div class="controls registration-controls">
-                <input id="email" name="email" placeholder="Email" type="email">
-            </div>
+<div class="container-narrow">
+    <div class="contentbox row">
+        <div class="col-md-4 col-md-offset-4">
+            <form class="form-horizontal" id="user-registration-form">
+                <div class="form-group">
+                    <label class="control-label" for="email">Email</label>
+                    <div class="controls registration-controls">
+                        <input id="email" name="email" placeholder="Email" type="email" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="username">Username</label>
+                    <div class="controls registration-controls">
+                        <input id="username" name="username" placeholder="Username" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="password">Password</label>
+                    <div class="controls registration-controls">
+                        <input id="password" name="password" placeholder="Password" type="password" class="form-control">
+                    </div>
+                </div>
+                <hr>
+                <div>Create a New Team</div>
+                <div class="form-group">
+                    <div class="controls registration-controls">
+                        <input id="create-new-team" name="create-new-team" type="checkbox">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-name-new">Team Name</label>
+                    <div class="controls registration-controls">
+                        <input id="team-name-new" name="team-name-new" placeholder="Team Name" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-password-new">Team Password</label>
+                    <div class="controls registration-controls">
+                        <input id="team-password-new" name="team-password-new" placeholder="Team Password" type="password" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-school-new">School</label>
+                    <div class="controls registration-controls">
+                        <input id="team-school-new" name="team-school-new" placeholder="School" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-adv-name-new">Adviser Name</label>
+                    <div class="controls registration-controls">
+                        <input id="team-adv-name-new" name="team-adv-name-new" placeholder="Adviser Name" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-adv-email-new">Adviser Email</label>
+                    <div class="controls registration-controls">
+                        <input id="team-adv-email-new" name="team-adv-email-new" placeholder="Adviser Email" type="text" class="form-control">
+                    </div>
+                </div>
+                <hr>
+                <div>Join an Existing Team</div>
+                <div class="form-group">
+                    <label class="control-label" for="team-name-existing">Team Name</label>
+                    <div class="controls registration-controls">
+                        <input id="team-name-existing" name="team-name-existing" placeholder="Team Name" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="team-password-existing">Team Password</label>
+                    <div class="controls registration-controls">
+                        <input id="team-password-existing" name="team-password-existing" placeholder="Team Password" type="password" class="form-control">
+                    </div>
+                </div>
+                <hr>
+                <div class="message">
+                    <div id="message-box">
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <div class="controls registration-controls">
+                        <button id="register-button" type="submit" class="btn btn-primary">
+                            Register
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="control-group">
-            <label class="control-label" for="username">Username</label>
-            <div class="controls registration-controls">
-                <input id="username" name="username" placeholder="Username" type="text">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="password">Password</label>
-            <div class="controls registration-controls">
-                <input id="password" name="password" placeholder="Password" type="password">
-            </div>
-        </div>
-        <hr />
-        <div>Create a New Team</div>
-        <div class="control-group">
-            <div class="controls registration-controls">
-                <input id="create-new-team" name="create-new-team" type="checkbox">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-name-new">Team Name</label>
-            <div class="controls registration-controls">
-                <input id="team-name-new" name="team-name-new" placeholder="Team Name" type="text">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-password-new">Team Password</label>
-            <div class="controls registration-controls">
-                <input id="team-password-new" name="team-password-new" placeholder="Team Password" type="password">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-school-new">School</label>
-            <div class="controls registration-controls">
-                <input id="team-school-new" name="team-school-new" placeholder="School" type="text">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-adv-name-new">Adviser Name</label>
-            <div class="controls registration-controls">
-                <input id="team-adv-name-new" name="team-adv-name-new" placeholder="Adviser Name" type="text">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-adv-email-new">Adviser Email</label>
-            <div class="controls registration-controls">
-                <input id="team-adv-email-new" name="team-adv-email-new" placeholder="Adviser Email" type="text">
-            </div>
-        </div>
-        <hr />
-        <div>Join an Existing Team</div>
-        <div class="control-group">
-            <label class="control-label" for="team-name-existing">Team Name</label>
-            <div class="controls registration-controls">
-                <input id="team-name-existing" name="team-name-existing" placeholder="Team Name" type="text">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="team-password-existing">Team Password</label>
-            <div class="controls registration-controls">
-                <input id="team-password-existing" name="team-password-existing" placeholder="Team Password" type="password">
-            </div>
-        </div>
-        <hr />
-        <div class="message">
-            <div id="message-box">
-            </div>
-        </div>
-        <hr />
-        <div class="control-group">
-            <div class="controls registration-controls">
-                <button id="register-button" type="submit" class="btn btn-primary">
-                    Register
-                </button>
-            </div>
-        </div>        
-    </form>
+    </div>
+</div>
