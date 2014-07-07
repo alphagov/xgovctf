@@ -154,7 +154,6 @@ class TestUsers(object):
             api.user.register_user(sheep_user)
             assert False, "Was able to create two users with the same username."
 
-
     @clear_collections("users", "teams")
     def test_register_user_existing_team(self):
         """
@@ -163,16 +162,35 @@ class TestUsers(object):
         Covers:
             partially: user.register_user
             team.get_team_uids
+            team.create_team
         """
 
         tid = api.team.create_team(self.base_team.copy())
         assert tid, "Team was not created."
 
-        uid = api.user.register_user(self.existing_team_user)
+        uid = api.user.register_user(self.existing_team_user.copy())
         assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
 
+        with pytest.raises(APIException):
+            api.user.register_user(self.existing_team_user.copy())
+            assert False, "Was able to register and join the team twice."
+
+        with pytest.raises(APIException):
+            invalid_team_user = self.existing_team_user.copy()
+            invalid_team_user["team-name-existing"] = "Totally Invalid"
+            api.user.register_user(invalid_team_user)
+            assert False, "Was able to join a team that doesn't exist."
+
+        with pytest.raises(APIException):
+            invalid_team_user = self.existing_team_user.copy()
+            invalid_team_user["team-pass-existing"] = "Not correct"
+            api.user.register_user(invalid_team_user)
+            assert False, "Was able to join a team with an invalid password."
+
         team_uids = api.team.get_team_uids(tid)
+
         assert uid in team_uids, "User was not successfully placed into the existing team."
+        assert len(team_uids) == 1, "Invalid teams were created though the tests passed."
 
     @clear_collections("users", "teams")
     def test_change_pw_user(self):
