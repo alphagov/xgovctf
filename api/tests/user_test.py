@@ -91,6 +91,7 @@ class TestUsers(object):
         Covers:
             partially: user.register_user
         """
+
         team = self.base_team.copy()    
         api.team.create_team(team)
 
@@ -110,6 +111,17 @@ class TestUsers(object):
         valid_email_user = self.existing_team_user.copy()
         assert api.user.register_user(valid_email_user), "Was not able to register a valid email."
 
+    @clear_collections("users", "teams")
+    def test_get_tid_from_uid(self):
+        """
+        Tests retrieving the tid from a given uid.
+        """
+
+        team = self.base_team.copy()
+        tid = api.team.create_team(team)
+
+        uid = api.user.register_user(self.existing_team_user.copy())
+        assert tid == api.user.get_tid_from_uid(uid), "Unable to pair uid and tid."
 
     @clear_collections("users", "teams")
     def test_register_user_general_validation(self):
@@ -119,6 +131,7 @@ class TestUsers(object):
         Covers:
             partially: user.register_user
         """
+
         #Generally invalidate every length requirement
         for bad_length_mod in [0, 200]:
             for user_blueprint in [self.new_team_user, self.existing_team_user]:
@@ -154,7 +167,6 @@ class TestUsers(object):
             partially: user.register_user
             team.get_team_uids
         """
-
 
         uid = api.user.register_user(self.new_team_user)
         assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
