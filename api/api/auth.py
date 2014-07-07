@@ -56,24 +56,27 @@ def login(username, password):
 
 
 def logout():
-    """Logout
-
-    If the user has a uid in the session it is removed.
+    """ 
+    Clears the session
     """
     session.clear()
 
 
 def is_logged_in():
-    """Check if the user is currently logged in.
+    """
+    Check if the user is currently logged in.
 
-    If the user has a uid in their session, they are logged in
+    Returns:
+        True if the user is logged in, false otherwise.
     """
     return 'uid' in session
 
 
 def is_admin():
-    """Check if the user is an admin.
+    """
+    Check if the user is an admin. If the user as the 'admin' flag set in their session, they are an admin.
 
-    If the user as the 'admin' flag set in their session, they are an admin.
+    Returns:
+        True if the user is an admin, false otherwise.
     """
     return session.get('admin', False)
