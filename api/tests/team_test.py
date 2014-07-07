@@ -99,7 +99,7 @@ class TestTeams(object):
         """
 
         api.team.create_team(self.base_team.copy())
-        
+
         for i in range(api.team.max_team_users):
             test_user = self.base_user.copy()
             test_user['username'] += str(i)
