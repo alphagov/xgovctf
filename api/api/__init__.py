@@ -68,14 +68,17 @@ def update_password_hook():
 @return_json
 @require_login
 def get_ssh_account_hook():
-    return user.get_ssh_account(user.get_user()['uid'])
+    data = user.get_ssh_account(user.get_user()['uid'])
+    return (1, data)
 
 
 @app.route('/api/login', methods=['POST'])
 @return_json
 def login_hook():
-    return auth.login(request.form.get('username'),
-                      request.form.get('password'))
+    username = request.form.get('username')
+    password = request.form.get('password')
+    auth.login(username, password)
+    return (1, None, "Successfully logged in as " + username)
 
 
 @app.route('/api/logout', methods=['GET'])
@@ -92,6 +95,7 @@ def logout_hook():
 @app.route('/api/isloggedin', methods=['GET'])
 @return_json
 def is_logged_in_hook():
+    print(auth.is_logged_in())
     if auth.is_logged_in():
         return 1, None, "You are logged in."
     else:

@@ -38,23 +38,21 @@ def login(username, password):
         "username": username,
         "password": password
     })
-    user = api.user.get_user(username)
+    user = api.user.get_user(name=username)
     if user is None:
         raise APIException(0, None, "Incorrect username.")
 
     password_hash = user['password_hash']
     if bcrypt.hashpw(password, password_hash) == password_hash:
-        if user.get('debugaccount', False):
-            session['debugaccount'] = True
         if debug_disable_general_login:
             if session.get('debugaccount', False):
                 raise APIException(2, None, "Correct credentials! But the game has not started yet...")
         if user['uid'] is not None:
             session['uid'] = user['uid']
-            raise APIException(1, None, "Successfully logged in as " + username)
         else:
             raise APIException(0, None, "Login Error")
-    raise APIException(0, None, "Incorrect Password")
+    else:
+        raise APIException(0, None, "Incorrect Password")
 
 
 def logout():
