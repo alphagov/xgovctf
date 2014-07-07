@@ -28,12 +28,12 @@ class TestTeams(object):
 
     base_user = {
         "username": "valid",
-        "pass": "valid",
+        "password": "valid",
         "email": "valid@hs.edu",
         "create-new-team": "false",
 
         "team-name-existing": base_team['team_name'],
-        "team-pass-existing": base_team['password']
+        "team-password-existing": base_team['password']
     }
     
     @clear_collections("teams")
