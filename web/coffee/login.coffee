@@ -11,7 +11,7 @@ window.check_logged_in = ->
         document.location.href = "problems.html"
 
 trigger_alert = (message)->
-  $("#error-alert").hide().text(message).show().delay(2000).fadeOut()
+  $("#error-alert").hide().text(message).show().delay(1500).fadeOut()
 
 
 login = (e) ->
