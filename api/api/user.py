@@ -71,19 +71,19 @@ def hash_password(password):
 
     return bcrypt.hashpw(password, bcrypt.gensalt(8))
 
-def get_tid_from_uid(uid):
+def get_team(uid=None):
     """
-    Retrieve the the corresponding tid to the user's uid.
+    Retrieve the the corresponding team to the user's uid.
 
     Args:
         uid: user's userid
     Returns:
-        The user's teamid.
+        The user's team.
     """
+    user = get_user(uid=uid)
 
     db = api.common.get_conn()
-    return db.users.find_one({'uid': uid}, {'tid': 1})['tid']
-
+    return db.teams.find_one({'tid': user['tid']})
 
 def get_user(name=None, uid=None):
     """

@@ -112,16 +112,17 @@ class TestUsers(object):
         assert api.user.register_user(valid_email_user), "Was not able to register a valid email."
 
     @clear_collections("users", "teams")
-    def test_get_tid_from_uid(self):
+    def test_get_team(self):
         """
-        Tests retrieving the tid from a given uid.
+        Tests retrieving the team from a given uid.
         """
 
         team = self.base_team.copy()
         tid = api.team.create_team(team)
-
         uid = api.user.register_user(self.existing_team_user.copy())
-        assert tid == api.user.get_tid_from_uid(uid), "Unable to pair uid and tid."
+
+        result_team = api.user.get_team(uid=uid)
+        assert tid == result_team['tid'], "Unable to pair uid and tid."
 
     @clear_collections("users", "teams")
     def test_register_user_general_validation(self):
