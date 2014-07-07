@@ -89,7 +89,7 @@ class TestTeams(object):
         assert sorted(uids) == sorted(team_uids), "Team does not have the correct members"
 
     @clear_collections("teams", "users")
-    def test_team_size_validation(self):
+    def test_register_user_team_size_validation(self):
         """
         Tests the team size restriction
 
