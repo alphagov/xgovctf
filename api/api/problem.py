@@ -107,6 +107,7 @@ def get_submissions(uid):
     Returns:
         A list of submissions from the given user
     """
+
     db = api.common.get_conn()
     return db.submissions.find({'uid': uid})
 
@@ -120,6 +121,7 @@ def get_team_submissions(tid):
     Returns:
         A list of submissions from the entire team
     """
+
     db = api.common.get_conn()
     return db.submissions.find({'tid': tid})
 
@@ -133,6 +135,7 @@ def get_problem(pid):
     Returns:
         The problem dictionary from the database
     """
+
     db = api.common.get_conn()
     return db.problems.find_one({'pid': pid})
 
@@ -144,6 +147,7 @@ def get_all_problems(category=None):
     Args:
         category: Optional parameter to restrict which problems are returned
     """
+
     db = api.common.get_conn()
 
     if category:
@@ -161,6 +165,7 @@ def get_solved_pids(tid, category=None):
     Returns:
         List of solved problem ids
     """
+
     correct_pids = [sub['pid'] for sub in get_team_submission(tid) if sub['correct'] == True]
 
     solved = []
@@ -180,6 +185,7 @@ def get_solved_problems(tid, category=None):
     Returns:
         List of solved problem dictionaries
     """
+
     return [get_problem(pid) for pid in get_solved_pids(tid, category)]
 
 def get_unlocked_pids(tid, category=None):
@@ -193,6 +199,7 @@ def get_unlocked_pids(tid, category=None):
     Returns:
         List of unlocked problem ids
     """
+
     solved = get_solved_problems(tid, category)
 
     unlocked = []
@@ -217,4 +224,5 @@ def get_unlocked_problems(tid, category=None):
     Returns:
         List of unlocked problems dictionaries
     """
+
     return [get_problem(pid) for pid in get_unlocked_pids(tid, category)]
