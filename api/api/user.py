@@ -178,7 +178,7 @@ def register_user(params):
     """
     validate(user_schema, params)
 
-    if params.get("create-new-team", None) == "true":
+    if params.get("create-new-team", None) == "on":
         validate(new_team_schema, params)
 
         team_params = {
