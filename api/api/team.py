@@ -7,6 +7,7 @@ import api.user
 
 from api.common import APIException
 
+#TB: We should consider taking this from a config file
 max_team_users = 4
 
 def get_team(tid=None, name=None):
