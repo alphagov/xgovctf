@@ -5,4 +5,8 @@ submit_registration = (e) ->
     $("#message-box").html(data.message)
 
 $(document).ready ->
-  $('#user-registration-form').on "submit", submit_registration
+  $("#user-registration-form").on "submit", submit_registration
+
+  $("#new-team-registration").hide()
+  $("#create-new-team").on "change", (e) ->
+    $(".team-registration-form").toggle()
