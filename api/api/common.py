@@ -8,7 +8,7 @@ __status__ = "Production"
 
 from pymongo import MongoClient
 from werkzeug.contrib.cache import SimpleCache
-from voluptuous import Invalid
+from voluptuous import Invalid, MultipleInvalid
 import uuid
 
 
@@ -124,3 +124,18 @@ def check(*callback_tuples):
         return value
     return validate
 
+def validate(schema, data):
+    """
+    A wrapper around the call to voluptuous schema to raise the proper exception.
+
+    Args:
+        schema: The voluptuous Schema object
+        data: The validation data for the schema object
+
+    Raises:
+        APIException with status 1 and the voluptuous error message
+    """
+    try:
+        schema(data)
+    except MultipleInvalid as error:
+        raise APIException(1, None, error.msg())

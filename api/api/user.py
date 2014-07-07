@@ -3,8 +3,8 @@ API functions relating to user management and registration.
 """
 
 from flask import session
-from voluptuous import Schema, Required, Length
-from api.common import check, APIException
+from voluptuous import Required, Length, Schema
+from api.common import check, APIException, validate
 
 import api.team
 import api.common
@@ -52,7 +52,7 @@ existing_team_schema = Schema({
         (0, "There is no existing team named that.", [
             lambda name: api.team.get_team(name=name) != None]),
         (0, "There are too many members on that team for you to join.", [
-            lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < 4
+            lambda name: len(api.team.get_team_uids(api.team.get_team(name=name)["tid"])) < api.team.max_team_users
         ])
     ),
     Required('team-password-existing'):
@@ -176,11 +176,10 @@ def register_user(params):
         team-password-new: Password to join team.
 
     """
-
-    user_schema(params)
+    validate(user_schema, params)
 
     if params.get("create-new-team", None) == "true":
-        new_team_schema(params)
+        validate(new_team_schema, params)
 
         team_params = {
             "team_name": params["team-name-new"],
@@ -196,7 +195,7 @@ def register_user(params):
             raise APIException(-10, None, "Failed to create new team")
         team = api.team.get_team(tid=tid)
     else:
-        existing_team_schema(params)
+        validate(existing_team_schema, params)
 
         team = api.team.get_team(name=params["team-name-existing"])
 
