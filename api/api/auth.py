@@ -33,7 +33,7 @@ def login(username, password):
     """
 
     # Read in submitted username and password
-    user_login_schema({
+    validate(user_login_schema, {
         "username": username,
         "password": password
     })
