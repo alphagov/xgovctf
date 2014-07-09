@@ -7,8 +7,7 @@ import api.user
 
 from api.common import APIException
 
-#TB: We should consider taking this from a config file
-max_team_users = 4
+max_team_users = 5
 
 def get_team(tid=None, name=None):
     """
@@ -52,17 +51,27 @@ def create_team(params):
     return params['tid']
 
 
-def get_team_uids(tid):
+def get_team_uids(tid=None, name=None):
     """
     Retrieves the uids for all members on a team.
 
     Args:
         tid: the team id to query
+        name: the team name to query
     Returns:
         A list of the uids of the team's members.
     """
+
     db = api.common.get_conn()
-    return [user["uid"] for user in db.users.find({'tid': tid})]
+
+    if tid is not None:
+        match = {'tid': tid}
+    elif name is not None:
+        match = {'tid': api.team.get_team(name=name)['tid']}
+    else:
+        raise APIException(0, None, "No tid or name supplied")
+
+    return [user["uid"] for user in db.users.find(match)]
 
 def get_team_information(tid):
     """
