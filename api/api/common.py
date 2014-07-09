@@ -60,13 +60,15 @@ def esc(s):
 
 
 def token():
-    """Generate a token, should be random but does not have to be secure necessarily. Speed is a priority.
+    """
+    Generate a token, should be random but does not have to be secure necessarily. Speed is a priority.
     """
     return str(uuid.uuid4().hex)
 
 
 def sec_token():
-    """Generate a secure token that is cryptographically secure.
+    """
+    Generate a secure token that is cryptographically secure.
     """
     return token()
 
@@ -82,12 +84,13 @@ class APIException(Exception):
 def flat_multi(multidict):
     """
     Flattens any single element lists in a multidict.
-    
+
     Args:
         multidict: multidict to be flattened.
     Returns:
         Partially flattened database.
     """
+
     flat = {}
     for key, values in multidict.items():
         flat[key] = values[0] if type(values) == list and len(values) == 1 \
@@ -103,6 +106,7 @@ def check(*callback_tuples):
     Returns:
         Returns a function callback for the Schema
     """
+
     def validate(value):
         """
         Trys to validate the value with the given callbacks.
@@ -114,6 +118,7 @@ def check(*callback_tuples):
         Returns:
             The value if the validation callbacks are satisfied.
         """
+
         for status, msg, callbacks in callback_tuples:
             for callback in callbacks:
                 try:
@@ -136,6 +141,7 @@ def validate(schema, data):
     Raises:
         APIException with status 0 and the voluptuous error message
     """
+
     try:
         schema(data)
     except MultipleInvalid as error:
