@@ -254,13 +254,12 @@ def get_submissions(uid):
 
     Args:
         uid: the user id
-
     Returns:
         A list of submissions from the given user
     """
 
     db = api.common.get_conn()
-    return db.submissions.find({'uid': uid})
+    return list(db.submissions.find({'uid': uid}))
 
 def get_team_submissions(tid):
     """
@@ -268,13 +267,12 @@ def get_team_submissions(tid):
 
     Args:
         tid: the team id
-
     Returns:
         A list of submissions from the entire team
     """
 
     db = api.common.get_conn()
-    return db.submissions.find({'tid': tid})
+    return list(db.submissions.find({'tid': tid}))
 
 def get_problem(pid=None, name=None, show_disabled=False):
     """
@@ -298,14 +296,13 @@ def get_problem(pid=None, name=None, show_disabled=False):
     else:
         raise APIException(0, None, "Problem information not given")
 
+    db = api.common.get_conn()
     problem = db.problems.find_one(match)
 
     if problem is None:
         raise APIException(0, None, "Could not find problem")
 
     return problem
-
-
 
 def get_all_problems(category=None, show_disabled=False):
     """
@@ -314,13 +311,17 @@ def get_all_problems(category=None, show_disabled=False):
     Args:
         category: Optional parameter to restrict which problems are returned
         show_disabled: Boolean indicating whether or not to show disabled problems.
+    Returns:
+        List of problems from the database
     """
 
     db = api.common.get_conn()
 
-    if category:
-        return db.problems.find({'category': category, "disabled": show_disabled})
-    return db.problems.find()
+    match = {"disabled": show_disabled}
+    if category is not None:
+      match.update({'category': category})
+
+    return list(db.problems.find(match))
 
 def get_solved_pids(tid, category=None):
     """
@@ -329,16 +330,15 @@ def get_solved_pids(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of solved problem ids
     """
 
-    correct_pids = [sub['pid'] for sub in get_team_submission(tid) if sub['correct'] == True]
+    correct_pids = [sub['pid'] for sub in get_team_submissions(tid) if sub['correct'] == True]
 
     solved = []
     for pid in correct_pids:
-        solved += pid
+        solved.append(pid)
 
     return solved
 
@@ -349,7 +349,6 @@ def get_solved_problems(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of solved problem dictionaries
     """
@@ -363,7 +362,6 @@ def get_unlocked_pids(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of unlocked problem ids
     """
@@ -375,7 +373,7 @@ def get_unlocked_pids(tid, category=None):
         if 'weightmap' not in problem or 'threshold' not in problem:
             unlocked.append(problem['pid'])
         else:
-            weightsum = sum(problem['weightmap'].get(pid, 0) for pid in get_solved_pids())
+            weightsum = sum(problem['weightmap'].get(pid, 0) for pid in get_solved_pids(tid, category))
             if weightsum >= problem['threshold']:
                 unlocked.append(problem['pid'])
 
@@ -388,7 +386,6 @@ def get_unlocked_problems(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of unlocked problem dictionaries
     """
