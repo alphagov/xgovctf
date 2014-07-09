@@ -108,7 +108,7 @@ def get_submissions(uid):
     """
 
     db = api.common.get_conn()
-    return db.submissions.find({'uid': uid})
+    return list(db.submissions.find({'uid': uid}))
 
 def get_team_submissions(tid):
     """
@@ -121,7 +121,7 @@ def get_team_submissions(tid):
     """
 
     db = api.common.get_conn()
-    return db.submissions.find({'tid': tid})
+    return list(db.submissions.find({'tid': tid}))
 
 def get_problem(pid=None, name=None):
     """
@@ -180,7 +180,7 @@ def get_solved_pids(tid, category=None):
 
     solved = []
     for pid in correct_pids:
-        solved += pid
+        solved.append(pid)
 
     return solved
 
