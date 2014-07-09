@@ -10,7 +10,7 @@ import api.common
 import bcrypt
 
 from api.common import APIException
-from common import clear_collections
+from common import clear_collections, ensure_empty_collections
 
 @pytest.mark.usefixtures("db")
 class TestTeams(object):
@@ -35,12 +35,13 @@ class TestTeams(object):
         "team-name-existing": base_team['team_name'],
         "team-password-existing": base_team['password']
     }
-    
+
+    @ensure_empty_collections("teams")
     @clear_collections("teams")
     def test_create_batch_teams(self, teams=10):
         """
         Tests team creation.
-        
+
         Covers:
             team.create_team
             team.get_team
@@ -64,6 +65,7 @@ class TestTeams(object):
 
             assert team_from_tid == team_from_name, "Team lookup from tid and name are not the same."
 
+    @ensure_empty_collections("teams", "users")
     @clear_collections("teams", "users")
     def test_get_team_uids(self):
         """
@@ -88,6 +90,7 @@ class TestTeams(object):
         assert len(team_uids) == api.team.max_team_users, "Team does not have correct number of members"
         assert sorted(uids) == sorted(team_uids), "Team does not have the correct members"
 
+    @ensure_empty_collections("teams", "users")
     @clear_collections("teams", "users")
     def test_register_user_team_size_validation(self):
         """
