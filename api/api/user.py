@@ -18,7 +18,7 @@ user_schema = Schema({
     Required('email'): check(
         (0, "Email must be between 5 and 100 characters.", [str, Length(min=5, max=100)]),
         (0, "This does not look like an email address.", [
-            lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email)])
+            lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
     ),
     Required('username'): check(
         (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),

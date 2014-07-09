@@ -117,7 +117,8 @@ def check(*callback_tuples):
         for status, msg, callbacks in callback_tuples:
             for callback in callbacks:
                 try:
-                    if not callback(value):
+                    result = callback(value)
+                    if not result and type(result) == bool:
                         raise Invalid()
                 except Exception:
                     raise APIException(status, None, msg)
@@ -133,9 +134,9 @@ def validate(schema, data):
         data: The validation data for the schema object
 
     Raises:
-        APIException with status 1 and the voluptuous error message
+        APIException with status 0 and the voluptuous error message
     """
     try:
         schema(data)
     except MultipleInvalid as error:
-        raise APIException(1, None, error.msg)
+        raise APIException(0, None, error.msg)
