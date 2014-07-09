@@ -103,7 +103,6 @@ def get_submissions(uid):
 
     Args:
         uid: the user id
-
     Returns:
         A list of submissions from the given user
     """
@@ -117,7 +116,6 @@ def get_team_submissions(tid):
 
     Args:
         tid: the team id
-
     Returns:
         A list of submissions from the entire team
     """
@@ -132,7 +130,6 @@ def get_problem(pid=None, name=None):
     Args:
         pid: The problem id
         name: The name of the problem
-
     Returns:
         The problem dictionary from the database
     """
@@ -144,6 +141,7 @@ def get_problem(pid=None, name=None):
     else:
         raise APIException(0, None, "Problem information not given")
 
+    db = api.common.get_conn()
     problem = db.problems.find_one(match)
 
     if problem is None:
@@ -151,21 +149,21 @@ def get_problem(pid=None, name=None):
 
     return problem
 
-
-
 def get_all_problems(category=None):
     """
     Gets all of the problems in the database.
 
     Args:
         category: Optional parameter to restrict which problems are returned
+    Returns:
+        List of problems from the database
     """
 
     db = api.common.get_conn()
 
     if category:
-        return db.problems.find({'category': category})
-    return db.problems.find()
+        return list(db.problems.find({'category': category}))
+    return list(db.problems.find())
 
 def get_solved_pids(tid, category=None):
     """
@@ -174,7 +172,6 @@ def get_solved_pids(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of solved problem ids
     """
@@ -194,7 +191,6 @@ def get_solved_problems(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of solved problem dictionaries
     """
@@ -208,7 +204,6 @@ def get_unlocked_pids(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of unlocked problem ids
     """
@@ -233,7 +228,6 @@ def get_unlocked_problems(tid, category=None):
     Args:
         tid: The team id
         category: Optional parameter to restrict which problems are returned
-
     Returns:
         List of unlocked problem dictionaries
     """
