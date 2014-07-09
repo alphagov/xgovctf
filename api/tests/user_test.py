@@ -10,7 +10,7 @@ import api.common
 import api.team
 
 from api.common import APIException
-from common import clear_collections
+from common import clear_collections, ensure_empty_collections
 
 @pytest.mark.usefixtures("db")
 class TestUsers(object):
@@ -50,6 +50,7 @@ class TestUsers(object):
         "password": "leet_hax"
     }
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_create_batch_users(self, users=10):
         """
@@ -83,16 +84,17 @@ class TestUsers(object):
 
             assert user_from_uid == user_from_name, "User lookup from uid and name are not the same."
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_register_user_email_validation(self):
         """
         Tests the email validation during user registration.
-        
+
         Covers:
             partially: user.register_user
         """
 
-        team = self.base_team.copy()    
+        team = self.base_team.copy()
         api.team.create_team(team)
 
         invalid_email_user = self.existing_team_user.copy()
@@ -111,6 +113,7 @@ class TestUsers(object):
         valid_email_user = self.existing_team_user.copy()
         assert api.user.register_user(valid_email_user), "Was not able to register a valid email."
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_get_team(self):
         """
@@ -124,6 +127,7 @@ class TestUsers(object):
         result_team = api.user.get_team(uid=uid)
         assert tid == result_team['tid'], "Unable to pair uid and tid."
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_register_user_general_validation(self):
         """
@@ -159,6 +163,7 @@ class TestUsers(object):
                         api.user.register_user(sheep_user)
                         assert False, "Validation failed to catch {} length {}".format(bad_length_mod, key)
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_register_user_new_team(self):
         """
@@ -192,6 +197,7 @@ class TestUsers(object):
             api.user.register_user(sheep_user)
             assert False, "Was able to create two users with the same username."
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_register_user_existing_team(self):
         """
@@ -230,6 +236,7 @@ class TestUsers(object):
         assert uid in team_uids, "User was not successfully placed into the existing team."
         assert len(team_uids) == 1, "Invalid teams were created though the tests passed."
 
+    @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
     def test_change_password_user(self):
         """
