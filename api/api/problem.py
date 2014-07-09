@@ -91,7 +91,7 @@ def insert_problem(problem):
 
     problem["disabled"] = problem.get("disabled", False)
 
-    if problem["pid"] is None:
+    if problem.get("pid", None) is None:
         problem["pid"] = api.common.token()
 
     if len(search_problems({"pid": problem["pid"]}, {"displayname": problem["displayname"]})) > 0:
