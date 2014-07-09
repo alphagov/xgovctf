@@ -184,7 +184,7 @@ def insert_problem_from_json(blob):
     else:
         raise APIException(0, "JSON blob does not appear to be a list of problems or a single problem.")
 
-def grade_problem(uid=None, pid, key):
+def grade_problem(pid, key, uid=None):
     """
     Grades the problem with its associated grader script.
 
@@ -199,7 +199,7 @@ def grade_problem(uid=None, pid, key):
         message: message returned from the grader.
     """
 
-    problem = api.problem.get_problem(pid)
+    problem = get_problem(pid=pid)
 
     try:
         (correct, message) = imp.load_source(
@@ -244,7 +244,7 @@ def submit_key(tid, pid, key, uid=None, ip=None):
         raise APIException(0, None, "User submitting flag does not exist.")
     uid = user["uid"]
 
-    result = grade_problem(uid, pid, key)
+    result = grade_problem(pid, key, uid)
 
     problem = get_problem(pid=pid)
 
