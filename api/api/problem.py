@@ -125,19 +125,32 @@ def get_team_submissions(tid):
     db = api.common.get_conn()
     return db.submissions.find({'tid': tid})
 
-def get_problem(pid):
+def get_problem(pid=None, name=None):
     """
     Gets a single problem.
 
     Args:
         pid: The problem id
+        name: The name of the problem
 
     Returns:
         The problem dictionary from the database
     """
 
-    db = api.common.get_conn()
-    return db.problems.find_one({'pid': pid})
+    if pid is not None:
+        match = {'pid': pid}
+    elif name is not none:
+        match = {'displayname': name}
+    else:
+        raise APIException(0, None, "Problem information not given")
+
+    problem = db.problems.find_one(match)
+
+    if problem is None:
+        raise APIException(0, None, "Could not find problem")
+
+    return problem
+
 
 
 def get_all_problems(category=None):
