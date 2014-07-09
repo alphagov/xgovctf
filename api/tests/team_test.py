@@ -11,8 +11,8 @@ import bcrypt
 
 from api.common import APIException
 from common import clear_collections, ensure_empty_collections
+from conftest import setup_db, teardown_db
 
-@pytest.mark.usefixtures("db")
 class TestTeams(object):
     """
     API Tests for team.py
@@ -35,6 +35,12 @@ class TestTeams(object):
         "team-name-existing": base_team['team_name'],
         "team-password-existing": base_team['password']
     }
+
+    def setup_class(self):
+        setup_db()
+
+    def teardown_class(self):
+        teardown_db()
 
     @ensure_empty_collections("teams")
     @clear_collections("teams")
@@ -79,7 +85,6 @@ class TestTeams(object):
 
         tid = api.team.create_team(self.base_team.copy())
         
-
         uids = []
         for i in range(api.team.max_team_users):
             test_user = self.base_user.copy()

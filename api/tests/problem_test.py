@@ -11,6 +11,7 @@ import api.problem
 
 from api.common import APIException
 from common import clear_collections, ensure_empty_collections
+from conftest import setup_db, teardown_db
 
 class TestProblems(object):
     """
@@ -50,8 +51,8 @@ class TestProblems(object):
     # backdoor key
     backdoor = "test"
 
-    @ensure_empty_collections("problems", "teams", "users")
     def setup_class(self):
+        setup_db()
         """
         Class setup code
         """
@@ -66,12 +67,8 @@ class TestProblems(object):
             pid = api.problem.insert_problem(problem)
             self.pids.append(pid)
 
-    @clear_collections("problems", "teams", "users")
     def teardown_class(self):
-        """
-        Class teardown code
-        """
-        pass
+        teardown_db()
 
     def test_insert_problems(self):
         """

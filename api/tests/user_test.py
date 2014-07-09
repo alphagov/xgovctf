@@ -11,8 +11,8 @@ import api.team
 
 from api.common import APIException
 from common import clear_collections, ensure_empty_collections
+from conftest import setup_db, teardown_db
 
-@pytest.mark.usefixtures("db")
 class TestUsers(object):
     """
     API Tests for user.py
@@ -49,6 +49,12 @@ class TestUsers(object):
         "school": "Hacks HS",
         "password": "leet_hax"
     }
+
+    def setup_class(self):
+        setup_db()
+
+    def teardown_class(self):
+        teardown_db()
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
@@ -118,6 +124,11 @@ class TestUsers(object):
     def test_get_team(self):
         """
         Tests retrieving the team from a given uid.
+
+        Covers:
+            team.create_team
+            user.register_user
+            user.get_team
         """
 
         team = self.base_team.copy()

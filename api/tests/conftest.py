@@ -12,20 +12,15 @@ mongo_addr = "127.0.0.1"
 mongo_port = 27017
 mongo_db_name = "pico_test"
 
-@pytest.fixture(scope="session")
-def db(request):
+def setup_db():
     """ Creates a mongodb instance and shuts it down after testing has concluded. """
 
     client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
-    assert len(client.collection_names()) == 0, "Mongo db: {} is not empty.".format(mongo_db_name)
 
-    def shutdown():
-        """ Drops the db and shuts down the mongodb instance. """
-        client.connection.drop_database(mongo_db_name)
-        client.connection.disconnect()
-        print("Disconnected from mongodb.")
-
-    request.addfinalizer(shutdown)
+    # clear test database
+    for collection in client.collection_names():
+        if collection != "system.indexes":
+            client.drop_collection(collection)
 
     #Set debug client for mongo
     if api.common.external_client is None:
@@ -33,3 +28,10 @@ def db(request):
 
     return client
 
+def teardown_db():
+    """ Drops the db and shuts down the mongodb instance. """
+    client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
+
+    client.connection.drop_database(mongo_db_name)
+    client.connection.disconnect()
+    print("Disconnected from mongodb.")
