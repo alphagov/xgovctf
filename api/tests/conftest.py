@@ -17,10 +17,7 @@ def setup_db():
 
     client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
 
-    # clear test database
-    for collection in client.collection_names():
-        if collection != "system.indexes":
-            client.drop_collection(collection)
+    assert len(client.collection_names()) == 0, "Mongo db: {} is not empty.".format(mongo_db_name)
 
     #Set debug client for mongo
     if api.common.external_client is None:
@@ -31,7 +28,6 @@ def setup_db():
 def teardown_db():
     """ Drops the db and shuts down the mongodb instance. """
     client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
-
     client.connection.drop_database(mongo_db_name)
     client.connection.disconnect()
     print("Disconnected from mongodb.")
