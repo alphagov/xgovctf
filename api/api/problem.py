@@ -269,7 +269,7 @@ def get_solved_pids(tid, category=None):
         List of solved problem ids
     """
 
-    correct_pids = [sub['pid'] for sub in get_team_submission(tid) if sub['correct'] == True]
+    correct_pids = [sub['pid'] for sub in get_team_submissions(tid) if sub['correct'] == True]
 
     solved = []
     for pid in correct_pids:
@@ -308,7 +308,7 @@ def get_unlocked_pids(tid, category=None):
         if 'weightmap' not in problem or 'threshold' not in problem:
             unlocked.append(problem['pid'])
         else:
-            weightsum = sum(problem['weightmap'].get(pid, 0) for pid in get_solved_pids())
+            weightsum = sum(problem['weightmap'].get(pid, 0) for pid in get_solved_pids(tid, category))
             if weightsum >= problem['threshold']:
                 unlocked.append(problem['pid'])
 
