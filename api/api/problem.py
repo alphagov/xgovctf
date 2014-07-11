@@ -259,7 +259,7 @@ def submit_key(tid, pid, key, uid=None, ip=None):
         'correct': result['correct']
     }
 
-    if key in [submission["key"] for submission in  get_submissions(tid=tid)]:
+    if (key, pid) in [(submission["key"], submission["pid"]) for submission in  get_submissions(tid=tid)]:
         raise APIException(0, None, "You or one of your teammates has already tried this solution.")
 
     db.submissions.insert(submission)
