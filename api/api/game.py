@@ -16,7 +16,7 @@ def get_category_statistics():
         else:
             category_scores[p['category']] = {'solved': 0, 'total': 1}
 
-    for p in api.problem.get_solved_problems():
+    for p in api.problem.get_solved_problems(api.user.get_team()['tid']):
         category_scores[p['category']]['solved'] += 1
 
     return 1, category_scores
@@ -94,7 +94,7 @@ pid_map["517b49f917f5e16305000001"] = 57  # Broken RSA
 etcid_map = {v: k for k, v in pid_map.items()}
 
 def get_solved_indices():
-    solved_problems = api.problem.get_solved_problems()
+    solved_problems = api.problem.get_solved_problems(api.user.get_team()['tid'])
     return 1, sorted([pid_map[p['pid']] for p in solved_problems])
 
 
