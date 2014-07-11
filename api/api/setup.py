@@ -7,8 +7,8 @@ import api.utilities
 import api.problem
 
 def load_config(app):
-    app.logger.setLevel(logging.INFO)
-    app.logger.info("Parsing the configuration file")
+    #app.logger.setLevel(logging.INFO)
+    #app.logger.info("Parsing the configuration file")
 
     config = configparser.ConfigParser()
     config.read('mister.config')
@@ -17,14 +17,14 @@ def load_config(app):
         api.common.admin_emails = list()
         
     for email in config.get('debug', 'admin_emails').split(','):
-        app.logger.info(" Adding '%s' to admin_emails" % email)
+        #app.logger.info(" Adding '%s' to admin_emails" % email)
         api.common.admin_emails.append(email.strip())
 
-    app.config['DEBUG'] = False
+    #app.config['DEBUG'] = False
 
     secret_key = config.get('flask', 'secret_key')
     if secret_key == '':
-        app.logger.error('The Flask secret key specified in the config file is empty.')
+        #app.logger.error('The Flask secret key specified in the config file is empty.')
         exit()
     app.secret_key = secret_key
 
@@ -37,17 +37,17 @@ def load_config(app):
 
     mongo_addr = config.get("mongodb", "addr")
     if mongo_addr is not None:
-        print("Setting mongo address to '%s'" % mongo_addr)
-        api.api.common.mongo_addr = mongo_addr
+        #print("Setting mongo address to '%s'" % mongo_addr)
+        api.common.mongo_addr = mongo_addr
 
     mongo_port = config.getint("mongodb", "port")
     if mongo_port is not None:
-        print("Setting mongo port to '%d'" % mongo_port)
+        #print("Setting mongo port to '%d'" % mongo_port)
         api.common.mongo_port = mongo_port
 
     mongo_db_name = config.get("mongodb", "db_name")
     if mongo_db_name is not None:
-        print("Setting mongo db_name to '%s'" %mongo_db_name)
+        #print("Setting mongo db_name to '%s'" %mongo_db_name)
         api.common.mongo_db_name = mongo_db_name
 
     for protocol in config.get('security','allowed_protocols').split(','):
@@ -82,7 +82,7 @@ def load_config(app):
 
     write_logs_to_db = config.getboolean('logging', 'write_logs_to_db')
     if write_logs_to_db:
-        print("Enabling 'write logs to database'")
+        #print("Enabling 'write logs to database'")
         api.annotations.write_logs_to_db = write_logs_to_db
 
 
