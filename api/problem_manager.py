@@ -13,7 +13,7 @@ from os.path import isfile
 from bson import json_util
 
 def insert_problems(files):
-    for _, contents in files.items():
+    for contents in files.values():
         for line in contents:
             try:
                 api.problem.insert_problem_from_json(line.strip())
@@ -36,25 +36,41 @@ def migrate_problems(files, output_file, debug):
 
     deletion_key = ["_id", "pid", "generator", "submissiontype", "devnotes"]
 
+    problems = []
     output = ""
-    for _, contents in files.items():
+    for contents in files.values():
         for line in contents:
             problem = json_util.loads(line.strip())
+            problems.append(problem)
 
-            if "desc" not in problem:
-                problem["desc"] = "I'm bad."
+    def get_display_name_from_pid(problems, pid):
+        for problem in problems:
+            if problem.get("pid") == pid:
+                return problem.get("displayname")
 
-            for key in list(problem.keys()):
+    for problem in problems:
+        if problem.get("weightmap"):
+            new_map = {}
+            for pid, num in problem["weightmap"].items():
+                name = get_display_name_from_pid(problems, pid)
+                new_map[name] = num
+            problem["weightmap"] = new_map
 
-                if key in migration_key:
-                    problem[migration_key[key]] = problem[key]
+    for problem in problems:
+        if "desc" not in problem:
+            problem["desc"] = "I'm bad."
 
-                if key in migration_overwrites:
-                    problem[key] = migration_overwrites[key]
+        for key in list(problem.keys()):
 
-                if key in migration_key or key in deletion_key:
-                    problem.pop(key, None)
-            output += json_util.dumps(problem) + "\n"
+            if key in migration_key:
+                problem[migration_key[key]] = problem[key]
+
+            if key in migration_overwrites:
+                problem[key] = migration_overwrites[key]
+
+            if key in migration_key or key in deletion_key:
+                problem.pop(key, None)
+        output += json_util.dumps(problem) + "\n"
     output_file.write(output)
 
 def get_output_file(output):
