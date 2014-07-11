@@ -134,8 +134,7 @@ def get_all_users_hook():
 @require_login
 @return_json
 def get_unlocked_problems_hook():
-    problems = problem.get_unlocked_problems(user.get_user()['tid'])
-    return 1, problems
+    return 1, problem.get_unlocked_problems(user.get_user()['tid'])
 
 @app.route('/api/problems/solved', methods=['GET'])
 @require_login
@@ -167,7 +166,7 @@ def get_single_problem_hook(pid):
 @require_login
 @return_json
 def get_team_score_hook():
-    score = scoreboard.get_team_score(user.get_user()['uid'])
+    score = scoreboard.get_team_score(user.get_user()['tid'])
     if score is not None:
         return 1, {'score': score}
     return 0, None, "There was an error retrieving your score."

@@ -23,8 +23,8 @@ def get_team_score(tid):
     if score is not None:
         return score
 
-    pids = [d['pid'] for d in api.problem.get_correct_submissions(tid=tid)]  # ,#"timestamp": {"$lt": end}}))}
-    score = sum([api.problem.get_problem(pid)['basescore'] for pid in pids])
+    pids = [s['pid'] for s in api.problem.get_correct_submissions(tid=tid)]  # ,#"timestamp": {"$lt": end}}))}
+    score = sum([api.problem.get_problem(pid)['score'] for pid in pids])
 
     cache.set('teamscore_' + tid, score, 60 * 60)
     return score
