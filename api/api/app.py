@@ -145,7 +145,7 @@ def get_solved_problems_hook():
 @app.route('/api/submit', methods=['POST'])
 @return_json
 @require_login
-def submit_problem_hook():
+def submit_key_hook():
     user_account = user.get_user()
     tid = user_account['tid']
     pid = request.form.get('pid', '')
@@ -162,11 +162,20 @@ def get_single_problem_hook(pid):
     problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
     return 1, problem_info
 
-@app.route('/api/score', methods=['GET'])
+@app.route('/api/teamscore', methods=['GET'])
 @require_login
 @return_json
 def get_team_score_hook():
-    score = scoreboard.get_team_score(user.get_user()['tid'])
+    score = scoreboard.get_score(tid=user.get_user()['tid'])
+    if score is not None:
+        return 1, {'score': score}
+    return 0, None, "There was an error retrieving your score."
+
+@app.route('/api/userscore', methods=['GET'])
+@require_login
+@return_json
+def get_user_score_hook():
+    score = scoreboard.get_score(uid=user.get_user()['uid'])
     if score is not None:
         return 1, {'score': score}
     return 0, None, "There was an error retrieving your score."
