@@ -82,9 +82,7 @@ def get_team(uid=None):
     """
 
     user = get_user(uid=uid)
-
-    db = api.common.get_conn()
-    return db.teams.find_one({'tid': user['tid']})
+    return api.team.get_team(tid=user["tid"])
 
 def get_user(name=None, uid=None):
     """

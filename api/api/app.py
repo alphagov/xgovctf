@@ -5,11 +5,10 @@ app = Flask(__name__)
 from api import setup, user, auth, team, problem, scoreboard, utilities
 from api.common import APIException
 from api.annotations import return_json, require_login, require_admin, log_request
-
 import api.common
+import api.logger
 
-# Initialize/Sanity check envionment
-setup.load_config(app)
+log = api.logger.use(__name__)
 
 #TODO: Reenable this with proper logging.
 #setup.check_database_indexes()
@@ -111,12 +110,6 @@ def is_admin_hook():
         return 1, None, "You have admin permissions."
     else:
         return 0, None, "You do not have admin permissions."
-
-
-@app.route("/", methods=["GET"])
-def sdasd():
-    app.logger.info("what")
-    return 1, None, "asd"
 
 @app.route('/api/team', methods=['GET'])
 @return_json
