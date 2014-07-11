@@ -146,7 +146,6 @@ def get_all_users_hook():
 @return_json
 def load_viewable_problems_hook():
     problems = problem.get_unlocked_problems(user.get_user()['tid'])
-
     return 1, problems
 
 
