@@ -80,12 +80,11 @@ class TestProblems(object):
             problem.get_all_problems
         """
 
-        # try to insert the problems again
+        # problems were inserted in initialization - try to insert the problems again
         for problem in self.problems:
             with pytest.raises(APIException):
                 api.problem.insert_problem(problem)
                 assert False, "Was able to insert problem twice."
-
 
         # verify pids are correct
         db_problems = api.problem.get_all_problems()
