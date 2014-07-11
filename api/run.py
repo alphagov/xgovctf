@@ -1,8 +1,9 @@
 """
+picoCTF API Startup script
 """
 
-import api
+from api.app import app
 
 print("Starting the API...")
 
-api.app.run(host="0.0.0.0", port=8000, debug=True)
+app.run(host="0.0.0.0", port=8000, debug=True)

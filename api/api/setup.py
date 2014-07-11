@@ -38,7 +38,7 @@ def load_config(app):
     mongo_addr = config.get("mongodb", "addr")
     if mongo_addr is not None:
         print("Setting mongo address to '%s'" % mongo_addr)
-        api.api.common.mongo_addr = mongo_addr
+        api.common.mongo_addr = mongo_addr
 
     mongo_port = config.getint("mongodb", "port")
     if mongo_port is not None:
