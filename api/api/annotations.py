@@ -1,6 +1,7 @@
 __author__ = ['Peter Chapman', 'Collin Petty']
 
 from api.common import APIException
+import api.common
 import json
 from datetime import datetime
 from functools import wraps
@@ -64,7 +65,7 @@ def log_request(f):
         ip = request.headers.get('X-Real-IP', '')
         time = str(datetime.now())
         ret = f(*args, **kwds)
-        db = common.get_conn()
+        db = api.common.get_conn()
         if write_logs_to_db:
             db.logs.insert({'name': name,
                             'path': path,
