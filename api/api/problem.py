@@ -298,6 +298,38 @@ def get_submissions(pid=None, uid=None, tid=None, category=None):
 
     return list(db.submissions.find(match, {"_id":0}))
 
+def get_correct_submissions(pid=None, uid=None, tid=None, category=None):
+    """
+    Gets the correct submissions from a team or user.
+    Optional filters of pid or category.
+
+    Args:
+        uid: the user id
+        tid: the team id
+
+        category: category filter.
+        pid: problem filter.
+    Returns:
+        A list of submissions from the given entity.
+    """
+
+    db = api.common.get_conn()
+
+    match = {"correct": True}
+
+    if uid is not None:
+        match.update({"uid": uid})
+    elif tid is not None:
+        match.update({"tid": tid})
+
+    if pid is not None:
+        match.update({"pid": pid})
+
+    if category is not None:
+        match.update({"category": category})
+
+    return list(db.submissions.find(match, {"_id":0}))
+
 def clear_all_submissions():
     """
     Removes all submissions from the database.
