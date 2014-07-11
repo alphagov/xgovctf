@@ -26,18 +26,18 @@ submission_schema = Schema({
 })
 
 problem_schema = Schema({
-    Required("basescore"): check(
-        (0, "Basescore must be a positive integer.", [int, Range(min=0)])),
+    Required("display_name"): check(
+        (0, "The problem's display name must be a string.", [str])),
+    Required("score"): check(
+        (0, "Score must be a positive integer.", [int, Range(min=0)])),
     Required("category"): check(
         (0, "Category must be a string.", [str])),
-    Required("desc"): check(
-        (0, "The problem description must be a string.", [str])),
-    Required("displayname"): check(
-        (0, "The problem's display name must be a string.", [str])),
     Required("grader"): check(
         (0, "A grader does not exist at that path.", [
-            lambda grader: not check_graders_exist or
-            isfile(join(grader_base_path, grader))])),
+         lambda grader: not check_graders_exist or
+         isfile(join(grader_base_path, grader))])),
+    Required("description"): check(
+        (0, "The problem description must be a string.", [str])),
     Required("threshold"): check(
         (0, "Threshold must be a positive integer.", [int, Range(min=0)])),
 
@@ -68,9 +68,9 @@ def insert_problem(problem):
 
     Args:
         Problem dict.
-        basescore: points awarded for completing the problem.
+        score: points awarded for completing the problem.
         category: problem's category
-        desc: description of the problem.
+        description: description of the problem.
         grader: path relative to grader_base_path
         threshold: Amount of points necessary for a team to unlock this problem.
 
@@ -94,8 +94,8 @@ def insert_problem(problem):
     if problem.get("pid", None) is None:
         problem["pid"] = api.common.token()
 
-    if len(search_problems({"pid": problem["pid"]}, {"displayname": problem["displayname"]})) > 0:
-        raise APIException(0, None, "Problem with identical displayname or pid already exists.")
+    if len(search_problems({"pid": problem["pid"]}, {"display_name": problem["display_name"]})) > 0:
+        raise APIException(0, None, "Problem with identical display_name or pid already exists.")
 
     db.problems.insert(problem)
 
@@ -210,7 +210,7 @@ def grade_problem(pid, key, uid=None):
 
     return {
         "correct": correct,
-        "points": problem["basescore"],
+        "points": problem["score"],
         "message": message
     }
 
@@ -400,7 +400,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     if pid is not None:
         match.update({'pid': pid})
     elif name is not None:
-        match.update({'displayname': name})
+        match.update({'display_name': name})
     else:
         raise APIException(0, None, "Problem information not given")
 
