@@ -528,4 +528,9 @@ def get_unlocked_problems(tid, category=None):
         List of unlocked problem dictionaries
     """
 
-    return [get_problem(pid) for pid in get_unlocked_pids(tid, category)]
+    solved = get_solved_problems(tid)
+    unlocked = [get_problem(pid) for pid in get_unlocked_pids(tid, category)]
+    for problem in unlocked:
+        problem['solved'] = problem in solved
+
+    return unlocked
