@@ -151,7 +151,7 @@ def get_all_users_hook():
 @app.route('/api/problems', methods=['GET'])
 @require_login
 @return_json
-def load_viewable_problems_hook():
+def get_unlocked_problems_hook():
     problems = problem.get_unlocked_problems(user.get_user()['tid'])
     return 1, problems
 
