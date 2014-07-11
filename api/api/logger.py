@@ -5,13 +5,33 @@ Manage loggers for the api.
 import logging
 
 from flask import request, has_request_context
+from flask import logging as flask_logging
+
+import api.auth
+import api.user
+import api.team
 
 from sys import stdout
 from colorama import init, Fore, Style
 
 init(autoreset=True)
 
-log = None
+log = logging.getLogger(__name__)
+
+seperator = "-" * 80
+
+def set_level(name, level):
+    """
+    Get and set log level of a given logger.
+
+    Args:
+        name: name of logger
+        level: level to set
+    """
+
+    logger = use(name)
+    if logger:
+        logger.setLevel(level)
 
 def use(name):
     """
@@ -35,9 +55,10 @@ def _flask_request_format(msg):
         The wrapped message
     """
 
+    log_base = "{}\n"
+
     if has_request_context():
-        flask_log_base = "="*80 + \
-        """\nRequest: {method} {path}\nIP: {ip} Agent: {agent_platform} | {agent_browser} {agent_browser_version}\n""" \
+        flask_log_base = "Request: {method} {path}\nIP: {ip} Agent: {agent_platform} | {agent_browser} {agent_browser_version}" \
         .format(
             method=request.method,
             path=request.path,
@@ -46,11 +67,17 @@ def _flask_request_format(msg):
             agent_browser=request.user_agent.browser,
             agent_browser_version=request.user_agent.version,
             agent=request.user_agent.string
-        ) + "{0}\n" + "="*80
+        )
 
-        return flask_log_base.format(msg)
+        log_base = log_base.format(flask_log_base) + "{}\n"
 
-    return msg
+        if api.auth.is_logged_in():
+            user = api.user.get_user()
+            team = api.user.get_team(user["uid"])
+            user_log_base = "User: {}  Email: {} Team: {}".format(user["username"], user["email"], team["team_name"])
+            log_base = log_base.format(user_log_base) + "{}\n"
+
+    return log_base.format(msg) + seperator
 
 class ColorFormatter(logging.Formatter):
     """
@@ -76,8 +103,7 @@ class ColorFormatter(logging.Formatter):
         log_text = '{3}%(asctime)s{2} %(name)-8s {4}{3}%(levelname)-8s{1}{5} {6}%(message)s{1}'.format(
             Fore.WHITE, Fore.RESET, Fore.WHITE, color, Style.NORMAL, Style.RESET_ALL, text)
 
-        self._style = _flask_request_format(self.style(log_text))
-
+        self._style = self.style(_flask_request_format(log_text))
 
         return logging.Formatter.format(self, record)
 
@@ -89,11 +115,12 @@ def setup_logs(args):
         args: dict containing the configuration options.
     """
 
+    flask_logging.create_logger = lambda app: use(app.logger_name)
 
-    log = use(__name__)
+    set_level("werkzeug", logging.ERROR)
 
     level = [logging.WARNING, logging.INFO, logging.DEBUG][
-        max(args.get("verbose", 1), 2)]
+        min(args.get("verbose", 1), 2)]
 
     stdout_log = logging.StreamHandler(stdout)
     stdout_log.setFormatter(ColorFormatter())
