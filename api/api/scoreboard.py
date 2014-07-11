@@ -17,7 +17,7 @@ def get_team_score(tid):
         The team's score
     """
 
-    db = common.get_conn()
+    db = api.common.get_conn()
 
     score = cache.get('teamscore_' + tid)
     if score is not None:

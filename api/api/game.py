@@ -4,7 +4,7 @@ from api.annotations import *
 import api.problem
 import api.user
 import api.common
-from api import app
+from api.app import app
 
 
 def get_category_statistics():
