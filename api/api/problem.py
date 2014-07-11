@@ -382,7 +382,7 @@ def reevaluate_submissions_for_problem(pid):
         if change is not None:
             db.submissions.update({"key": key}, {"correct": change}, multi=True)
 
-def get_problem(pid=None, name=None, show_disabled=False):
+def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     """
     Gets a single problem.
 
@@ -403,6 +403,9 @@ def get_problem(pid=None, name=None, show_disabled=False):
         match.update({'displayname': name})
     else:
         raise APIException(0, None, "Problem information not given")
+
+    if tid is not None and pid not in get_unlocked_pids():
+        raise APIException(0, None, "You cannot get this problem")
 
     db = api.common.get_conn()
     problem = db.problems.find_one(match)
