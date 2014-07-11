@@ -2,13 +2,8 @@
 picoCTF API Startup script
 """
 
-import logging
-from colorama import init, Fore, Style
+import api.logger
 from argparse import ArgumentParser
-
-from flask import request, has_request_context
-from sys import stdout
-
 from api.app import app
 
 def main():
@@ -16,78 +11,37 @@ def main():
     Runtime management of the picoCTF API
     """
 
-    init(autoreset=True)
-
     parser = ArgumentParser(description="picoCTF API configuration")
 
     parser.add_argument("-v", "--verbose", action="count", help="increase verbosity", default=0)
-    parser.add_argument("-s", "--flask-debug-off", action="store_true", help="show flask context with debug errors.", default=False)
-    parser.add_argument("-l", "--log-file", help="log output to a file", default=None)
+
+    #TODO: CG: We are going to want extensive logging support. This needs to be thought out carefully
+    # to maximize flexibilty and maintainability.
+    #parser.add_argument("-f", "--log-file", help="log output to a file", default=None)
+
+    parser.add_argument("-p", "--port", action="store", help="port the server should listen on.", type=int, default=8000)
+    parser.add_argument("-l", "--listen", action="store", help="host the server should listen on.", default="0.0.0.0")
+    parser.add_argument("-d", "--debug", action="store_true", help="run the server in debug mode.", default=False)
 
     args = parser.parse_args()
-    setup_loggers(args)
 
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    keyword_args, _ = object_from_args(args)
 
-def setup_loggers(args):
+    #Pass command line arguments to api.logger
+    api.logger.setup_logs(keyword_args)
+
+    app.run(host=args.listen, port=args.port, debug=args.debug)
+
+def object_from_args(args):
     """
-    Manage loggers for the api.
+    Turns argparser's namespace into something manageable by an external library.
+
+    Args:
+        args: The result from parse.parse_args
+    Returns:
+        A tuple of a dict representing the kwargs and a list of the positional arguments.
     """
 
-    #Get log level
-    level = [logging.WARNING, logging.INFO, logging.DEBUG]\
-        [2 if args.verbose > 2 else args.verbose]
-
-    class ColorFormatter(logging.Formatter):
-        """
-        Visual logging!
-        """
-        colors = {
-            logging.INFO: (Fore.GREEN, Fore.WHITE),
-            logging.DEBUG: (Fore.MAGENTA, Fore.WHITE),
-            logging.WARNING: (Fore.YELLOW, Fore.YELLOW),
-            logging.ERROR: (Fore.RED, Fore.YELLOW),
-            logging.CRITICAL: (Fore.RED, Fore.RED)
-        }
-
-
-        def __init__(self, fmt="%(levelno)s: %(msg)s"):
-            logging.Formatter.__init__(self, fmt, "%H:%M", style="%")
-
-        def format(self, record):
-            color, text = self.colors.get(record.levelno, self.colors[logging.INFO])
-
-            log_text = '{3}%(asctime)s{2} %(name)-8s {4}{3}%(levelname)-8s{1}{5} {6}%(message)s{1}'.format(
-                Fore.WHITE, Fore.RESET, Fore.WHITE, color, Style.NORMAL, Style.RESET_ALL, text)
-
-            if has_request_context():
-                flask_log_base = "="*80 + \
-                """\nRequest: {method} {path}\nIP: {ip} Agent: {agent_platform} | {agent_browser} {agent_browser_version}\n""".format(
-                    method=request.method,
-                    path=request.path,
-                    ip=request.remote_addr,
-                    agent_platform=request.user_agent.platform,
-                    agent_browser=request.user_agent.browser,
-                    agent_browser_version=request.user_agent.version,
-                    agent=request.user_agent.string) + "{0}\n" + "="*80
-                log_text = flask_log_base.format(log_text)
-
-            self._style = logging._STYLES["%"][0](log_text)
-
-            return logging.Formatter.format(self, record)
-
-    del app.logger.handlers[:]
-
-    stdout_log = logging.StreamHandler(stdout)
-    stdout_log.setFormatter(ColorFormatter())
-
-    app.logger.addHandler(stdout_log)
-    app.logger.root.setLevel(level)
-
-    if args.log_file:
-        file_log = logging.FileHandler(args.log_file)
-        file_log.setLevel(level)
-        file_log.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-        app.logger.addHandler(file_log)
+    return dict(args._get_kwargs()), args._get_args() # pylint: disable=protected-access
 
 main()
