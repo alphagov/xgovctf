@@ -17,7 +17,8 @@ def setup_db():
 
     client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
 
-    assert len(client.collection_names()) == 0, "Mongo db: {} is not empty.".format(mongo_db_name)
+    if len(client.collection_names()) != 0:
+        client.connection.drop_database(mongo_db_name)
 
     #Set debug client for mongo
     if api.common.external_client is None:
