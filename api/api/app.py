@@ -152,14 +152,16 @@ def get_all_users_hook():
 @require_login
 @return_json
 def load_viewable_problems_hook():
-    return 1, problem.load_viewable_problems(user.get_user()['tid'])
+    problems = problem.get_unlocked_problems(user.get_user()['tid'])
+    print(problems)
+    return 1, problems
 
 
 @app.route('/api/problems/solved', methods=['GET'])
 @require_login
 @return_json
 def get_solved_problems_hook():
-    return 1, problem.get_solved_problems()
+    return 1, problem.get_solved_problems(user.get_user()['tid'])
 
 
 @app.route('/api/submit', methods=['POST'])
@@ -168,17 +170,18 @@ def get_solved_problems_hook():
 def submit_problem_hook():
     user_account = user.get_user()
     tid = user_account['tid']
+    pid = request.form.get('pid', '')
+    key = read.form.get('key', '')
 
-    return problem.submit_problem(tid, request.form.get('pid', ''), read.form.get('key', ''))
+    result = problem.submit_key(tid, pid, key)
+    return int(result['points']), result['points'], result['message']
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
 @return_json
 @log_request
 def get_single_problem_hook(pid):
-    problem_info = problem.get_single_problem(pid, user.get_user()['tid'])
-    if 'status' not in problem_info:
-        problem_info.update({"status": 1})
+    problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
     return 1, problem_info
 
 
