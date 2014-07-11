@@ -2,6 +2,7 @@ __author__ = ['Peter Chapman', 'Collin Petty']
 
 from api.common import APIException
 import api.common
+import api.auth
 import json
 from datetime import datetime
 from functools import wraps
@@ -26,8 +27,9 @@ def return_json(f):
 def require_login(f):
     @wraps(f)
     def wrapper(*args, **kwds):
-        if 'uid' not in session:
+        if not api.auth.is_logged_in():
             abort(403)
+
         #if not auth.csrf_check(request.headers):
         #   abort(403)
         return f(*args, **kwds)
