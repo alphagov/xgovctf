@@ -479,7 +479,7 @@ def get_unlocked_pids(tid, category=None):
         if 'weightmap' not in problem or 'threshold' not in problem:
             unlocked.append(problem['pid'])
         else:
-            weightsum = sum(problem['weightmap'].get(pid, 0) for pid in get_solved_pids(tid, category))
+            weightsum = sum(problem['weightmap'].get(p['display_name'], 0) for p in solved)
             if weightsum >= problem['threshold']:
                 unlocked.append(problem['pid'])
 
