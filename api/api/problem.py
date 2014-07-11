@@ -164,7 +164,7 @@ def search_problems(*conditions):
 
     db = api.common.get_conn()
 
-    return list(db.problems.find({"$or": list(conditions)}))
+    return list(db.problems.find({"$or": list(conditions)}, {"_id":0}))
 
 def insert_problem_from_json(blob):
     """
@@ -296,7 +296,39 @@ def get_submissions(pid=None, uid=None, tid=None, category=None):
     if category is not None:
       match.update({"category": category})
 
-    return list(db.submissions.find(match))
+    return list(db.submissions.find(match, {"_id":0}))
+
+def get_correct_submissions(pid=None, uid=None, tid=None, category=None):
+    """
+    Gets the correct submissions from a team or user.
+    Optional filters of pid or category.
+
+    Args:
+        uid: the user id
+        tid: the team id
+
+        category: category filter.
+        pid: problem filter.
+    Returns:
+        A list of submissions from the given entity.
+    """
+
+    db = api.common.get_conn()
+
+    match = {"correct": True}
+
+    if uid is not None:
+        match.update({"uid": uid})
+    elif tid is not None:
+        match.update({"tid": tid})
+
+    if pid is not None:
+        match.update({"pid": pid})
+
+    if category is not None:
+        match.update({"category": category})
+
+    return list(db.submissions.find(match, {"_id":0}))
 
 def clear_all_submissions():
     """
@@ -404,11 +436,11 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     else:
         raise APIException(0, None, "Problem information not given")
 
-    if tid is not None and pid not in get_unlocked_pids():
+    if tid is not None and pid not in get_unlocked_pids(tid):
         raise APIException(0, None, "You cannot get this problem")
 
     db = api.common.get_conn()
-    problem = db.problems.find_one(match)
+    problem = db.problems.find_one(match, {"_id":0})
 
     if problem is None:
         raise APIException(0, None, "Could not find problem")
@@ -432,7 +464,7 @@ def get_all_problems(category=None, show_disabled=False):
     if category is not None:
       match.update({'category': category})
 
-    return list(db.problems.find(match))
+    return list(db.problems.find(match, {"_id":0}))
 
 def get_solved_pids(tid, category=None):
     """

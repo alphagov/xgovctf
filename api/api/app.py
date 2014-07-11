@@ -28,7 +28,6 @@ def after_request(response):
     response.mimetype = 'application/json'
     return response
 
-
 @app.route("/api/sitemap", methods=["GET"])
 @return_json
 def site_map_hook():
@@ -43,13 +42,11 @@ def site_map_hook():
                 pass
     return 1, links, "This is a message."
 
-
 @app.route('/api/user/create', methods=['POST'])
 @return_json
 def create_user_hook():
     user.register_user(api.common.flat_multi(request.form))
     return 1, None, "User '{}' registered successfully!".format(request.form["username"])
-
 
 @app.route('/api/updatepassword', methods=['POST'])
 @return_json
@@ -65,14 +62,12 @@ def update_password_hook():
     user.update_password(uid, password)
     return 1, None, "Your password has been successfully updated!"
 
-
 @app.route('/api/getsshacct', methods=['GET'])
 @return_json
 @require_login
 def get_ssh_account_hook():
     data = user.get_ssh_account(user.get_user()['uid'])
-    return (1, data)
-
+    return 1, data
 
 @app.route('/api/login', methods=['POST'])
 @return_json
@@ -81,7 +76,6 @@ def login_hook():
     password = request.form.get('password')
     auth.login(username, password)
     return (1, None, "Successfully logged in as " + username)
-
 
 @app.route('/api/logout', methods=['GET'])
 @return_json
@@ -93,7 +87,6 @@ def logout_hook():
     else:
         return 0, None, "You do not appear to be logged in."
 
-
 @app.route('/api/isloggedin', methods=['GET'])
 @return_json
 def is_logged_in_hook():
@@ -101,7 +94,6 @@ def is_logged_in_hook():
         return 1, None, "You are logged in."
     else:
         return 0, None, "You are not logged in."
-
 
 @app.route('/api/isadmin', methods=['GET'])
 @return_json
@@ -120,7 +112,6 @@ def team_hook():
     uid = user_account['uid']
     return 1, team.get_team_information(tid, uid)
 
-
 @app.route('/api/admin/getallproblems', methods=['GET'])
 @return_json
 @require_admin
@@ -129,7 +120,6 @@ def get_all_problems_hook():
     if probs is None:
         return 0, None, "There was an error querying problems from the database."
     return 1, probs
-
 
 @app.route('/api/admin/getallusers', methods=['GET'])
 @return_json
@@ -140,21 +130,18 @@ def get_all_users_hook():
         return 0, None, "There was an error query users from the database."
     return 1, users
 
-
 @app.route('/api/problems', methods=['GET'])
 @require_login
 @return_json
-def load_viewable_problems_hook():
+def get_unlocked_problems_hook():
     problems = problem.get_unlocked_problems(user.get_user()['tid'])
     return 1, problems
-
 
 @app.route('/api/problems/solved', methods=['GET'])
 @require_login
 @return_json
 def get_solved_problems_hook():
     return 1, problem.get_solved_problems(user.get_user()['tid'])
-
 
 @app.route('/api/submit', methods=['POST'])
 @return_json
@@ -163,7 +150,7 @@ def submit_problem_hook():
     user_account = user.get_user()
     tid = user_account['tid']
     pid = request.form.get('pid', '')
-    key = read.form.get('key', '')
+    key = request.form.get('key', '')
 
     result = problem.submit_key(tid, pid, key)
     return int(result['points']), result['points'], result['message']
@@ -176,7 +163,6 @@ def get_single_problem_hook(pid):
     problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
     return 1, problem_info
 
-
 @app.route('/api/score', methods=['GET'])
 @require_login
 @return_json
@@ -186,12 +172,10 @@ def get_team_score_hook():
         return 1, {'score': score}
     return 0, None, "There was an error retrieving your score."
 
-
 @app.route('/api/news', methods=['GET'])
 @return_json
 def load_news_hook():
     return utilities.load_news()
-
 
 @app.route('/api/lookupteamname', methods=['POST'])
 @return_json
@@ -205,7 +189,6 @@ def request_password_reset_hook():
     teamname = request.form.get('teamname', None)
     return utilities.request_password_reset(teamname)
 
-
 @app.route('/api/resetpassword', methods=['POST'])
 @return_json
 def reset_password_hook(request):
@@ -213,13 +196,11 @@ def reset_password_hook(request):
     new_password = str(request.form.get('new-password', None))
     return utilities.reset_password(token, new_password)
 
-
 @app.route('/api/game/categorystats', methods=['GET'])
 @return_json
 @require_login
 def get_category_statistics_hook():
     return game.get_category_statistics()
-
 
 @app.route('/api/game/solvedindices', methods=['GET'])
 @return_json
@@ -227,13 +208,11 @@ def get_category_statistics_hook():
 def get_solved_indices_hook():
     return game.get_solved_indices()
 
-
 @app.route('/api/game/getproblem/<path:etcid>', methods=['GET'])
 @return_json
 @require_login
 def get_game_problem_hook(etcid):
     return game.get_game_problem(etcid)
-
 
 @app.route('/api/game/to_pid/<path:etcid>', methods=['GET'])
 @return_json
@@ -241,13 +220,11 @@ def get_game_problem_hook(etcid):
 def etcid_to_pid_hook(etcid):
     return game.etcid_to_pid(etcid)
 
-
 @app.route('/api/game/get_state', methods=['GET'])
 @return_json
 @require_login
 def get_state_hook():
     return game.get_state()
-
 
 @app.route('/api/game/update_state', methods=['POST'])
 @return_json

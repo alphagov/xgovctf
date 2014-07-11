@@ -149,7 +149,7 @@ def get_all_users():
     """
 
     db = api.common.get_conn()
-    return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1}))
+    return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1, "tid": 1}))
 
 
 def register_user(params):
