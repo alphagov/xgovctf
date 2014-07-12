@@ -1,13 +1,18 @@
-__author__ = 'Collin Petty'
+""" Module for handling groups of teams """
 from common import db
 import common
 
 
 def get_group_membership(tid):
-    """Get the group membership for a team.
-
-    Find all groups to which a tid is an owner then add all groups to which a user is just a member.
     """
+    Get the group membership for a team.
+
+    Args:
+        tid: The team id
+    Returns:
+        List of groups that tid is a member of
+    """
+
     groups = list()
     owners = set()
     for g in list(db.groups.find({'owners': tid}, {'name': 1, 'gid': 1})):
@@ -22,53 +27,75 @@ def get_group_membership(tid):
     return groups
 
 
-def create_group(tid, gname):
-    """Create a new group.
-
-    Get a groupname posted from a logged in user. Check to see if the group exists, if it does notify the user.
-    If the group does not exist create it and add the user as a member/owner.
+def create_group(tid, group_name):
     """
-    if gname == '':
-        return {'status': 0, 'message': "The group name cannot be empty!"}
-    gname = gname.strip().replace(' ', '_')
+    Create a new group.
+
+    Args:
+        tid: The team id creating the group
+        group_name: The name of the group
+    """
+
+    if group_name == '':
+        raise APIException(0, None, "The group name cannot be empty!")
+    group_name = group_name.strip().replace(' ', '_')
     try:
-        gname.decode('ascii')
+        group_name.decode('ascii')
     except UnicodeEncodeError:
-        return {'status': 0, 'message': "The group name can only contain ASCII characters."}
-    if db.groups.find_one({'name': gname}) is not None:
-        return {'status': 2, 'message': "This group exists, would you like to join it?"}
-    db.groups.insert({"name": gname, "owners": [tid], "members": [tid], "gid": common.token()})
-    return {'status': 1, 'message': "Successfully created the group"}
+        raise APIException(0, None, "The group name can only contain ASCII characters.")
+    if db.groups.find_one({'name': group_name}) is not None:
+        raise APIException(0, None, "This group exists, would you like to join it?")
+
+    db.groups.insert({"name": group_name, "owners": [tid], "members": [tid], "gid": common.token()})
 
 
-def join_group(tid, gname):
-    """Join a group.
-
-    Get a groupname posted from a logged in user.  Errors if the name is empty.  Search db for the non-empty group
-    name, if no group with that name exists and error is returned.  If a group is found, we query db to see if the
-    user is already a member/owner, if either, error.  If we haven't error so far add the user as a member to the group
-    and return a status=1 for success.
+def join_group(tid, gid=None, name=None):
     """
-    if gname == '':
-        return {'status': 0, 'message': "The group name cannot be empty!"}
-    gname = gname.strip().replace(' ', '_')
-    group = db.groups.find_one({'name': gname})
+    Adds a team to a group.
+
+    Args:
+        tid: the team id
+        gid: the group id to join
+        name: the group name to join
+    """
+
+    if name:
+        if name == '':
+            raise APIException(0, None, "The group name cannot be empty!")
+        name = name.strip().replace(' ', '_')
+        group = db.groups.find_one({'name': name})
+    elif gid:
+        group = db.groups.find_one({'gid': gid})
+    else:
+        raise APIException(0, None, "No group information passed")
+
     if group is None:
-        return {'status': 3, 'message': "Cannot find group '%s', create it?" % gname}
+        raise APIException(3, None, "Cannot find group '%s', create it?" % name)
     if db.groups.find({'gid': group['gid'], '$or': [{'owners': tid},
                                                     {'members': tid}]}).count() != 0:
-        return {'status': 2, 'message': "You are already in '%s'." % gname}
+        raise APIException(2, None, "You are already in '%s'." % name)
 
     db.groups.update({'gid': group['gid']}, {'$push': {'members': tid}})
-    return {'status': 1, 'message': "Success! You have been added to '%s'." % gname}
 
 
-def leave_group(tid, gid):
-    """Removes the current team from a group"""
-    if gid is None:
-        return {'status': 0, 'message': "No group id passed."}
-    if db.groups.find_one({'gid': gid}) is None:
-        return {'status': 0, 'message': "Internal error, group not found."}
-    db.groups.update({'gid': gid}, {'$pull': {'owners': tid}})
-    db.groups.update({'gid': gid}, {'$pull': {'members': tid}})
-    return {'status': 1, 'message': "You have successfully been removed from the group."}
+def leave_group(tid, gid=None, name=None):
+    """
+    Removes a team from a group
+    
+    Args:
+        tid: the team id
+        gid: the group id to leave
+        name: the group name to leave
+    """
+
+    if gid:
+        match = {'gid': gid}
+    elif name:
+        match = {'group_name': name}
+    else:
+        raise APIException(0, None, "No group information passed.")
+
+    if db.groups.find_one(match) is None:
+        raise APIException(0, None, "Group not found.")
+    db.groups.update(match, {'$pull': {'owners': tid}})
+    db.groups.update(match, {'$pull': {'members': tid}})
