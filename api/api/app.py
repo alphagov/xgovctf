@@ -152,7 +152,7 @@ def submit_key_hook():
     key = request.form.get('key', '')
 
     result = problem.submit_key(tid, pid, key)
-    return int(result['points']), result['points'], result['message']
+    return int(result['correct']), result['points'], result['message']
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
