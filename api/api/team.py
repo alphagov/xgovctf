@@ -19,6 +19,7 @@ def get_team(tid=None, name=None):
     Returns:
         Returns the corresponding team object or None if it could not be found
     """
+
     db = api.api.common.get_conn()
     if tid is not None:
         return db.teams.find_one({'tid': tid})
@@ -39,6 +40,7 @@ def create_team(params):
     Returns:
         The newly created team id.
     """
+
     db = api.common.get_conn()
     params['tid'] = api.common.token()
     if api.team.get_team(name=params['team_name']) is not None:
@@ -49,7 +51,6 @@ def create_team(params):
     db.teams.insert(params)
 
     return params['tid']
-
 
 def get_team_uids(tid=None, name=None):
     """
@@ -102,5 +103,6 @@ def get_all_teams():
     Returns:
         A list of all of the teams.
     """
+
     db = api.common.get_conn()
     return list(db.teams.find({}, {"_id": 0}))
