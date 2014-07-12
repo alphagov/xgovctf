@@ -1,47 +1,31 @@
-window.load_problems = ->
-  $.ajax(type: "GET", cache: false, url: "/api/problems", dataType: "json")
-    .done (data) ->
-      console.log(data)
-      html = '<div class="contentbox row-fluid">'
-      for d in data.data
-        id = d['pid']        
-        html += """
-                <div class="row-fluid">
-                <div class="offset1 span10">
-                <div class="basic_view_header" pid="#{id}">
-                <h3>#{d['displayname']}: #{d['basescore']}
-        #{if d['correct'] then '<span class="solved">Solved</span>' else '<span class="unsolved">Unsolved</span>'}
-                </h3> 
-                </div>
-                <div class="basic_view_body">
-        #{d['desc']}"""
+renderProblemList = _.template($("#problem-list-template").remove().text())
+renderProblem = _.template($("#problem-template").remove().text())
 
-        if d['hint']?
-          html += """
-				<i class="icon-question-sign hint-toggle" hint="hint_#{id}"></i>
-				<div class="basic_view_hint" id="hint_#{id}">
-				<b>Hint: </b>
-		  #{d['hint']}
-				</div>"""
-				
-        html += """
-                <div id="msg_#{id}"></div>
-                <form onsubmit="handle_submit('#{id}'); return false;" class="form-inline" id="form_#{id}">				
-                <input id="#{id}" type="text" autocomplete="off"/>
-                <button class="btn" type="submit">Submit!</button>
-                </form>
-                </div>
-                </div>
-                </div>"""
-      html += '</div>'
-      $("#problems_holder").html html
-      $(".basic_view_header").click ->
-        $(this).next().toggle('fast')
-        pid = $(this).attr("pid")
-        $.ajax(type: "GET", cache: false, url: "/api/problems/" + pid, data: {'viewer': "basic"})
-      $(".basic_view_hint").hide()
-      $(".hint-toggle").click ->
-         $("#" + $(this).attr("hint")).toggle('fast')
-         _gaq.push(['_trackEvent', 'ProblemViewer', 'Hint', "Success"])
-      $(".solved").parent().parent().next().hide() # JB: WTF is this??
-      $(".unsolved").parent().parent().next().hide()
+submit_problem = (e) ->
+  e.preventDefault()
+  input = $(e.target).find("input")
+  $.post("/api/submit", {pid: input.data("pid"), key: input.val()})
+  .done (data) ->
+    console.log data
+    switch data["status"]
+      when 0
+        console.log data.message
+        alert data.message
+      when 1
+        console.log data.message
+        alert data.message
+
+load_problems = ->
+  $.get "/api/problems"
+  .done (data) ->
+    switch data["status"]
+      when 0
+        #TODO: Better error management
+        alert data.message
+      when 1
+        $("#problem-list-holder").html renderProblemList({problems: data.data, renderProblem: renderProblem})
+        $(".problem-submit").on "submit", submit_problem
+
+$ ->
+  load_problems()
+  
