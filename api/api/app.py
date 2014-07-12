@@ -2,7 +2,7 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
-from api import setup, user, auth, team, problem, scoreboard, utilities
+from api import setup, user, auth, team, problem, scoreboard, utilities, game
 from api.common import APIException
 from api.annotations import return_json, require_login, require_admin, log_request
 import api.common
@@ -134,8 +134,7 @@ def get_all_users_hook():
 @require_login
 @return_json
 def get_unlocked_problems_hook():
-    problems = problem.get_unlocked_problems(user.get_user()['tid'])
-    return 1, problems
+    return 1, problem.get_unlocked_problems(user.get_user()['tid'])
 
 @app.route('/api/problems/solved', methods=['GET'])
 @require_login
@@ -146,14 +145,14 @@ def get_solved_problems_hook():
 @app.route('/api/submit', methods=['POST'])
 @return_json
 @require_login
-def submit_problem_hook():
+def submit_key_hook():
     user_account = user.get_user()
     tid = user_account['tid']
     pid = request.form.get('pid', '')
     key = request.form.get('key', '')
 
     result = problem.submit_key(tid, pid, key)
-    return int(result['points']), result['points'], result['message']
+    return int(result['correct']), result['points'], result['message']
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
@@ -163,11 +162,20 @@ def get_single_problem_hook(pid):
     problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
     return 1, problem_info
 
-@app.route('/api/score', methods=['GET'])
+@app.route('/api/teamscore', methods=['GET'])
 @require_login
 @return_json
 def get_team_score_hook():
-    score = scoreboard.get_team_score(user.get_user()['uid'])
+    score = scoreboard.get_score(tid=user.get_user()['tid'])
+    if score is not None:
+        return 1, {'score': score}
+    return 0, None, "There was an error retrieving your score."
+
+@app.route('/api/userscore', methods=['GET'])
+@require_login
+@return_json
+def get_user_score_hook():
+    score = scoreboard.get_score(uid=user.get_user()['uid'])
     if score is not None:
         return 1, {'score': score}
     return 0, None, "There was an error retrieving your score."

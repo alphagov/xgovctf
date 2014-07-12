@@ -117,7 +117,8 @@ def setup_logs(args):
 
     flask_logging.create_logger = lambda app: use(app.logger_name)
 
-    set_level("werkzeug", logging.ERROR)
+    if not args['debug']:
+        set_level("werkzeug", logging.ERROR)
 
     level = [logging.WARNING, logging.INFO, logging.DEBUG][
         min(args.get("verbose", 1), 2)]

@@ -1,30 +1,38 @@
-__author__ = 'Collin Petty'
+""" Module for getting scoreboard information """
 
-from api.common import cache
+from api.common import cache, APIException
 import api.common
 import api.problem
 from datetime import datetime
 
 end = datetime(2020, 5, 7, 3, 59, 59)
 
-def get_team_score(tid):
+def get_score(tid=None, uid=None):
     """
-    Get the score for a team.  Looks for a cached team score, if not found we query all correct submissions by the team and add up their basescores if they exist. Cache the result.
-
+    Get the score for a user or team.
+    Looks for a cached score, if not found we query all correct submissions by the team and add up their scores if they exist. Cache the result.
     Args:
         tid: The team id
+        uid: The user id
     Returns:
-        The team's score
+        The users's or team's score
     """
 
-    db = common.get_conn()
+    db = api.common.get_conn()
 
-    score = cache.get('teamscore_' + tid)
+    if tid is not None:
+        cache_name = "teamscore_" + tid
+    elif uid is not None:
+        cache_name = "userscore_" + uid
+    else:
+        raise APIException(0, None, "Must supply uid or tid")
+
+    score = cache.get(cache_name)
     if score is not None:
         return score
 
-    pids = [d['pid'] for d in api.problem.get_correct_submissions(tid=tid)]  # ,#"timestamp": {"$lt": end}}))}
-    score = sum([api.problem.get_problem(pid)['basescore'] for pid in pids])
+    pids = [s['pid'] for s in api.problem.get_correct_submissions(tid=tid, uid=uid)]
+    score = sum([api.problem.get_problem(pid)['score'] for pid in pids])
 
-    cache.set('teamscore_' + tid, score, 60 * 60)
+    cache.set(cache_name, score, 60 * 60)
     return score
