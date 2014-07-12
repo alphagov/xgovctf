@@ -1,7 +1,5 @@
 """ Module for handling groups of teams """
-from common import db
-import common
-
+import api.common
 
 def get_group_membership(tid):
     """
@@ -13,17 +11,14 @@ def get_group_membership(tid):
         List of groups that tid is a member of
     """
 
+    db = api.common.get_conn()
+
     groups = list()
-    owners = set()
-    for g in list(db.groups.find({'owners': tid}, {'name': 1, 'gid': 1})):
+    for g in list(db.groups.find({'members': tid}, {'name': 1, 'gid': 1, 'owners': 1})):
         groups.append({'name': str(g['name']),
                        'gid': g['gid'],
-                       'owner': True})
-        owners.add(g['gid'])
-    groups += filter(lambda g: g['gid'] not in owners,
-                     ({'name': str(g['name']),
-                       'gid': g['gid'],
-                       'owner': False} for g in list(db.groups.find({'members': tid}, {'name': 1, 'gid': 1}))))
+                       'owner': tid in g['owners']})
+
     return groups
 
 
@@ -34,11 +29,16 @@ def create_group(tid, group_name):
     Args:
         tid: The team id creating the group
         group_name: The name of the group
+    Returns:
+        The new gid
     """
+
+    db = api.common.get_conn()
 
     if group_name == '':
         raise APIException(0, None, "The group name cannot be empty!")
     group_name = group_name.strip().replace(' ', '_')
+
     try:
         group_name.decode('ascii')
     except UnicodeEncodeError:
@@ -46,7 +46,10 @@ def create_group(tid, group_name):
     if db.groups.find_one({'name': group_name}) is not None:
         raise APIException(0, None, "This group exists, would you like to join it?")
 
-    db.groups.insert({"name": group_name, "owners": [tid], "members": [tid], "gid": common.token()})
+    gid = api.common.token()
+    db.groups.insert({"name": group_name, "owners": [tid], "members": [tid], "gid": gid})
+
+    return gid
 
 
 def join_group(tid, gid=None, name=None):
@@ -58,6 +61,8 @@ def join_group(tid, gid=None, name=None):
         gid: the group id to join
         name: the group name to join
     """
+
+    db = api.common.get_conn()
 
     if name:
         if name == '':
@@ -88,6 +93,8 @@ def leave_group(tid, gid=None, name=None):
         name: the group name to leave
     """
 
+    db = api.common.get_conn()
+
     if gid:
         match = {'gid': gid}
     elif name:
@@ -97,5 +104,6 @@ def leave_group(tid, gid=None, name=None):
 
     if db.groups.find_one(match) is None:
         raise APIException(0, None, "Group not found.")
+
     db.groups.update(match, {'$pull': {'owners': tid}})
     db.groups.update(match, {'$pull': {'members': tid}})
