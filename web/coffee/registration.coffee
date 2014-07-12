@@ -4,7 +4,7 @@ submit_registration = (e) ->
   .done (data) ->
     $("#message-box").html(data.message)
 
-$(document).ready ->
+$ ->
   $("#user-registration-form").on "submit", submit_registration
 
   $("#new-team-registration").hide()

@@ -6,9 +6,42 @@ post_scripts:
  - js/problems.js
 startup_functions:
  - redirect_if_not_logged_in()
- - load_problems()
 ---
 
-<div class="container-narrow">
-    <div id="problems_holder"></div>
+<script type="text/template" id="problem-template">
+  <div class="well">
+    <div class="problem">
+      <div class="problem-header">
+        <h4><%- problem.display_name %> <div class="pull-right"><%- problem.score %></div></h4>
+      </div>
+      <div class="problem-body">
+        <p class="problem-description">
+          <%= problem.description %>
+        </p>
+        <em class="problem-hint">
+          <%= problem.hint %>
+        </em>
+        <form class="problem-submit">
+          <div class="input-group input-group-sm">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">Submit!</button>
+            </span>
+            <input type="text" data-pid="<%- problem.pid %>" class="form-control">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/template" id="problem-list-template">
+  <div class="problem-list">
+    <% _.each(problems, function(problem) { %>
+      <%= renderProblem({problem: problem}) %>
+    <% }); %>
+  </div>
+</script>
+
+<div class="container">
+  <div id="problem-list-holder"></div>
 </div>
