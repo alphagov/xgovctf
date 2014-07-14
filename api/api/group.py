@@ -16,14 +16,36 @@ register_group_schema = Schema({
     )
 })
 
-join_group_schema = Schema({
-    Required("group-name"): check(
-        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "No group exists with that name! Try creating it instead.", [
-            lambda name: get_group(name=name) is not None]),
-        (0, "Your team is already a member of that group.", [
-            lambda name: get_group(name=name) not in [group["gid"] for group in api.team.get_groups()]
+join_group_schema = schema({
+    required("group-name"): check(
+        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
+        (0, "no group exists with that name! try creating it instead.", [
+            lambda name: get_group(name=name) is not none]),
+        (0, "your team is already a member of that group.", [
+            lambda name: get_group(name=name) in api.team.get_groups()
         ])
+    )
+})
+
+leave_group_schema = schema({
+    required("group-name"): check(
+        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
+        (0, "no group exists with that name!", [
+            lambda name: get_group(name=name) is not none ]),
+        (0, "your team is not a member of that group.", [
+            lambda name: get_group(name=name) not in api.team.get_groups() ])
+    )
+})
+
+delete_group_schema = schema({
+    required("group-name"): check(
+        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
+        (0, "no group exists with that name!", [
+            lambda name: get_group(name=name) is not none]),
+        (0, "your team is not a member of that group.", [
+            lambda name: get_group(name=name) not in api.team.get_groups()]),
+        (0, "your team is not an owner of that group", [
+            lambda name: api.user.get_team()['tid'] in get_group(name=name)['owners']])
     )
 })
 
@@ -125,15 +147,14 @@ def join_group_request(params, tid=None):
 
     validate(join_group_schema, params)
 
-    tid = api.user.get_team()["tid"]
+    if tid is None:
+        tid = api.user.get_team()["tid"]
 
     gid = get_group(name=params["group-name"])
 
     join_group(tid, gid)
 
-
-#TODO: Refactor into request/naive form
-def leave_group(tid, gid=None, name=None):
+def leave_group(tid, gid):
     """
     Removes a team from a group
 
@@ -145,15 +166,56 @@ def leave_group(tid, gid=None, name=None):
 
     db = api.common.get_conn()
 
-    if gid:
-        match = {'gid': gid}
-    elif name:
-        match = {'group_name': name}
-    else:
-        raise APIException(0, None, "No group information passed.")
+    db.groups.update({'gid': gid}, {'$pull': {'owners': tid}})
+    db.groups.update({'gid': gid}, {'$pull': {'members': tid}})
 
-    if db.groups.find_one(match) is None:
-        raise APIException(0, None, "Group not found.")
+def leave_group_request(params, tid=None):
+    """
+    Tries to remove a team from a group. Validates forms.
+    All required arguments are assumed to be keys in params.
 
-    db.groups.update(match, {'$pull': {'owners': tid}})
-    db.groups.update(match, {'$pull': {'members': tid}})
+    Args:
+        group-name: The name of the group to join.
+
+        Optional:
+            tid: If omitted,the tid will be grabbed from the logged in user.
+    """
+
+    validate(leave_group_schema, params)
+
+    if tid is None:
+        tid = api.user.get_team()["tid"]
+
+    gid = get_group(name=params["group-name"])
+
+    leave_group(tid, gid)
+
+def delete_group(gid):
+    """
+    Deletes a group
+
+    Args:
+        gid: the group id to delete
+    """
+
+    db = api.common.get_conn()
+
+    db.groups.remove({'gid': gid})
+
+def delete_group_request(params):
+    """
+    Tries to delete a group. Validates forms.
+    All required arguments are assumed to be keys in params.
+
+    Args:
+        group-name: The name of the group to join.
+
+        Optional:
+            tid: If omitted,the tid will be grabbed from the logged in user.
+    """
+
+    validate(delete_group_schema, params)
+
+    gid = get_group(name=params["group-name"])
+
+    delete_group(gid)
