@@ -16,7 +16,7 @@ from re import match
 
 user_schema = Schema({
     Required('email'): check(
-        (0, "Email must be between 5 and 100 characters.", [str, Length(min=5, max=100)]),
+        (0, "Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
         (0, "This does not look like an email address.", [
             lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
     ),
@@ -100,8 +100,7 @@ def get_user(name=None, uid=None):
 
     if name is not None:
         return db.users.find_one({'username': name})
-
-    if uid is not None:
+    elif uid is not None:
         return db.users.find_one({'uid': uid})
 
     if api.auth.is_logged_in():
