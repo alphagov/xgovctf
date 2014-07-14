@@ -36,9 +36,11 @@ class TestGroups(object):
         setup_db()
 
         # create teams
-        self.owner_tid = api.team.create_team(self.base_teams[0])
-        for team in self.base_teams[1:]:
-            api.team.create_team(team)
+        self.tids = []
+        for team in self.base_teams:
+            self.tids.append(api.team.create_team(team))
+
+        self.owner_tid = self.tids[0]
 
     def teardown_class(self):
         teardown_db()
@@ -63,3 +65,13 @@ class TestGroups(object):
             group_from_name = api.group.get_group(name=name)
 
             assert group_from_gid == group_from_name, "Group lookup from gid and name are not the same."
+
+    @ensure_empty_collections("groups")
+    @clear_collections("groups")
+    def test_join_group(self):
+        gid = api.group.create_group_request(self.base_group, self.owner_tid)
+
+        for tid in self.tids:
+            if tid is not self.owner_tid:
+                api.group.join_group(tid, gid)
+                assert tid in api.group.get_group(gid=gid)['members']
