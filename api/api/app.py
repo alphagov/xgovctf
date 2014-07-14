@@ -2,11 +2,13 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
-from api import setup, user, auth, team, problem, scoreboard, utilities, game
+from api import setup, user, auth, problem, scoreboard, utilities, game
 from api.common import APIException
 from api.annotations import return_json, require_login, require_admin, log_request
+
 import api.common
 import api.logger
+import api.team
 
 log = api.logger.use(__name__)
 
@@ -106,11 +108,8 @@ def is_admin_hook():
 @app.route('/api/team', methods=['GET'])
 @return_json
 @require_login
-def team_hook():
-    user_account = user.get_user()
-    tid = user_account['tid']
-    uid = user_account['uid']
-    return 1, team.get_team_information(tid, uid)
+def team_information_hook():
+    return 1, api.team.get_team_information(), None
 
 @app.route('/api/admin/getallproblems', methods=['GET'])
 @return_json
