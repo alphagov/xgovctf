@@ -106,7 +106,7 @@ def create_group_request(params, tid=None):
         group-name: The name of the group
 
         Optional:
-            tid: The team id creating the group. If oxmmitted,
+            tid: The team id creating the group. If ommitted,
             the tid will be grabbed from the logged in user.
     Returns:
         The new gid
