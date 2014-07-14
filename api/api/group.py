@@ -1,6 +1,5 @@
 """ Module for handling groups of teams """
 
-
 from voluptuous import Required, Length, Schema
 from api.common import check, APIException, validate
 
@@ -11,40 +10,40 @@ import api.team
 register_group_schema = Schema({
     Required("group-name"): check(
         (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "A group with that name already exists! Try joining it instead." [
+        (0, "A group with that name already exists! Try joining it instead.", [
             lambda name: get_group(name=name) is None])
     )
 })
 
-join_group_schema = schema({
-    required("group-name"): check(
-        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
-        (0, "no group exists with that name! try creating it instead.", [
+join_group_schema = Schema({
+    Required("group-name"): check(
+        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        (0, "No group exists with that name! try creating it instead.", [
             lambda name: get_group(name=name) is not none]),
-        (0, "your team is already a member of that group.", [
+        (0, "Your team is already a member of that group.", [
             lambda name: get_group(name=name) in api.team.get_groups()
         ])
     )
 })
 
-leave_group_schema = schema({
-    required("group-name"): check(
-        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
-        (0, "no group exists with that name!", [
+leave_group_schema = Schema({
+    Required("group-name"): check(
+        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        (0, "No group exists with that name!", [
             lambda name: get_group(name=name) is not none ]),
-        (0, "your team is not a member of that group.", [
+        (0, "Your team is not a member of that group.", [
             lambda name: get_group(name=name) not in api.team.get_groups() ])
     )
 })
 
-delete_group_schema = schema({
-    required("group-name"): check(
-        (0, "group name must be between 3 and 50 characters.", [str, length(min=3, max=100)]),
-        (0, "no group exists with that name!", [
+delete_group_schema = Schema({
+    Required("group-name"): check(
+        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        (0, "No group exists with that name!", [
             lambda name: get_group(name=name) is not none]),
-        (0, "your team is not a member of that group.", [
+        (0, "Your team is not a member of that group.", [
             lambda name: get_group(name=name) not in api.team.get_groups()]),
-        (0, "your team is not an owner of that group", [
+        (0, "Your team is not an owner of that group", [
             lambda name: api.user.get_team()['tid'] in get_group(name=name)['owners']])
     )
 })
