@@ -6,10 +6,17 @@ post_scripts:
  - js/team.js
 startup_functions:
  - redirect_if_not_logged_in()
- - load_team_info()
 ---
 
-<div class="container-narrow">
-    <div id="team_info_holder"></div>
-</div>
+<div id="team-info"></div>
 
+<!-- This will be pretty eventually! -->
+<script type="text/template" id="team-info-template">
+  <div class="well">
+    <h4>Team: <%- data.team_name %> </h4>
+    <hr>
+    <% _.each(data.members, function(username) { %>
+      <p><%- username %></p>
+    <% }) %>
+  </div>
+</script>

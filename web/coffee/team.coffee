@@ -1,7 +1,14 @@
-window.load_team_info = ->
-  $.ajax(type: "GET", cache: false, url: "/api/team", dataType: "json")
-   .done (response) -> 
-        console.log(response.data)
-        html = ""
-        html += "Your team is " + response.data.team_name # JB: XSS check needed
-        $("#team_info_holder").html html
+renderTeamInformation = _.template($("#team-info-template").remove().text())
+
+load_team_info = ->
+  $.get "/api/team"
+  .done (data) ->
+    switch data["status"]
+      when 0
+        #TODO: Better error management
+        console.log data.message
+      when 1
+        $("#team-info").html renderTeamInformation({data: data.data})
+  
+$ ->
+  load_team_info()
