@@ -258,7 +258,7 @@ def join_group_hook():
 @app.route('/api/group/leave', methods=['POST'])
 @return_json
 @require_login
-def join_group_hook():
+def leave_group_hook():
     api.group.leave_group_request(api.common.flat_multi(request.form))
     return 1, None, "Successfully left group"
 
