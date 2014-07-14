@@ -24,6 +24,7 @@ def return_json(f):
             return json.dumps(dict(zip(['status', 'data', 'message'], error.args)))
     return wrapper
 
+
 def require_login(f):
     @wraps(f)
     def wrapper(*args, **kwds):
@@ -32,6 +33,20 @@ def require_login(f):
 
         #if not auth.csrf_check(request.headers):
         #   abort(403)
+        return f(*args, **kwds)
+    return wrapper
+
+
+def check_csrf(f):
+    @wraps(f)
+    @require_login
+    def wrapper(*args, **kwds):
+        if 'token' not in session:
+            abort(403)
+        if 'token' not in request.form:
+            abort(403)
+        if session['token'] != request.form['token']:
+            abort(403)
         return f(*args, **kwds)
     return wrapper
 

@@ -15,18 +15,27 @@ log = api.logger.use(__name__)
 
 @app.after_request
 def after_request(response):
-    if (request.headers.get('Origin', '') in
-            ['http://picoctf.com',
-             'http://www.picoctf.com']):
-        response.headers.add('Access-Control-Allow-Origin',
-                             request.headers['Origin'])
+    #if (request.headers.get('Origin', '') in
+    #        ['http://picoctf.com',
+    #         'http://www.picoctf.com']):
+    #    response.headers.add('Access-Control-Allow-Origin',
+    #                         request.headers['Origin'])
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, *')
     response.headers.add('Cache-Control', 'no-cache')
     response.headers.add('Cache-Control', 'no-store')
+    if api.auth.is_logged_in():
+        if 'token' in session:
+            response.set_cookie('token', session['token'])
+        else:
+            csrf_token = api.common.token()
+            session['token'] = csrf_token
+            response.set_cookie('token', csrf_token)
+
     response.mimetype = 'application/json'
     return response
+
 
 @app.route("/api/sitemap", methods=["GET"])
 @return_json
@@ -75,7 +84,7 @@ def login_hook():
     username = request.form.get('username')
     password = request.form.get('password')
     auth.login(username, password)
-    return (1, None, "Successfully logged in as " + username)
+    return 1, None, "Successfully logged in as " + username
 
 @app.route('/api/logout', methods=['GET'])
 @return_json

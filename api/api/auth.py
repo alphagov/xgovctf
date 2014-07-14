@@ -25,6 +25,7 @@ user_login_schema = Schema({
     )
 })
 
+
 def login(username, password):
     """Authenticates a user.
 
