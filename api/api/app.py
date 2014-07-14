@@ -238,6 +238,6 @@ def get_state_hook():
 @return_json
 @require_login
 def update_state_hook():
-    return game.update_state(request.form.get('avatar', "3"),
-                             request.form.get('eventid', "0"),
-                             request.form.get('level', ""))
+    return game.update_state(request.form.get('avatar'),
+                             request.form.get('eventid'),
+                             request.form.get('level'))
