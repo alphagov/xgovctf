@@ -103,6 +103,12 @@ class TestProblems(object):
             pid = api.problem.insert_problem(problem)
             self.pids.append(pid)
 
+
+        self.base_pids =  [p['pid'] for p in self.base_problems]
+        self.enabled_pids = [p['pid'] for p in self.enabled_problems]
+        self.disabled_pids = [p['pid'] for p in self.disabled_problems]
+        self.all_pids = self.enabled_pids + self.disabled_pids
+
     def teardown_class(self):
         teardown_db()
 
@@ -122,12 +128,16 @@ class TestProblems(object):
                 api.problem.insert_problem(problem)
                 assert False, "Was able to insert a problem twice."
 
-        # verify that the problems match
+        # verify that the enabled problems match
         db_problems = api.problem.get_all_problems()
-        assert all([p in self.enabled_problems for p in db_problems]), "Problems do not match"
+        for problem in db_problems:
+            assert problem['pid'] in self.enabled_pids, "Problems do not match"
+            assert problem['pid'] not in self.disabled_pids, "Problem should not be enabled"
 
+        # verify that the disabled problems match
         db_all_problems = api.problem.get_all_problems(show_disabled=True)
-        assert all([p in self.all_problems for p in db_all_problems]), "Disabled problems do not match"
+        for problem in db_problems:
+            assert problem['pid'] in self.all_pids
 
     @ensure_empty_collections("submissions")
     @clear_collections("submissions")
@@ -186,12 +196,19 @@ class TestProblems(object):
 
         # check that base problems are unlocked
         unlocked = api.problem.get_unlocked_problems(self.tid)
-        assert all([p in unlocked for p in self.base_problems]), "Base problems are not initially unlocked!"
+        unlocked_pids = [p['pid'] for p in unlocked]
+        for pid in self.base_pids:
+            assert pid in unlocked_pids, "Base problem didn't unlock"
 
         # unlock more problems
         for problem in self.base_problems[:3]:
             api.problem.submit_key(self.tid, problem['pid'], self.correct, uid=self.uid)
 
         unlocked = api.problem.get_unlocked_problems(self.tid)
-        assert all([p in unlocked for p in self.base_problems + self.level1_problems]), "Level1 problems didn't unlock"
-        assert all([p not in unlocked for p in self.disabled_problems]), "Disabled problems are unlocked"
+        unlocked_pids = [p['pid'] for p in unlocked]
+
+        for problem in unlocked:
+            assert problem['pid'] not in self.disabled_pids, "Disabled problem is unlocked"
+
+        for pid in self.enabled_pids:
+            assert pid in unlocked_pids, "Level1 problem didn't unlock"
