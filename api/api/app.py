@@ -9,6 +9,7 @@ from api.annotations import return_json, require_login, require_admin, log_reque
 import api.common
 import api.logger
 import api.team
+import api.group
 
 log = api.logger.use(__name__)
 
@@ -239,3 +240,31 @@ def get_state_hook():
 def update_state_hook():
     return game.update_state(request.form.get('avatar'),request.form.get('eventid'),
             request.form.get('level'))
+
+@app.route('/api/group/create', methods=['POST'])
+@return_json
+@require_login
+def create_group_hook():
+    gid = api.group.create_group_request(api.common.flat_multi(request.form))
+    return 1, gid, "Successfully created group"
+
+@app.route('/api/group/join', methods=['POST'])
+@return_json
+@require_login
+def join_group_hook():
+    api.group.join_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully joined group"
+
+@app.route('/api/group/leave', methods=['POST'])
+@return_json
+@require_login
+def join_group_hook():
+    api.group.leave_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully left group"
+
+@app.route('/api/group/delete', methods=['POST'])
+@return_json
+@require_login
+def delete_group_hook():
+    api.group.delete_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully deleted group"
