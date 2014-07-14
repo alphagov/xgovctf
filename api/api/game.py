@@ -1,10 +1,24 @@
 __author__ = 'Jonathan Burket'
 
 from api.annotations import *
+from voluptuous import Required, Length, Schema, Range
+from api.common import validate, APIException, check
+
 import api.problem
 import api.user
 import api.common
+
 from api.app import app
+
+
+game_state_schema = Schema({
+    Required('avatar'): check(
+        (0, "Invalid Avatar Value.", [int, Range(min=0, max=3)]),
+    ),
+    Required('eventid'): check(
+        (0, "Invalid Event ID.", [int, Range(min=0, max=13)]),
+    )
+}, extra=True)
 
 
 def get_category_statistics():
@@ -103,10 +117,8 @@ def get_game_problem(etcid):
     try:
         pid = etcid_map[int(etcid)]
     except (IndexError, ValueError):
-        return 0, None, "Invalid Problem"
-    p = api.problem.get_single_problem(pid, useracct['tid'])
-    if 'status' in p and p['status'] == 0:  # JB: This interface sucks. Needs a rewrite
-        return 0, None, "Problem Not Unlocked"
+        raise APIException(0, None, "Invalid Problem")
+    p = api.problem.get_problem(pid=pid, tid=useracct['tid'])
     p['type'] = p['category']
     p['name'] = p['displayname']
     p['points'] = p['basescore']
@@ -119,7 +131,7 @@ def etcid_to_pid(etcid):
         pid = etcid_map[int(etcid)]
         return 1, pid
     except (IndexError, ValueError):
-        return 0, None, "Invalid Problem"
+        raise APIException(0, None, "Invalid Problem")
 
 
 def get_state():
@@ -132,12 +144,20 @@ def get_state():
 def update_state(avatar, eventid, level):
     db = api.common.get_conn()
     useracct = api.user.get_user()
+
     try:
-        avatar = int(validate(avatar, "Avatar Value", is_int=True))
-        eventid = int(validate(eventid, "Event Id", is_int=True))
-    except ValidationException as validation_failure:
-        return 0, None, validation_failure.value
+        avatar = int(avatar)
+        eventid = int(eventid)
+    except ValueError:
+        raise APIException(0, None, "Invalid State Value Type")
+
+    validate(game_state_schema, {
+        "avatar": avatar,
+        "eventid": eventid
+    })
+
     db.users.update({'uid': useracct['uid']},
                     {'$set': {'avatar': avatar, 'eventid': eventid, 'level': level}})
+
     return 1, None, "Update Successful"
 

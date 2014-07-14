@@ -74,7 +74,7 @@ def get_team_uids(tid=None, name=None):
 
     return [user["uid"] for user in db.users.find(match)]
 
-def get_team_information(tid):
+def get_team_information(tid, uid):
     """
     Retrieves the information of a team.
 
