@@ -1,7 +1,7 @@
 """ Module for handling groups of teams """
 
 from voluptuous import Required, Length, Schema
-from api.common import check, APIException, validate, safe_fail
+from api.common import check, validate, safe_fail, WebException, InternalException, SevereInternalException
 
 import api.common
 import api.user
@@ -9,32 +9,32 @@ import api.team
 
 register_group_schema = Schema({
     Required("group-name"): check(
-        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "A group with that name already exists! Try joining it instead.", [
+        ("Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        ("A group with that name already exists! Try joining it instead.", [
             lambda name: safe_fail(get_group, name=name) is None])
     )
 })
 
 join_group_schema = Schema({
     Required("group-name"): check(
-        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "No group exists with that name! try creating it instead.", [
+        ("Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        ("No group exists with that name! try creating it instead.", [
             lambda name: safe_fail(get_group, name=name) is not None]),
     )
 })
 
 leave_group_schema = Schema({
     Required("group-name"): check(
-        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "No group exists with that name!", [
+        ("Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        ("No group exists with that name!", [
             lambda name: safe_fail(get_group, name=name) is not None ]),
     )
 })
 
 delete_group_schema = Schema({
     Required("group-name"): check(
-        (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
-        (0, "No group exists with that name!", [
+        ("Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
+        ("No group exists with that name!", [
             lambda name: safe_fail(get_group, name=name) is not None]),
     )
 })
@@ -58,11 +58,11 @@ def get_group(gid=None, name=None):
     elif gid is not None:
         match.update({"gid": gid})
     else:
-        raise APIException(0, None, "Group name or gid must be specified to look it up.")
+        raise InternalException("Group name or gid must be specified to look it up.")
 
     group = db.groups.find_one(match, {"_id": 0})
     if group is None:
-        raise APIException(0, None, "Could not find group!")
+        raise InternalException("Could not find group!")
 
     return group
 
@@ -145,7 +145,7 @@ def join_group_request(params, tid=None):
         tid = api.user.get_team()["tid"]
 
     if tid in group['members']:
-        raise APIException(0, None, "Your team is already a member of that group!")
+        raise WebException("Your team is already a member of that group!")
 
     join_group(tid, group["gid"])
 
@@ -184,7 +184,7 @@ def leave_group_request(params, tid=None):
         tid = api.user.get_team()["tid"]
 
     if tid not in group['members']:
-        raise APIException(0, None, "Your team is not a member of that group!")
+        raise WebException("Your team is not a member of that group!")
 
     leave_group(tid, group["gid"])
 
@@ -220,6 +220,6 @@ def delete_group_request(params, tid=None):
         tid = api.user.get_team()["tid"]
 
     if tid not in group['owners']:
-        raise APIException(0, None, "Your team is not an owner of that group!")
+        raise WebException("Your team is not an owner of that group!")
 
     delete_group(gid)

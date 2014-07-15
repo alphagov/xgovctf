@@ -53,7 +53,7 @@ def site_map_hook():
 @app.route('/api/user/create', methods=['POST'])
 @api_wrapper
 def create_user_hook():
-    api.user.register_user(api.common.flat_multi(request.form))
+    api.user.create_user_request(api.common.flat_multi(request.form))
     return WebSuccess("User '{}' registered successfully!".format(request.form["username"]))
 
 @app.route('/api/user/updatepassword', methods=['POST'])

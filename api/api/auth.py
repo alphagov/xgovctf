@@ -18,10 +18,10 @@ debug_disable_general_login = False
 
 user_login_schema = Schema({
     Required('username'): check(
-        (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
     ),
     Required('password'): check(
-        (0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
+        ("Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
     )
 })
 
@@ -40,19 +40,19 @@ def login(username, password):
     })
     user = api.user.get_user(name=username)
     if user is None:
-        raise APIException(0, None, "Incorrect username.")
+        raise WebException("Incorrect username.")
 
     password_hash = user['password_hash']
     if bcrypt.hashpw(password, password_hash) == password_hash:
         if debug_disable_general_login:
             if session.get('debugaccount', False):
-                raise APIException(2, None, "Correct credentials! But the game has not started yet...")
+                raise WebException("Correct credentials! But the game has not started yet...")
         if user['uid'] is not None:
             session['uid'] = user['uid']
         else:
-            raise APIException(0, None, "Login Error")
+            raise WebException("Login Error")
     else:
-        raise APIException(0, None, "Incorrect Password")
+        raise WebException("Incorrect Password")
 
 def logout():
     """ 
