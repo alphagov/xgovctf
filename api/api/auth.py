@@ -25,7 +25,6 @@ user_login_schema = Schema({
     )
 })
 
-
 def login(username, password):
     """Authenticates a user.
 
@@ -55,13 +54,12 @@ def login(username, password):
     else:
         raise APIException(0, None, "Incorrect Password")
 
-
 def logout():
     """ 
     Clears the session
     """
-    session.clear()
 
+    session.clear()
 
 def is_logged_in():
     """
@@ -70,8 +68,8 @@ def is_logged_in():
     Returns:
         True if the user is logged in, false otherwise.
     """
-    return 'uid' in session
 
+    return 'uid' in session
 
 def is_admin():
     """
@@ -80,4 +78,18 @@ def is_admin():
     Returns:
         True if the user is an admin, false otherwise.
     """
+
     return session.get('admin', False)
+
+def get_uid():
+    """
+    Gets the user id from the session if it is logged in.
+
+    Returns:
+        The user id of the logged in user.
+    """
+
+    if is_logged_in():
+        return session['uid']
+    else:
+        return None
