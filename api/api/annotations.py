@@ -1,6 +1,6 @@
 __author__ = ['Peter Chapman', 'Collin Petty']
 
-from api.common import APIException
+from api.common import WebSuccess, WebError, WebException, InternalException, SevereInternalException
 import api.common
 import api.auth
 import api.logger
@@ -14,25 +14,31 @@ write_logs_to_db = False # Default value, can be overwritten by api.py
 
 log = api.logger.use("api.wrapper")
 
-def return_json(f):
+def api_wrapper(f):
+    """
+    Wraps api routing and handles potential exceptions
+    """
+
+    get_message = lambda exception: exception.args[0]
     @wraps(f)
     def wrapper(*args, **kwds):
+        web_result = {}
         try:
-            ret = f(*args, **kwds)
+            web_result = f(*args, **kwds)
+        except WebException as error:
+            web_result = WebError(get_message(error))
+        except InternalException as error:
+            message = get_message(error)
+            if type(error) == SevereInternalException:
+                log.critical(message)
+            else:
+                log.error(message)
+            web_result = WebError(message)
+        except Exception as error:
+            log.error(get_message(error))
 
-            #TODO: clean this up
-            status = ret[0]
-            data = ret[1]
-            msg = ret[2] if len(ret) > 2 else ""
+        return json.dumps(web_result)
 
-            data_dict = {'status': status, 'data': data, 'message': msg}
-            return json.dumps(data_dict)
-        except APIException as error:
-
-            error_dict = dict(zip(['status', 'data', 'message'], error.args))
-            log.warning("EXCEPTION %s: %s", error_dict["status"], error_dict["message"])
-
-            return json.dumps(error_dict)
     return wrapper
 
 

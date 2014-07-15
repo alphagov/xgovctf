@@ -72,13 +72,47 @@ def sec_token():
     """
     return token()
 
-
 class APIException(Exception):
     """
     Exception thrown by the API.
-    It should always be raised with a three tuple
     """
-    #TODO: Find correct way to validate tuple property.
+    pass
+
+def WebSuccess(message=None, data=None):
+    """
+    Successful web request wrapper.
+    """
+    return {
+        "status": 1,
+        "message": message,
+        "data": data
+    }
+
+def WebError(message=None, data=None):
+    """
+    Unsuccessful web request wrapper.
+    """
+    return {
+        "status": 0,
+        "message": message,
+        "data": data
+    }
+
+class WebException(APIException):
+    """
+    Errors that are thrown that need to be displayed to the end user.
+    """
+    pass
+
+class InternalException(APIException):
+    """
+    Exceptions thrown by the API constituting mild errors.
+    """
+    pass
+
+class SevereInternalException(InternalException):
+    """
+    Exceptions thrown by the API constituting critical errors."""
     pass
 
 def flat_multi(multidict):
@@ -107,7 +141,7 @@ def check(*callback_tuples):
         Returns a function callback for the Schema
     """
 
-    def validate(value):
+    def v(value):
         """
         Trys to validate the value with the given callbacks.
 
@@ -119,16 +153,16 @@ def check(*callback_tuples):
             The value if the validation callbacks are satisfied.
         """
 
-        for status, msg, callbacks in callback_tuples:
+        for msg, callbacks in callback_tuples:
             for callback in callbacks:
                 try:
                     result = callback(value)
                     if not result and type(result) == bool:
                         raise Invalid()
                 except Exception:
-                    raise APIException(status, None, msg)
+                    raise WebException(msg)
         return value
-    return validate
+    return v
 
 def validate(schema, data):
     """

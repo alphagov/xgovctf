@@ -7,7 +7,7 @@ import api.user
 import api.auth
 import api.scoreboard
 
-from api.common import APIException, safe_fail
+from api.common import APIException, safe_fail, InternalException
 
 max_team_users = 5
 
@@ -32,12 +32,12 @@ def get_team(tid=None, name=None):
     elif api.auth.is_logged_in():
         match.update({"tid": api.user.get_user()["tid"]})
     else:
-        raise APIException(0, None, "Must supply tid or team name!")
+        raise InternalException("Must supply tid or team name to get_team")
 
     team = db.teams.find_one(match, {"_id": 0})
 
     if team is None:
-        raise APIException(0, None, "Team does not exist!")
+        raise InternalException("Team does not exist.")
 
     return team
 
@@ -78,12 +78,9 @@ def create_team(params):
     """
 
     db = api.common.get_conn()
-    params['tid'] = api.common.token()
-    if safe_fail(get_team, name=params['team_name']) is not None:
-        raise APIException(0, None, "Team {} already exists!".format(params['team_name']))
 
-    # JB: Currently, group passwords are plaintext. We should think
-    # whether we should hash them or if we need to display them
+    params['tid'] = api.common.token()
+
     db.teams.insert(params)
 
     return params['tid']

@@ -3,7 +3,8 @@ API functions relating to user management and registration.
 """
 
 from voluptuous import Required, Length, Schema
-from api.common import check, APIException, validate, safe_fail
+from api.common import check, validate, safe_fail
+from api.common import WebException, InternalException
 
 import api.team
 import api.common
@@ -15,47 +16,47 @@ import re
 
 user_schema = Schema({
     Required('email'): check(
-        (0, "Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
-        (0, "This does not look like an email address.", [
+        ("Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
+        ("This does not look like an email address.", [
             lambda email: re.match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
     ),
     Required('username'): check(
-        (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (0, "This username already exists.", [
+        ("Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("This username already exists.", [
             lambda name: safe_fail(get_user, name=name) is None])
     ),
     Required('password'):
-        check((0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
+        check(("Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
 
 new_team_schema = Schema({
     Required('team-name-new'): check(
-        (0, "The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (0, "A team with that name already exists.", [
+        ("The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("A team with that name already exists.", [
             lambda name: safe_fail(api.team.get_team, name=name) is None])
     ),
     Required('team-password-new'):
-        check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
+        check(("Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
     Required('team-adv-name-new'):
-        check((0, "Adviser names should be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
+        check(("Adviser names should be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
     Required('team-adv-email-new'):
-        check((0, "Adviser emails must be between 5 and 100 characters.", [str, Length(min=5, max=100)])),
+        check(("Adviser emails must be between 5 and 100 characters.", [str, Length(min=5, max=100)])),
     Required('team-school-new'):
-        check((0, "School names must be between 3 and 150 characters.", [str, Length(min=3, max=150)]))
+        check(("School names must be between 3 and 150 characters.", [str, Length(min=3, max=150)]))
 
 }, extra=True)
 
 existing_team_schema = Schema({
     Required('team-name-existing'): check(
-        (0, "Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-        (0, "There is no existing team named that.", [
+        ("Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("There is no existing team named that.", [
             lambda name: api.team.get_team(name=name) != None]),
-        (0, "There are too many members on that team for you to join.", [
+        ("There are too many members on that team for you to join.", [
             lambda name: len(api.team.get_team_uids(name=name)) < api.team.max_team_users
         ])
     ),
     Required('team-password-existing'):
-        check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
+        check(("Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
 
 def hash_password(password):
@@ -106,12 +107,12 @@ def get_user(name=None, uid=None):
     elif api.auth.is_logged_in():
         match.update({'uid': api.auth.get_uid()})
     else:
-        raise APIException(0, None, "Must supply uid or name!")
+        raise InternalException("Uid or name must be specified for get_user")
 
     user = db.users.find_one(match)
 
     if user is None:
-        raise APIException(0, None, "User does not exist")
+        raise InternalException("User does not exist")
 
     return user
 
@@ -133,7 +134,7 @@ def create_user(username, email, password_hash, tid):
     uid = api.common.token()
 
     if safe_fail(get_user, name=username) is not None:
-        raise APIException(0, None, "User {0} already exists!".format(username))
+        raise InternalException("User already exists!")
 
     db.users.insert({
         'uid': uid,
@@ -158,7 +159,7 @@ def get_all_users():
     return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1, "tid": 1}))
 
 
-def register_user(params):
+def create_user_request(params):
     """
     Registers a new user and creates/joins a team. Validates all fields.
     Assume arguments to be specified in a dict.
@@ -195,10 +196,13 @@ def register_user(params):
             "password" : params["team-password-new"]
         }
 
+        if safe_fail(api.team.get_team, name=params["team-name-new"]) is not None:
+            raise WebException("Team {} already exists!".format(params['team-name-new']))
+
         tid = api.team.create_team(team_params)
 
         if tid is None:
-            raise APIException(-10, None, "Failed to create new team")
+            raise InternalException("Failed to create new team")
         team = api.team.get_team(tid=tid)
     else:
         validate(existing_team_schema, params)
@@ -206,7 +210,7 @@ def register_user(params):
         team = api.team.get_team(name=params["team-name-existing"])
 
         if team['password'] != params['team-password-existing']:
-            raise APIException(0, None, "Your team password is incorrect.")
+            raise WebException("Your team password is incorrect.")
 
 
     # Create new user
@@ -218,27 +222,38 @@ def register_user(params):
     )
 
     if uid is None:
-        raise APIException(0, None, "There was an error during registration.")
+        raise InternalException("There was an error during registration.")
 
     return uid
 
 def update_password(uid, password):
     """
-    Update account password.
+    Updates an account's password.
 
     Args:
-        uid: the user id
-        password: the new password
+        uid: user's uid
+        password: the new user password.
     """
 
     db = api.common.get_conn()
-
-    #CG: Where should schema's fit in here? We've already defined a password validator
-    #in the user_schema but this doesn't have the other fields... :(
-    if len(password) == 0:
-        raise APIException(0, None, "Your password cannot be empty.")
-
     db.users.update({'uid': uid}, {'$set': {'password_hash': hash_password(password)}})
+
+def update_password_request(params, uid=None):
+    """
+    Update account password.
+    Assumes all args are keys in params.
+
+    Args:
+        password: the new password
+    """
+
+    if uid is None:
+        uid = get_user()["uid"]
+
+    if len(params["password"]) == 0:
+        raise WebException("Your password cannot be empty.")
+
+    update_password(uid, params["password"])
 
 def get_ssh_account(uid):
     """
@@ -258,4 +273,4 @@ def get_ssh_account(uid):
     if sshacct is not None:
         db.sshaccts.update({'_id': sshacct['_id']}, {'$set': {'uid': uid}})
         return {'username': sshacct['user'], 'password': sshacct['password']}
-    raise APIException(0, None, "No free SSH accounts were found, please notify and administrator.")
+    raise WebException("No free SSH accounts were found, please notify and administrator.")
