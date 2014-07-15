@@ -325,6 +325,8 @@ def get_correct_submissions(pid=None, uid=None, tid=None, category=None):
         match.update({"uid": uid})
     elif tid is not None:
         match.update({"tid": tid})
+    else:
+        raise APIException(0, None, "Must specify uid or tid")
 
     if pid is not None:
         match.update({"pid": pid})
