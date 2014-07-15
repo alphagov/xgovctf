@@ -23,7 +23,7 @@ load_group_info = ->
 
         $("#group-request-form").on "submit", group_request
         $(".leave-team-span").on "click", (e) ->
-          leave_group $(e).data("group-name")
+          leave_group $(e.target).data("group-name")
           load_group_info()
 
 create_group = (group_name) ->

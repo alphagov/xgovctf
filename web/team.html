@@ -29,6 +29,7 @@ startup_functions:
         <tr>
           <th></th>
           <th>Group Name</th>
+          <th>Score</th>
         </tr>
       </thead>
       <tbody>
@@ -38,7 +39,10 @@ startup_functions:
               <span data-group-name="<%- group.name %>" class="glyphicon glyphicon-remove leave-team-span"></span>
             </td>
             <td>
-              <p><%- group.name %>
+              <p><%- group.name %></p>
+            </td>
+            <td>
+              <p><%= group.score %></p>
             </td>
           </tr>
         <% }); %>
