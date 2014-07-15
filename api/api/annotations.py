@@ -85,30 +85,3 @@ def require_admin(f):
             abort(403)
         return f(*args, **kwds)
     return wrapper
-
-
-def log_request(f):
-    @wraps(f)
-    def wrapper(*args, **kwds):
-        name = f.__name__
-        path = request.path
-        request_form = json.dumps(request.form)
-        request_args = json.dumps(request.args)
-        tid = session.get('tid', '')
-        session_id = session.get('session_id', '')
-        ip = request.headers.get('X-Real-IP', '')
-        time = str(datetime.now())
-        ret = f(*args, **kwds)
-        db = api.common.get_conn()
-        if write_logs_to_db:
-            db.logs.insert({'name': name,
-                            'path': path,
-                            'request_form': request_form,
-                            'request_args': request_args,
-                            'tid': tid,
-                            'session_id': session_id,
-                            'ip': ip,
-                            'time': time})  # ,
-                            # 'ret': str(ret)})
-        return ret
-    return wrapper

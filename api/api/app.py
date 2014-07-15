@@ -2,7 +2,7 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
-from api.common import WebSucess, WebError
+from api.common import WebSuccess, WebError
 from api.annotations import api_wrapper, require_login, require_admin
 
 import api
@@ -87,7 +87,6 @@ def login_hook():
 
 @app.route('/api/user/logout', methods=['GET'])
 @api_wrapper
-@log_request
 def logout_hook():
     if auth.is_logged_in():
         auth.logout()
@@ -184,7 +183,6 @@ def submit_key_hook():
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
 @api_wrapper
-@log_request
 def get_single_problem_hook(pid):
     problem_info = problem.get_problem(pid, tid=api.user.get_user()['tid'])
     return WebSuccess(data=problem_info)
