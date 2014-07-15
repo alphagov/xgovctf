@@ -1,6 +1,7 @@
 """ Module for interacting with the problems """
 import imp
 import json
+import pymongo
 
 import api.common
 import api.user
@@ -464,7 +465,7 @@ def get_all_problems(category=None, show_disabled=False):
     if category is not None:
       match.update({'category': category})
 
-    return list(db.problems.find(match, {"_id":0}))
+    return list(db.problems.find(match, {"_id":0}).sort("score", pymongo.ASCENDING))
 
 def get_solved_pids(tid, category=None):
     """
