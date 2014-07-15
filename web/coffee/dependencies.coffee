@@ -10,3 +10,10 @@ window.redirectIfNotLoggedIn = ->
       when 0
         window.location.href = "/login"
 
+window.apiNotify = (data) ->
+  style = "info"
+  if data.status == 0
+    style = "error"
+
+  $.notify data.message, style
+
