@@ -78,7 +78,7 @@ class TestTeams(object):
 
         Covers:
             team.create_team
-            user.register_user
+            user.create_user_request
             team.get_team_uids
         """
 
@@ -88,7 +88,7 @@ class TestTeams(object):
         for i in range(api.team.max_team_users):
             test_user = self.base_user.copy()
             test_user['username'] += str(i)
-            uids.append(api.user.register_user(test_user))
+            uids.append(api.user.create_user_request(test_user))
         
         team_uids = api.team.get_team_uids(tid)
         assert len(team_uids) == api.team.max_team_users, "Team does not have correct number of members"
@@ -96,13 +96,13 @@ class TestTeams(object):
 
     @ensure_empty_collections("teams", "users")
     @clear_collections("teams", "users")
-    def test_register_user_team_size_validation(self):
+    def test_create_user_request_team_size_validation(self):
         """
         Tests the team size restriction
 
         Covers:
             team.create_team
-            user.register_user
+            user.create_user_request
         """
 
         api.team.create_team(self.base_team.copy())
@@ -110,8 +110,8 @@ class TestTeams(object):
         for i in range(api.team.max_team_users):
             test_user = self.base_user.copy()
             test_user['username'] += str(i)
-            api.user.register_user(test_user)
+            api.user.create_user_request(test_user)
 
         with pytest.raises(APIException):
-            api.user.register_user(self.base_user.copy())
+            api.user.create_user_request(self.base_user.copy())
             assert False, "Team has too many users"

@@ -92,12 +92,12 @@ class TestUsers(object):
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
-    def test_register_user_email_validation(self):
+    def test_create_user_request_email_validation(self):
         """
         Tests the email validation during user registration.
 
         Covers:
-            partially: user.register_user
+            partially: user.create_user_request
         """
 
         team = self.base_team.copy()
@@ -107,17 +107,17 @@ class TestUsers(object):
         invalid_email_user["email"] = "not_an_email"
 
         with pytest.raises(APIException):
-            api.user.register_user(invalid_email_user)
+            api.user.create_user_request(invalid_email_user)
             assert False, "Was able to register a user with something that doesn't look like an email."
 
         invalid_email_user["email"] = "hax$@test.c"
 
         with pytest.raises(APIException):
-            api.user.register_user(invalid_email_user)
+            api.user.create_user_request(invalid_email_user)
             assert False, "Was able to register a user with invalid characters"
 
         valid_email_user = self.existing_team_user.copy()
-        assert api.user.register_user(valid_email_user), "Was not able to register a valid email."
+        assert api.user.create_user_request(valid_email_user), "Was not able to register a valid email."
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
@@ -127,25 +127,25 @@ class TestUsers(object):
 
         Covers:
             team.create_team
-            user.register_user
+            user.create_user_request
             user.get_team
         """
 
         team = self.base_team.copy()
         tid = api.team.create_team(team)
-        uid = api.user.register_user(self.existing_team_user.copy())
+        uid = api.user.create_user_request(self.existing_team_user.copy())
 
         result_team = api.user.get_team(uid=uid)
         assert tid == result_team['tid'], "Unable to pair uid and tid."
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
-    def test_register_user_general_validation(self):
+    def test_create_user_request_general_validation(self):
         """
         Tests the registration form validation functionality.
 
         Covers:
-            partially: user.register_user
+            partially: user.create_user_request
         """
 
         #Generally invalidate every length requirement
@@ -171,21 +171,21 @@ class TestUsers(object):
                         api.team.create_team(team)
 
                     with pytest.raises(APIException):
-                        api.user.register_user(sheep_user)
+                        api.user.create_user_request(sheep_user)
                         assert False, "Validation failed to catch {} length {}".format(bad_length_mod, key)
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
-    def test_register_user_new_team(self):
+    def test_create_user_request_new_team(self):
         """
         Tests the registration of users creating new teams.
 
         Covers:
-            partially: user.register_user
+            partially: user.create_user_request
             team.get_team_uids
         """
 
-        uid = api.user.register_user(self.new_team_user)
+        uid = api.user.create_user_request(self.new_team_user)
         assert uid == api.user.get_user(name=self.new_team_user["username"])["uid"], "Good user created unsuccessfully."
 
         team = api.team.get_team(name=self.new_team_user["team-name-new"])
@@ -198,24 +198,24 @@ class TestUsers(object):
         sheep_user["username"] = "something_different"
 
         with pytest.raises(APIException):
-            api.user.register_user(sheep_user)
+            api.user.create_user_request(sheep_user)
             assert False, "Was able to create a new team... twice"
 
         sheep_user = self.new_team_user.copy()
         sheep_user["team-name-new"] = "noneixstent_team"
 
         with pytest.raises(APIException):
-            api.user.register_user(sheep_user)
+            api.user.create_user_request(sheep_user)
             assert False, "Was able to create two users with the same username."
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
-    def test_register_user_existing_team(self):
+    def test_create_user_request_existing_team(self):
         """
         Tests the registration of users on existing teams.
 
         Covers:
-            partially: user.register_user
+            partially: user.create_user_request
             team.get_team_uids
             team.create_team
         """
@@ -223,23 +223,23 @@ class TestUsers(object):
         tid = api.team.create_team(self.base_team.copy())
         assert tid, "Team was not created."
 
-        uid = api.user.register_user(self.existing_team_user.copy())
+        uid = api.user.create_user_request(self.existing_team_user.copy())
         assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
 
         with pytest.raises(APIException):
-            api.user.register_user(self.existing_team_user.copy())
+            api.user.create_user_request(self.existing_team_user.copy())
             assert False, "Was able to register and join the team twice."
 
         with pytest.raises(APIException):
             invalid_team_user = self.existing_team_user.copy()
             invalid_team_user["team-name-existing"] = "Totally Invalid"
-            api.user.register_user(invalid_team_user)
+            api.user.create_user_request(invalid_team_user)
             assert False, "Was able to join a team that doesn't exist."
 
         with pytest.raises(APIException):
             invalid_team_user = self.existing_team_user.copy()
             invalid_team_user["team-password-existing"] = "Not correct"
-            api.user.register_user(invalid_team_user)
+            api.user.create_user_request(invalid_team_user)
             assert False, "Was able to join a team with an invalid password."
 
         team_uids = api.team.get_team_uids(tid)
@@ -264,7 +264,7 @@ class TestUsers(object):
         old_hash = api.user.get_user(uid=uid)["password_hash"]
         assert old_hash == "HASH", "Was unable to confirm password was stored correctly."
 
-        api.user.update_password(uid, "HACK")
+        api.user.update_password_request({"password":"HACK", "confirm-password":"HACK"}, uid)
 
         new_hash = api.user.get_user(uid=uid)["password_hash"]
 
@@ -272,6 +272,6 @@ class TestUsers(object):
             "Password does not match hashed plaintext after changing it."
 
         with pytest.raises(APIException):
-            api.user.update_password(uid, "")
+            api.user.update_password_request({"password": "", "confirm-password":""}, uid)
             assert False, "Should not be able to update password to nothing."
 

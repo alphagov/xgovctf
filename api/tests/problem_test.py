@@ -94,7 +94,7 @@ class TestProblems(object):
         setup_db()
 
         # initialization code
-        self.uid = api.user.register_user(self.test_user)
+        self.uid = api.user.create_user_request(self.test_user)
         self.tid = api.user.get_team(uid=self.uid)['tid']
 
         # insert all problems
