@@ -9,27 +9,29 @@ startup_functions:
 ---
 
 <script type="text/template" id="problem-template">
-  <div class="well">
-    <div class="problem">
-      <div class="problem-header">
-        <h4><%- problem.display_name %> <div class="pull-right"><%- problem.score %></div></h4>
-      </div>
-      <div class="problem-body">
-        <p class="problem-description">
-          <%= problem.description %>
-        </p>
-        <em class="problem-hint">
-          <%= problem.hint %>
-        </em>
-        <form class="problem-submit">
-          <div class="input-group input-group-sm">
-            <span class="input-group-btn">
-              <button class="btn btn-default" type="submit">Submit!</button>
-            </span>
-            <input type="text" data-pid="<%- problem.pid %>" class="form-control">
-          </div>
-        </form>
-      </div>
+  <div class="problem <%= problem.solved ? 'solved ' : '' %>panel panel-default">
+    <div class="problem-header panel-heading">
+      <h4 class="panel-title">
+        <%- problem.display_name + (problem.solved ? " - Solved" : " - Unsolved")%> 
+        <div class="pull-right"><%- problem.score %></div>
+        </a>
+    </h4>
+    </div>
+    <div class="problem-body panel-body">
+      <p class="problem-description">
+        <%= problem.description %>
+      </p>
+      <em class="problem-hint">
+        <%= problem.hint %>
+      </em>
+      <form class="problem-submit">
+        <div class="input-group input-group-sm">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Submit!</button>
+          </span>
+          <input type="text" data-pid="<%- problem.pid %>" class="form-control">
+        </div>
+      </form>
     </div>
   </div>
 </script>

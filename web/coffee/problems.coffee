@@ -14,6 +14,8 @@ submit_problem = (e) ->
       when 1
         console.log data.message
         alert data.message
+    load_problems()
+
 
 load_problems = ->
   $.get "/api/problems"
@@ -25,6 +27,8 @@ load_problems = ->
       when 1
         $("#problem-list-holder").html renderProblemList({problems: data.data, renderProblem: renderProblem})
         $(".problem-submit").on "submit", submit_problem
+
+    $(".solved").find(".problem-body").hide()
 
 $ ->
   load_problems()
