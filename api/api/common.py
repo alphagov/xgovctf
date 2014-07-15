@@ -146,3 +146,20 @@ def validate(schema, data):
         schema(data)
     except MultipleInvalid as error:
         raise APIException(0, None, error.msg)
+
+def safe_fail(f, *args, **kwargs):
+    """
+    Safely calls a function that can raise an APIException.
+
+    Args:
+        f: function to call
+        *args: positional arguments
+        **kwargs: keyword arguments
+    Returns:
+        The function result or None if an exception was raised.
+    """
+
+    try:
+        return f(*args, **kwargs)
+    except APIException:
+        return None
