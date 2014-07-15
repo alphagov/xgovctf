@@ -231,7 +231,7 @@ def update_password(uid, password):
     Updates an account's password.
 
     Args:
-        uid: user's uid
+        uid: user's uid.
         password: the new user password.
     """
 
@@ -244,11 +244,15 @@ def update_password_request(params, uid=None):
     Assumes all args are keys in params.
 
     Args:
-        password: the new password
+        password: the new password.
+        confirm-password: confirmation of passwod.
     """
 
     if uid is None:
         uid = get_user()["uid"]
+
+    if params["password"] != params["confirm-password"]:
+        raise WebException("Your passwords do not match.")
 
     if len(params["password"]) == 0:
         raise WebException("Your password cannot be empty.")
