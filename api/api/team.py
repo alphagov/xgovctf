@@ -5,7 +5,7 @@ API functions relating to team management.
 import api.common
 import api.user
 
-from api.common import APIException
+from api.common import APIException, safe_fail
 
 max_team_users = 5
 
@@ -21,11 +21,21 @@ def get_team(tid=None, name=None):
     """
 
     db = api.api.common.get_conn()
+
+    match = {}
     if tid is not None:
-        return db.teams.find_one({'tid': tid})
+        match.update({'tid': tid})
     elif name is not None:
-        return db.teams.find_one({'team_name': name})
-    return None
+        match.update({'team_name': name})
+    else:
+        raise APIException(0, None, "Must supply tid or team name!")
+
+    team = db.teams.find_one(match)
+
+    if team is None:
+        raise APIException(0, None, "Team does not exist!")
+
+    return team
 
 def create_team(params):
     """
@@ -43,7 +53,7 @@ def create_team(params):
 
     db = api.common.get_conn()
     params['tid'] = api.common.token()
-    if api.team.get_team(name=params['team_name']) is not None:
+    if safe_fail(get_team, name=params['team_name']) is not None:
         raise APIException(0, None, "Team {} already exists!".format(params['team_name']))
 
     # JB: Currently, group passwords are plaintext. We should think

@@ -9,7 +9,7 @@ import api.user
 import api.common
 import api.team
 
-from api.common import APIException
+from api.common import APIException, safe_fail
 from common import clear_collections, ensure_empty_collections
 from conftest import setup_db, teardown_db
 
@@ -164,7 +164,7 @@ class TestUsers(object):
                         sheep_user[key] = "A" * bad_length_mod
 
                     if sheep_user["create-new-team"] != "on" and \
-                    api.team.get_team(name=sheep_user["team-name-existing"]) is None:
+                    safe_fail(api.team.get_team, name=sheep_user["team-name-existing"]) is None:
                         team = self.base_team.copy()
                         team['team_name'] , team['password'] = \
                                 sheep_user["team-name-existing"], sheep_user["team-password-existing"]
@@ -186,7 +186,7 @@ class TestUsers(object):
         """
 
         uid = api.user.register_user(self.new_team_user)
-        assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
+        assert uid == api.user.get_user(name=self.new_team_user["username"])["uid"], "Good user created unsuccessfully."
 
         team = api.team.get_team(name=self.new_team_user["team-name-new"])
         assert team, "Team was not created."

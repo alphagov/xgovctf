@@ -2,9 +2,8 @@
 API functions relating to user management and registration.
 """
 
-from flask import session
 from voluptuous import Required, Length, Schema
-from api.common import check, APIException, validate
+from api.common import check, APIException, validate, safe_fail
 
 import api.team
 import api.common
@@ -16,14 +15,14 @@ from re import match
 
 user_schema = Schema({
     Required('email'): check(
-        (0, "Email must be between 5 and 100 characters.", [str, Length(min=5, max=100)]),
+        (0, "Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
         (0, "This does not look like an email address.", [
             lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
     ),
     Required('username'): check(
         (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
         (0, "This username already exists.", [
-            lambda name: get_user(name) == None])
+            lambda name: safe_fail(get_user, name=name) is None])
     ),
     Required('password'):
         check((0, "Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
@@ -33,7 +32,7 @@ new_team_schema = Schema({
     Required('team-name-new'): check(
         (0, "The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
         (0, "A team with that name already exists.", [
-            lambda name: api.team.get_team(name=name) == None])
+            lambda name: safe_fail(api.team.get_team, name=name) is None])
     ),
     Required('team-password-new'):
         check((0, "Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
@@ -98,16 +97,23 @@ def get_user(name=None, uid=None):
 
     db = api.common.get_conn()
 
-    if name is not None:
-        return db.users.find_one({'username': name})
+    match = {}
 
     if uid is not None:
-        return db.users.find_one({'uid': uid})
+        match.update({'uid': uid})
+    elif name is not None:
+        match.update({'username': name})
+    elif api.auth.is_logged_in():
+        match.update({'uid': api.auth.get_uid()})
+    else:
+        raise APIException(0, None, "Must supply uid or name!")
 
-    if api.auth.is_logged_in():
-        return db.users.find_one({'uid': session['uid']})
+    user = db.users.find_one(match)
 
-    return None
+    if user is None:
+        raise APIException(0, None, "User does not exist")
+
+    return user
 
 
 def create_user(username, email, password_hash, tid):
@@ -126,7 +132,7 @@ def create_user(username, email, password_hash, tid):
     db = api.common.get_conn()
     uid = api.common.token()
 
-    if get_user(name=username) is not None:
+    if safe_fail(get_user, name=username) is not None:
         raise APIException(0, None, "User {0} already exists!".format(username))
 
     db.users.insert({
