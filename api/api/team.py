@@ -29,6 +29,8 @@ def get_team(tid=None, name=None):
         match.update({'tid': tid})
     elif name is not None:
         match.update({'team_name': name})
+    elif api.auth.is_logged_in():
+        match.update({"tid": api.user.get_user()["tid"]})
     else:
         raise APIException(0, None, "Must supply tid or team name!")
 
