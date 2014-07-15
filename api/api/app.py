@@ -200,19 +200,6 @@ def lookup_team_names_hook():
     email = request.form.get('email', '')
     return utilities.lookup_team_names(email)
 
-@app.route('/api/requestpasswordreset', methods=['POST'])
-@api_wrapper
-def request_password_reset_hook():
-    teamname = request.form.get('teamname', None)
-    return utilities.request_password_reset(teamname)
-
-@app.route('/api/resetpassword', methods=['POST'])
-@api_wrapper
-def reset_password_hook(request):
-    token = str(request.form.get('token', None))
-    new_password = str(request.form.get('new-password', None))
-    return utilities.reset_password(token, new_password)
-
 @app.route('/api/game/categorystats', methods=['GET'])
 @api_wrapper
 @require_login
