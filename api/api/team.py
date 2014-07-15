@@ -123,6 +123,7 @@ def get_team_information(tid=None):
 
     #TODO: Consider what information we give. Right now this includes tid and the password.
     team_info = get_team()
+    team_info["score"] = api.scoreboard.get_score()
     team_info["members"] = [api.user.get_user(uid=uid)["username"] for uid in get_team_uids(tid)]
 
     return team_info
