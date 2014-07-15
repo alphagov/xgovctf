@@ -34,6 +34,7 @@ create_group = (group_name) ->
 join_group = (group_name) ->
   $.post "/api/group/join", {"group-name": group_name}
   .done (data) ->
+    $.notify(data.message, "error")
     console.log data.message
 
 leave_group = (group_name) ->
