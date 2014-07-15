@@ -37,14 +37,15 @@ def get_conn():
     if external_client is not None:
         return external_client
 
-    global __connection
+    global client, __connection
     if not __connection:
         try:
-            __connection = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
+            client = MongoClient(mongo_addr, mongo_port)
+            __connection = client[mongo_db_name]
         except ConnectionFailure:
             raise SevereInternalException("Could not connect to mongo database {} at {}:{}".format(mongo_db_name, mongo_addr, mongo_port))
     
-    if not __connection.alive():
+    if not client.alive():
         raise SevereInternalException("Mongodb is down!")
 
     return __connection
