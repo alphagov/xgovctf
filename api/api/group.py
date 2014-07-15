@@ -62,7 +62,7 @@ def get_group(gid=None, name=None):
 
     group = db.groups.find_one(match, {"_id": 0})
     if group is None:
-        raise InternalException("Could not find group!")
+        raise InternalException("Could not find group! You gave: " + str(match))
 
     return group
 
