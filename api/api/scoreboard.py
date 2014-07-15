@@ -3,6 +3,8 @@
 from api.common import cache, APIException
 import api.common
 import api.problem
+import api.team
+import api.user
 from datetime import datetime
 
 end = datetime(2020, 5, 7, 3, 59, 59)
@@ -36,3 +38,35 @@ def get_score(tid=None, uid=None):
 
     cache.set(cache_name, score, 60 * 60)
     return score
+
+def get_all_team_scores():
+    """
+    Gets the score for every team in the database.
+
+    Returns:
+        A dictionary of tid:score mappings
+    """
+
+    tids = [team['tid'] for team in api.team.get_all_teams()]
+    
+    result = {}
+    for tid in tids:
+        result[tid] = get_score(tid=tid)
+
+    return result
+
+def get_all_user_scores():
+    """
+    Gets the score for every user in the database.
+
+    Returns:
+        A dictionary of uid:score mappings
+    """
+
+    uids = [user['uid'] for user in api.user.get_all_users()]
+    
+    result = {}
+    for uid in uids:
+        result[uid] = get_score(uid=uid)
+
+    return result
