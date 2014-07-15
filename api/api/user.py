@@ -11,13 +11,13 @@ import api.auth
 
 import bcrypt
 
-from re import match
+import re
 
 user_schema = Schema({
     Required('email'): check(
         (0, "Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
         (0, "This does not look like an email address.", [
-            lambda email: match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
+            lambda email: re.match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
     ),
     Required('username'): check(
         (0, "Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
@@ -181,6 +181,7 @@ def register_user(params):
         team-password-new: Password to join team.
 
     """
+
     validate(user_schema, params)
 
     if params.get("create-new-team", None) == "on":

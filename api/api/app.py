@@ -2,11 +2,14 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
-from api import setup, user, auth, team, problem, scoreboard, utilities, game
+from api import setup, user, auth, problem, scoreboard, utilities, game
 from api.common import APIException
 from api.annotations import return_json, require_login, require_admin, log_request
+
 import api.common
 import api.logger
+import api.team
+import api.group
 
 log = api.logger.use(__name__)
 
@@ -96,7 +99,7 @@ def logout_hook():
     else:
         return 0, None, "You do not appear to be logged in."
 
-@app.route('/api/isloggedin', methods=['GET'])
+@app.route('/api/user/isloggedin', methods=['GET'])
 @return_json
 def is_logged_in_hook():
     if auth.is_logged_in():
@@ -115,11 +118,8 @@ def is_admin_hook():
 @app.route('/api/team', methods=['GET'])
 @return_json
 @require_login
-def team_hook():
-    user_account = user.get_user()
-    tid = user_account['tid']
-    uid = user_account['uid']
-    return 1, team.get_team_information(tid, uid)
+def team_information_hook():
+    return 1, api.team.get_team_information(), None
 
 @app.route('/api/admin/getallproblems', methods=['GET'])
 @return_json
@@ -247,6 +247,40 @@ def get_state_hook():
 @return_json
 @require_login
 def update_state_hook():
-    return game.update_state(request.form.get('avatar'),
-                             request.form.get('eventid'),
-                             request.form.get('level'))
+    return game.update_state(request.form.get('avatar'),request.form.get('eventid'),
+            request.form.get('level'))
+
+@app.route('/api/group', methods=['GET'])
+@return_json
+@require_login
+def group_hook():
+    groups = api.team.get_groups()
+    return 1, groups, "Successfully retrieved the team's groups"
+
+@app.route('/api/group/create', methods=['POST'])
+@return_json
+@require_login
+def create_group_hook():
+    gid = api.group.create_group_request(api.common.flat_multi(request.form))
+    return 1, gid, "Successfully created group"
+
+@app.route('/api/group/join', methods=['POST'])
+@return_json
+@require_login
+def join_group_hook():
+    api.group.join_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully joined group"
+
+@app.route('/api/group/leave', methods=['POST'])
+@return_json
+@require_login
+def leave_group_hook():
+    api.group.leave_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully left group"
+
+@app.route('/api/group/delete', methods=['POST'])
+@return_json
+@require_login
+def delete_group_hook():
+    api.group.delete_group_request(api.common.flat_multi(request.form))
+    return 1, None, "Successfully deleted group"

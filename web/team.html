@@ -2,14 +2,84 @@
 layout: default
 title: Problems
 post_scripts:
- - js/dependencies.js
  - js/team.js
 startup_functions:
- - redirect_if_not_logged_in()
- - load_team_info()
+ - redirectIfNotLoggedIn()
 ---
-
-<div class="container-narrow">
-    <div id="team_info_holder"></div>
+<div class="container">
+  <div class="well">
+    <div class="row">
+      <div class="col-md-6">
+        <div id="team-info"></div>
+      </div>
+      <div class="col-md-6">
+        <div id="group-info"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
+<script type="text/template" id="group-info-template">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Group Management</h3>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Group Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% _.each(data, function(group) { %>
+          <tr>
+            <td>
+              <span data-group-name="<%- group.name %>" class="glyphicon glyphicon-remove leave-team-span"></span>
+            </td>
+            <td>
+              <p><%- group.name %></p>
+            </td>
+            <td>
+              <p><%= group.score %></p>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <div class="panel-body">
+      <form class="form form-inline" id="group-request-form" type="submit">
+        <div class="input-group">
+          <div class="form-group">
+            <select class="form-control" id="group-request-action">
+              <option value="join">Join</option>
+              <option value="create">Create</option>
+            </select>           
+
+            <div class="form-group">
+              <input class="form-control" id="group-name-input" type="text">          
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</script>
+
+<script type="text/template" id="team-info-template">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Team: <strong><%- data.team_name %></strong></h3>
+    </div>
+    <div class="panel-body">
+      <p>Members</p>
+      <ul>
+        <% _.each(data.members, function(username) { %>
+          <li><%- username %></li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+</script>

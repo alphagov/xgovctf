@@ -4,6 +4,8 @@ API functions relating to team management.
 
 import api.common
 import api.user
+import api.auth
+import api.scoreboard
 
 from api.common import APIException, safe_fail
 
@@ -30,12 +32,34 @@ def get_team(tid=None, name=None):
     else:
         raise APIException(0, None, "Must supply tid or team name!")
 
-    team = db.teams.find_one(match)
+    team = db.teams.find_one(match, {"_id": 0})
 
     if team is None:
         raise APIException(0, None, "Team does not exist!")
 
     return team
+
+def get_groups(tid=None):
+    """
+    Get the group membership for a team.
+
+    Args:
+        tid: The team id
+    Returns:
+        List of group objects the team is a member of.
+    """
+
+    tid = get_team(tid=tid)["tid"]
+
+    db = api.common.get_conn()
+
+    groups = []
+    for group in list(db.groups.find({'members': tid}, {'name': 1, 'gid': 1, 'owners': 1})):
+        groups.append({'name': group['name'],
+                       'gid': group['gid'],
+                       'owner': tid in group['owners'],
+                       'score': api.scoreboard.get_group_score(gid=group['gid'])})
+    return groups
 
 def create_team(params):
     """
@@ -75,16 +99,11 @@ def get_team_uids(tid=None, name=None):
 
     db = api.common.get_conn()
 
-    if tid is not None:
-        match = {'tid': tid}
-    elif name is not None:
-        match = {'tid': api.team.get_team(name=name)['tid']}
-    else:
-        raise APIException(0, None, "No tid or name supplied")
+    tid = get_team(name=name, tid=tid)["tid"]
 
-    return [user["uid"] for user in db.users.find(match)]
+    return [user["uid"] for user in db.users.find({"tid": tid})]
 
-def get_team_information(tid, uid):
+def get_team_information(tid=None):
     """
     Retrieves the information of a team.
 
@@ -100,9 +119,9 @@ def get_team_information(tid, uid):
         members: A list of the member uids
     """
 
-    db = api.common.get_conn()
-    team_info = db.teams.find_one({'tid': tid}, {"_id": 0})
-    team_info["members"] = get_team_uids(tid)
+    #TODO: Consider what information we give. Right now this includes tid and the password.
+    team_info = get_team()
+    team_info["members"] = [api.user.get_user(uid=uid)["username"] for uid in get_team_uids(tid)]
 
     return team_info
 

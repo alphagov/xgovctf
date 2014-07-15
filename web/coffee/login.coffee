@@ -1,18 +1,13 @@
 window.check_logged_in = ->
-  $.get("/api/isloggedin")
+  $.get("/api/user/isloggedin")
     .done (data) ->
       if data['status'] == 0
-        if (typeof(Storage) != "undefined")
-          sessionStorage.signInStatus = "notLoggedIn"
         console.log(data.message)
       else if data['status'] == 1
-        if (typeof(Storage) != "undefined")
-          sessionStorage.signInStatus = "loggedIn"
-        document.location.href = "problems.html"
+        document.location.href = "/problems"
 
 trigger_alert = (message)->
   $("#error-alert").hide().text(message).show().delay(1500).fadeOut()
-
 
 login = (e) ->
   e.preventDefault()

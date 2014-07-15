@@ -31,4 +31,3 @@ def teardown_db():
     client = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
     client.connection.drop_database(mongo_db_name)
     client.connection.disconnect()
-    print("Disconnected from mongodb.")
