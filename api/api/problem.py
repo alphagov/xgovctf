@@ -1,14 +1,13 @@
 """ Module for interacting with the problems """
 import imp
 import json
-import pymongo
 
 import api.common
 import api.user
 import api.team
 
 from datetime import datetime
-from api.common import validate, APIException, check
+from api.common import validate, APIException, check, safe_fail
 from voluptuous import Schema, Length, Required, Range
 from pymongo.errors import DuplicateKeyError
 from bson import json_util
@@ -95,8 +94,11 @@ def insert_problem(problem):
     if problem.get("pid", None) is None:
         problem["pid"] = api.common.token()
 
-    if len(search_problems({"pid": problem["pid"]}, {"display_name": problem["display_name"]})) > 0:
-        raise APIException(0, None, "Problem with identical display_name or pid already exists.")
+    if safe_fail(get_problem, pid=problem["pid"]) is not None:
+        raise APIException(0, None, "Problem with identical pid already exists.")
+
+    if safe_fail(get_problem, name=problem["display_name"]) is not None:
+        raise APIException(0, None, "Problem with identical display_name already exists.")
 
     db.problems.insert(problem)
 
@@ -465,7 +467,7 @@ def get_all_problems(category=None, show_disabled=False):
     if category is not None:
       match.update({'category': category})
 
-    return list(db.problems.find(match, {"_id":0}).sort("score", pymongo.ASCENDING))
+    return list(db.problems.find(match, {"_id":0}))
 
 def get_solved_pids(tid, category=None):
     """
