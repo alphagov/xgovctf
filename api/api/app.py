@@ -2,19 +2,15 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
-from api import setup, user, auth, problem, scoreboard, utilities, game
-from api.common import APIException
-from api.annotations import return_json, require_login, require_admin, log_request
+from api.common import WebSucess, WebError
+from api.annotations import api_wrapper, require_login, require_admin
 
-import api.common
-import api.logger
-import api.team
-import api.group
+import api
 
 log = api.logger.use(__name__)
 
 #TODO: Reenable this with proper logging.
-#setup.check_database_indexes()
+#api.setup.check_database_indexes()
 
 @app.after_request
 def after_request(response):
@@ -41,7 +37,7 @@ def after_request(response):
 
 
 @app.route("/api/sitemap", methods=["GET"])
-@return_json
+@api_wrapper
 def site_map_hook():
     print("Building sitemap")
     links = []
@@ -52,244 +48,248 @@ def site_map_hook():
                 links.append(url)
             except Exception:
                 pass
-    return 1, links, "This is a message."
+    return WebSucess("This is a message.", links)
 
 @app.route('/api/user/create', methods=['POST'])
-@return_json
+@api_wrapper
 def create_user_hook():
-    user.register_user(api.common.flat_multi(request.form))
-    return 1, None, "User '{}' registered successfully!".format(request.form["username"])
+    api.user.register_user(api.common.flat_multi(request.form))
+    return WebSuccess("User '{}' registered successfully!".format(request.form["username"]))
 
 @app.route('/api/user/updatepassword', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def update_password_hook():
-    uid = user.get_user()["uid"]
+    uid = api.user.get_user()["uid"]
     password = request.form.get("password")
     confirm = request.form.get("confirm")
 
     if password != confirm:
-        raise APIException(0, None, "Your passwords do not match.")
+        return WebError("Your passwords do not match.")
 
-    user.update_password(uid, password)
-    return 1, None, "Your password has been successfully updated!"
+    api.user.update_password(uid, password)
+    return WebSuccess("Your password has been successfully updated!")
 
 @app.route('/api/user/getsshacct', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def get_ssh_account_hook():
-    data = user.get_ssh_account(user.get_user()['uid'])
-    return 1, data
+    data = api.user.get_ssh_account(api.user.get_user()['uid'])
+    return WebSuccess(data=data)
 
 @app.route('/api/user/login', methods=['POST'])
-@return_json
+@api_wrapper
 def login_hook():
     username = request.form.get('username')
     password = request.form.get('password')
     auth.login(username, password)
-    return 1, None, "Successfully logged in as " + username
+    return WebSuccess("Successfully logged in as " + username)
 
 @app.route('/api/user/logout', methods=['GET'])
-@return_json
+@api_wrapper
 @log_request
 def logout_hook():
     if auth.is_logged_in():
         auth.logout()
-        return 1, None, "Successfully logged out."
+        return WebSucess("Successfully logged out.")
     else:
-        return 0, None, "You do not appear to be logged in."
+        return WebError("You do not appear to be logged in.")
 
 @app.route('/api/user/score', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 def get_user_score_hook():
-    score = scoreboard.get_score(uid=user.get_user()['uid'])
+    score = scoreboard.get_score(uid=api.user.get_user()['uid'])
     if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."
+        return WebSuccess(data={'score': score})
+    return WebError("There was an error retrieving your score.")
 
 @app.route('/api/user/isloggedin', methods=['GET'])
-@return_json
+@api_wrapper
 def is_logged_in_hook():
     if auth.is_logged_in():
-        return 1, None, "You are logged in."
+        return WebSucess("You are logged in.")
     else:
-        return 0, None, "You are not logged in."
+        return WebError("You are not logged in.")
 
 @app.route('/api/user/isadmin', methods=['GET'])
-@return_json
+@api_wrapper
 def is_admin_hook():
     if auth.is_admin():
-        return 1, None, "You have admin permissions."
+        return WebSuccess("You have admin permissions.")
     else:
-        return 0, None, "You do not have admin permissions."
+        return WebError("You do not have admin permissions.")
 
 @app.route('/api/team', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def team_information_hook():
-    return 1, api.team.get_team_information(), None
+    return WebSuccess(data=api.team.get_team_information())
 
 @app.route('/api/team/score', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 def get_team_score_hook():
-    score = scoreboard.get_score(tid=user.get_user()['tid'])
+    score = scoreboard.get_score(tid=api.user.get_user()['tid'])
     if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."
+        return WebSuccess(data={'score': score})
+    return WebError("There was an error retrieving your score.")
 
 @app.route('/api/admin/getallproblems', methods=['GET'])
-@return_json
+@api_wrapper
 @require_admin
 def get_all_problems_hook():
-    probs = problem.get_all_problems()
+    problems = problem.get_all_problems()
     if probs is None:
-        return 0, None, "There was an error querying problems from the database."
-    return 1, probs
+        return WebError("There was an error querying problems from the database.")
+    return WebSuccess(data=problems)
 
 @app.route('/api/admin/getallusers', methods=['GET'])
-@return_json
+@api_wrapper
 @require_admin
 def get_all_users_hook():
-    users = user.get_all_users()
+    users = api.user.get_all_users()
     if users is None:
-        return 0, None, "There was an error query users from the database."
-    return 1, users
+        return WebError("There was an error query users from the database.")
+    return WebSuccess(data=users)
 
 @app.route('/api/problems', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 def get_unlocked_problems_hook():
-    return 1, problem.get_unlocked_problems(user.get_user()['tid'])
+    return WebSuccess(data=problem.get_unlocked_problems(api.user.get_user()['tid']))
 
 @app.route('/api/problems/solved', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 def get_solved_problems_hook():
-    return 1, problem.get_solved_problems(user.get_user()['tid'])
+    return WebSuccess(problem.get_solved_problems(api.user.get_user()['tid']))
 
 @app.route('/api/problems/submit', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def submit_key_hook():
-    user_account = user.get_user()
+    user_account = api.user.get_user()
     tid = user_account['tid']
     pid = request.form.get('pid', '')
     key = request.form.get('key', '')
 
     result = problem.submit_key(tid, pid, key)
-    return int(result['correct']), result['points'], result['message']
+    
+    if result['correct']:
+        return WebSuccess(result['message'], result['points'])
+    else:
+        return WebError(result['message'])
 
 @app.route('/api/problems/<path:pid>', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 @log_request
 def get_single_problem_hook(pid):
-    problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
-    return 1, problem_info
+    problem_info = problem.get_problem(pid, tid=api.user.get_user()['tid'])
+    return WebSuccess(data=problem_info)
 
 @app.route('/api/news', methods=['GET'])
-@return_json
+@api_wrapper
 def load_news_hook():
     return utilities.load_news()
 
 @app.route('/api/lookupteamname', methods=['POST'])
-@return_json
+@api_wrapper
 def lookup_team_names_hook():
     email = request.form.get('email', '')
     return utilities.lookup_team_names(email)
 
 @app.route('/api/requestpasswordreset', methods=['POST'])
-@return_json
+@api_wrapper
 def request_password_reset_hook():
     teamname = request.form.get('teamname', None)
     return utilities.request_password_reset(teamname)
 
 @app.route('/api/resetpassword', methods=['POST'])
-@return_json
+@api_wrapper
 def reset_password_hook(request):
     token = str(request.form.get('token', None))
     new_password = str(request.form.get('new-password', None))
     return utilities.reset_password(token, new_password)
 
 @app.route('/api/game/categorystats', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def get_category_statistics_hook():
     return game.get_category_statistics()
 
 @app.route('/api/game/solvedindices', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def get_solved_indices_hook():
     return game.get_solved_indices()
 
 @app.route('/api/game/getproblem/<path:etcid>', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def get_game_problem_hook(etcid):
     return game.get_game_problem(etcid)
 
 @app.route('/api/game/to_pid/<path:etcid>', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def etcid_to_pid_hook(etcid):
     return game.etcid_to_pid(etcid)
 
 @app.route('/api/game/get_state', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def get_state_hook():
     return game.get_state()
 
 @app.route('/api/game/update_state', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def update_state_hook():
     return game.update_state(request.form.get('avatar'),request.form.get('eventid'),
             request.form.get('level'))
 
 @app.route('/api/group', methods=['GET'])
-@return_json
+@api_wrapper
 @require_login
 def group_hook():
     groups = api.team.get_groups()
-    return 1, groups, "Successfully retrieved the team's groups"
+    return WebSuccess("Successfully retrieved the team's groups", groups)
 
 @app.route('/api/group/score', methods=['GET'])
 @require_login
-@return_json
+@api_wrapper
 def get_group_score_hook():
     score = scoreboard.get_group_score(name=request.form.get("group-name"))
     if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."
+        return WebSuccess(data={'score': score})
+    return WebError("There was an error retrieving your score.")
 
 @app.route('/api/group/create', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def create_group_hook():
     gid = api.group.create_group_request(api.common.flat_multi(request.form))
-    return 1, gid, "Successfully created group"
+    return WebSuccess("Successfully created group", gid)
 
 @app.route('/api/group/join', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def join_group_hook():
     api.group.join_group_request(api.common.flat_multi(request.form))
-    return 1, None, "Successfully joined group"
+    return WebSuccess("Successfully joined group")
 
 @app.route('/api/group/leave', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def leave_group_hook():
     api.group.leave_group_request(api.common.flat_multi(request.form))
-    return 1, None, "Successfully left group"
+    return WebSuccess("Successfully left group")
 
 @app.route('/api/group/delete', methods=['POST'])
-@return_json
+@api_wrapper
 @require_login
 def delete_group_hook():
     api.group.delete_group_request(api.common.flat_multi(request.form))
-    return 1, None, "Successfully deleted group"
+    return WebSuccess("Successfully deleted group")
