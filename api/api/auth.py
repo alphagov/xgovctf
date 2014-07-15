@@ -11,7 +11,7 @@ from voluptuous import Schema, Required, Length
 
 import api.user
 from api.user import check
-from api.common import WebException 
+from api.common import WebException, validate
 import bcrypt
 
 debug_disable_general_login = False
