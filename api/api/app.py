@@ -241,6 +241,13 @@ def update_state_hook():
     return game.update_state(request.form.get('avatar'),request.form.get('eventid'),
             request.form.get('level'))
 
+@app.route('/api/group', methods=['GET'])
+@return_json
+@require_login
+def group_hook():
+    groups = api.team.get_groups()
+    return 1, groups, "Successfully retrieved the team's groups"
+
 @app.route('/api/group/create', methods=['POST'])
 @return_json
 @require_login
