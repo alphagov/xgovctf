@@ -1,13 +1,8 @@
 window.check_logged_in = ->
   $.get("/api/user/isloggedin")
     .done (data) ->
-      if data['status'] == 0
-        console.log(data.message)
-      else if data['status'] == 1
+      if data['status'] == 1
         document.location.href = "/problems"
-
-trigger_alert = (message)->
-  $("#error-alert").hide().text(message).show().delay(1500).fadeOut()
 
 login = (e) ->
   e.preventDefault()
@@ -15,9 +10,9 @@ login = (e) ->
   .done (data) ->
     switch data['status']
       when 0
-        trigger_alert data['message']
+        $("#login-button").notify(data['message'], {position: "right"})
       when 1
-        document.location.href = "problems.html"
+        document.location.href = "/problems"
 
 $ ->
   $("#error-alert").hide()
