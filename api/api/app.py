@@ -90,7 +90,7 @@ def logout_hook():
     else:
         return 0, None, "You do not appear to be logged in."
 
-@app.route('/api/isloggedin', methods=['GET'])
+@app.route('/api/user/isloggedin', methods=['GET'])
 @return_json
 def is_logged_in_hook():
     if auth.is_logged_in():
