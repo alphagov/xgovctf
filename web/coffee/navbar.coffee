@@ -5,7 +5,7 @@ apiOffline =
 userLoggedIn =
   Problems: "/problems"
   Team: "/team"
-  Logout: "/api/logout"
+  Logout: "/api/user/logout"
 
 userNotLoggedIn =
   Registration: "/registration"

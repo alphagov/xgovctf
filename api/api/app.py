@@ -60,7 +60,7 @@ def create_user_hook():
     user.register_user(api.common.flat_multi(request.form))
     return 1, None, "User '{}' registered successfully!".format(request.form["username"])
 
-@app.route('/api/updatepassword', methods=['POST'])
+@app.route('/api/user/updatepassword', methods=['POST'])
 @return_json
 @require_login
 def update_password_hook():
@@ -74,14 +74,14 @@ def update_password_hook():
     user.update_password(uid, password)
     return 1, None, "Your password has been successfully updated!"
 
-@app.route('/api/getsshacct', methods=['GET'])
+@app.route('/api/user/getsshacct', methods=['GET'])
 @return_json
 @require_login
 def get_ssh_account_hook():
     data = user.get_ssh_account(user.get_user()['uid'])
     return 1, data
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/user/login', methods=['POST'])
 @return_json
 def login_hook():
     username = request.form.get('username')
@@ -89,7 +89,7 @@ def login_hook():
     auth.login(username, password)
     return 1, None, "Successfully logged in as " + username
 
-@app.route('/api/logout', methods=['GET'])
+@app.route('/api/user/logout', methods=['GET'])
 @return_json
 @log_request
 def logout_hook():
@@ -99,6 +99,15 @@ def logout_hook():
     else:
         return 0, None, "You do not appear to be logged in."
 
+@app.route('/api/user/score', methods=['GET'])
+@require_login
+@return_json
+def get_user_score_hook():
+    score = scoreboard.get_score(uid=user.get_user()['uid'])
+    if score is not None:
+        return 1, {'score': score}
+    return 0, None, "There was an error retrieving your score."
+
 @app.route('/api/user/isloggedin', methods=['GET'])
 @return_json
 def is_logged_in_hook():
@@ -107,7 +116,7 @@ def is_logged_in_hook():
     else:
         return 0, None, "You are not logged in."
 
-@app.route('/api/isadmin', methods=['GET'])
+@app.route('/api/user/isadmin', methods=['GET'])
 @return_json
 def is_admin_hook():
     if auth.is_admin():
@@ -120,6 +129,15 @@ def is_admin_hook():
 @require_login
 def team_information_hook():
     return 1, api.team.get_team_information(), None
+
+@app.route('/api/team/score', methods=['GET'])
+@require_login
+@return_json
+def get_team_score_hook():
+    score = scoreboard.get_score(tid=user.get_user()['tid'])
+    if score is not None:
+        return 1, {'score': score}
+    return 0, None, "There was an error retrieving your score."
 
 @app.route('/api/admin/getallproblems', methods=['GET'])
 @return_json
@@ -151,7 +169,7 @@ def get_unlocked_problems_hook():
 def get_solved_problems_hook():
     return 1, problem.get_solved_problems(user.get_user()['tid'])
 
-@app.route('/api/submit', methods=['POST'])
+@app.route('/api/problems/submit', methods=['POST'])
 @return_json
 @require_login
 def submit_key_hook():
@@ -170,24 +188,6 @@ def submit_key_hook():
 def get_single_problem_hook(pid):
     problem_info = problem.get_problem(pid, tid=user.get_user()['tid'])
     return 1, problem_info
-
-@app.route('/api/teamscore', methods=['GET'])
-@require_login
-@return_json
-def get_team_score_hook():
-    score = scoreboard.get_score(tid=user.get_user()['tid'])
-    if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."
-
-@app.route('/api/userscore', methods=['GET'])
-@require_login
-@return_json
-def get_user_score_hook():
-    score = scoreboard.get_score(uid=user.get_user()['uid'])
-    if score is not None:
-        return 1, {'score': score}
-    return 0, None, "There was an error retrieving your score."
 
 @app.route('/api/news', methods=['GET'])
 @return_json
@@ -256,6 +256,15 @@ def update_state_hook():
 def group_hook():
     groups = api.team.get_groups()
     return 1, groups, "Successfully retrieved the team's groups"
+
+@app.route('/api/group/score', methods=['GET'])
+@require_login
+@return_json
+def get_group_score_hook():
+    score = scoreboard.get_group_score(name=request.form.get("group-name"))
+    if score is not None:
+        return 1, {'score': score}
+    return 0, None, "There was an error retrieving your score."
 
 @app.route('/api/group/create', methods=['POST'])
 @return_json
