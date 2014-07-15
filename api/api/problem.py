@@ -210,7 +210,7 @@ def grade_problem(pid, key, uid=None):
             problem["grader"][:-3], join(grader_base_path, problem["grader"])
         ).grade(uid, key)
     except FileNotFoundError:
-        raise WebException("Problem grader is offline.")
+        raise WebException("Problem grader for {} is offline.".format(get_problem(pid=pid)['display_name']))
 
     return {
         "correct": correct,
@@ -238,14 +238,14 @@ def submit_key(tid, pid, key, uid=None, ip=None):
     validate(submission_schema, {"tid": tid, "pid": pid, "key": key})
 
     if pid not in get_unlocked_pids(tid):
-        raise WebException("You can't submit flags to problems you haven't unlocked.")
+        raise InternalException("You can't submit flags to problems you haven't unlocked.")
 
     if pid in get_solved_pids(tid):
         raise WebException("You have already solved this problem.")
 
     user = api.user.get_user(uid=uid)
     if user is None:
-        raise WebException("User submitting flag does not exist.")
+        raise InternalException("User submitting flag does not exist.")
     uid = user["uid"]
 
     result = grade_problem(pid, key, uid)
@@ -449,7 +449,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     problem = db.problems.find_one(match, {"_id":0})
 
     if problem is None:
-        raise InternalException("Could not find problem")
+        raise InternalException("Could not find problem! You gave " + str(match))
 
     return problem
 

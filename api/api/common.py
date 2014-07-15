@@ -7,6 +7,7 @@ __email__ = ["collin@cmu.edu", "peter@cmu.edu", "jburket@cmu.edu"]
 __status__ = "Production"
 
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
 from werkzeug.contrib.cache import SimpleCache
 from voluptuous import Invalid, MultipleInvalid
 import uuid
@@ -40,9 +41,12 @@ def get_conn():
     if not __connection:
         try:
             __connection = MongoClient(mongo_addr, mongo_port)[mongo_db_name]
-        except:
+        except ConnectionFailure:
             raise SevereInternalException("Could not connect to mongo database {} at {}:{}".format(mongo_db_name, mongo_addr, mongo_port))
-    #TODO: tell if mongo is down in this function and raise SeverInternalException!
+    
+    if not __connection.alive():
+        raise SevereInternalException("Mongodb is down!")
+
     return __connection
 
 
