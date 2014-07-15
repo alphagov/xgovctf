@@ -4,7 +4,7 @@ renderProblem = _.template($("#problem-template").remove().text())
 submit_problem = (e) ->
   e.preventDefault()
   input = $(e.target).find("input")
-  $.post("/api/submit", {pid: input.data("pid"), key: input.val()})
+  $.post("/api/problems/submit", {pid: input.data("pid"), key: input.val()})
   .done (data) ->
     console.log data
     switch data["status"]

@@ -11,7 +11,7 @@ trigger_alert = (message)->
 
 login = (e) ->
   e.preventDefault()
-  $.post("/api/login", $("#login-form").serialize())
+  $.post("/api/user/login", $("#login-form").serialize())
   .done (data) ->
     switch data['status']
       when 0
