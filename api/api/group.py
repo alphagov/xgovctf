@@ -1,7 +1,7 @@
 """ Module for handling groups of teams """
 
 from voluptuous import Required, Length, Schema
-from api.common import check, APIException, validate
+from api.common import check, APIException, validate, safe_fail
 
 import api.common
 import api.user
@@ -11,7 +11,7 @@ register_group_schema = Schema({
     Required("group-name"): check(
         (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
         (0, "A group with that name already exists! Try joining it instead.", [
-            lambda name: get_group(name=name) is None])
+            lambda name: safe_fail(get_group, name=name) is None])
     )
 })
 
@@ -19,10 +19,7 @@ join_group_schema = Schema({
     Required("group-name"): check(
         (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
         (0, "No group exists with that name! try creating it instead.", [
-            lambda name: get_group(name=name) is not None]),
-        (0, "Your team is already a member of that group.", [
-            lambda name: get_group(name=name) in api.team.get_groups()
-        ])
+            lambda name: safe_fail(get_group, name=name) is not None]),
     )
 })
 
@@ -30,9 +27,7 @@ leave_group_schema = Schema({
     Required("group-name"): check(
         (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
         (0, "No group exists with that name!", [
-            lambda name: get_group(name=name) is not None ]),
-        (0, "Your team is not a member of that group.", [
-            lambda name: get_group(name=name) not in api.team.get_groups() ])
+            lambda name: safe_fail(get_group, name=name) is not None ]),
     )
 })
 
@@ -40,11 +35,7 @@ delete_group_schema = Schema({
     Required("group-name"): check(
         (0, "Group name must be between 3 and 50 characters.", [str, Length(min=3, max=100)]),
         (0, "No group exists with that name!", [
-            lambda name: get_group(name=name) is not None]),
-        (0, "Your team is not a member of that group.", [
-            lambda name: get_group(name=name) not in api.team.get_groups()]),
-        (0, "Your team is not an owner of that group", [
-            lambda name: api.user.get_team()['tid'] in get_group(name=name)['owners']])
+            lambda name: safe_fail(get_group, name=name) is not None]),
     )
 })
 
@@ -69,7 +60,11 @@ def get_group(name=None, gid=None):
     else:
         raise APIException(0, None, "Group name or gid must be specified to look it up.")
 
-    return db.groups.find_one(match, {"_id": 0})
+    group = db.groups.find_one(match, {"_id": 0})
+    if group is None:
+        raise APIException(0, None, "Could not find group!")
+
+    return group
 
 def create_group(tid, group_name):
     """
@@ -95,7 +90,6 @@ def create_group(tid, group_name):
 
     return gid
 
-
 def create_group_request(params, tid=None):
     """
     Creates a new group. Validates forms.
@@ -117,7 +111,6 @@ def create_group_request(params, tid=None):
         tid = api.user.get_team()["tid"]
 
     return create_group(tid, params["group-name"])
-
 
 def join_group(tid, gid):
     """
@@ -146,12 +139,15 @@ def join_group_request(params, tid=None):
 
     validate(join_group_schema, params)
 
+    group = get_group(name=params["group-name"])
+
     if tid is None:
         tid = api.user.get_team()["tid"]
 
-    gid = get_group(name=params["group-name"])
+    if tid in group['members']:
+        raise APIException(0, None, "Your team is already a member of that group!")
 
-    join_group(tid, gid)
+    join_group(tid, group["gid"])
 
 def leave_group(tid, gid):
     """
@@ -182,12 +178,15 @@ def leave_group_request(params, tid=None):
 
     validate(leave_group_schema, params)
 
+    group = get_group(name=params["group-name"])
+
     if tid is None:
         tid = api.user.get_team()["tid"]
 
-    gid = get_group(name=params["group-name"])
+    if tid not in group['members']:
+        raise APIException(0, None, "Your team is not a member of that group!")
 
-    leave_group(tid, gid)
+    leave_group(tid, group["gid"])
 
 def delete_group(gid):
     """
@@ -201,7 +200,7 @@ def delete_group(gid):
 
     db.groups.remove({'gid': gid})
 
-def delete_group_request(params):
+def delete_group_request(params, tid=None):
     """
     Tries to delete a group. Validates forms.
     All required arguments are assumed to be keys in params.
@@ -215,6 +214,12 @@ def delete_group_request(params):
 
     validate(delete_group_schema, params)
 
-    gid = get_group(name=params["group-name"])
+    group = get_group(name=params["group-name"])
+
+    if tid is None:
+        tid = api.user.get_team()["tid"]
+
+    if tid not in group['owners']:
+        raise APIException(0, None, "Your team is not an owner of that group!")
 
     delete_group(gid)

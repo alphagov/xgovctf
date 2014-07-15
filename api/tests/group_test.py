@@ -66,12 +66,31 @@ class TestGroups(object):
 
             assert group_from_gid == group_from_name, "Group lookup from gid and name are not the same."
 
+        with pytest.raises(APIException):
+            api.group.get_group(gid="Not a real gid")
+            assert False, "Looked up group with invalid gid!"
+
+        with pytest.raises(APIException):
+            api.group.get_group(name="Not a real name")
+            assert False, "Looked up group with invalid name!"
+
     @ensure_empty_collections("groups")
     @clear_collections("groups")
-    def test_join_group(self):
+    def test_join_and_leave_group(self):
         gid = api.group.create_group_request(self.base_group, self.owner_tid)
+        name = api.group.get_group(gid=gid)["name"]
+
+        params = {"group-name": name}
 
         for tid in self.tids:
             if tid is not self.owner_tid:
-                api.group.join_group(tid, gid)
+                api.group.join_group_request(params, tid)
                 assert tid in api.group.get_group(gid=gid)['members']
+
+        for tid in self.tids:
+            api.group.leave_group_request(params, tid)
+            assert tid not in api.group.get_group(gid=gid)['members']
+
+        with pytest.raises(APIException):
+            api.group.leave_group_request(params, self.owner_tid)
+            assert False, "Was able to leve group twice!"
