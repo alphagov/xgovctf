@@ -9,7 +9,7 @@ import api.user
 import api.common
 import api.team
 
-from api.common import APIException, safe_fail
+from api.common import safe_fail, WebException
 from common import clear_collections, ensure_empty_collections
 from conftest import setup_db, teardown_db
 
@@ -106,13 +106,13 @@ class TestUsers(object):
         invalid_email_user = self.existing_team_user.copy()
         invalid_email_user["email"] = "not_an_email"
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(invalid_email_user)
             assert False, "Was able to register a user with something that doesn't look like an email."
 
         invalid_email_user["email"] = "hax$@test.c"
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(invalid_email_user)
             assert False, "Was able to register a user with invalid characters"
 
@@ -170,7 +170,7 @@ class TestUsers(object):
                                 sheep_user["team-name-existing"], sheep_user["team-password-existing"]
                         api.team.create_team(team)
 
-                    with pytest.raises(APIException):
+                    with pytest.raises(WebException):
                         api.user.create_user_request(sheep_user)
                         assert False, "Validation failed to catch {} length {}".format(bad_length_mod, key)
 
@@ -197,14 +197,14 @@ class TestUsers(object):
         sheep_user = self.new_team_user.copy()
         sheep_user["username"] = "something_different"
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(sheep_user)
             assert False, "Was able to create a new team... twice"
 
         sheep_user = self.new_team_user.copy()
         sheep_user["team-name-new"] = "noneixstent_team"
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(sheep_user)
             assert False, "Was able to create two users with the same username."
 
@@ -226,17 +226,17 @@ class TestUsers(object):
         uid = api.user.create_user_request(self.existing_team_user.copy())
         assert uid == api.user.get_user(name="valid")["uid"], "Good user created unsuccessfully."
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(self.existing_team_user.copy())
             assert False, "Was able to register and join the team twice."
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             invalid_team_user = self.existing_team_user.copy()
             invalid_team_user["team-name-existing"] = "Totally Invalid"
             api.user.create_user_request(invalid_team_user)
             assert False, "Was able to join a team that doesn't exist."
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             invalid_team_user = self.existing_team_user.copy()
             invalid_team_user["team-password-existing"] = "Not correct"
             api.user.create_user_request(invalid_team_user)
@@ -271,7 +271,7 @@ class TestUsers(object):
         assert bcrypt.hashpw("HACK", new_hash) == new_hash, \
             "Password does not match hashed plaintext after changing it."
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.update_password_request({"password": "", "confirm-password":""}, uid)
             assert False, "Should not be able to update password to nothing."
 

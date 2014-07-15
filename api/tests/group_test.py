@@ -8,7 +8,7 @@ import api.team
 import api.common
 import bcrypt
 
-from api.common import APIException
+from api.common import WebException, InternalException
 from common import clear_collections, ensure_empty_collections
 from conftest import setup_db, teardown_db
 
@@ -66,11 +66,11 @@ class TestGroups(object):
 
             assert group_from_gid == group_from_name, "Group lookup from gid and name are not the same."
 
-        with pytest.raises(APIException):
+        with pytest.raises(InternalException):
             api.group.get_group(gid="Not a real gid")
             assert False, "Looked up group with invalid gid!"
 
-        with pytest.raises(APIException):
+        with pytest.raises(InternalException):
             api.group.get_group(name="Not a real name")
             assert False, "Looked up group with invalid name!"
 
@@ -91,6 +91,6 @@ class TestGroups(object):
             api.group.leave_group_request(params, tid)
             assert tid not in api.group.get_group(gid=gid)['members']
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.group.leave_group_request(params, self.owner_tid)
             assert False, "Was able to leve group twice!"

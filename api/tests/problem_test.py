@@ -9,7 +9,7 @@ import api.team
 import api.common
 import api.problem
 
-from api.common import APIException
+from api.common import WebException
 from common import clear_collections, ensure_empty_collections
 from conftest import setup_db, teardown_db
 
@@ -124,7 +124,7 @@ class TestProblems(object):
 
         # problems were inserted in initialization - try to insert the problems again
         for problem in self.all_problems:
-            with pytest.raises(APIException):
+            with pytest.raises(WebException):
                 api.problem.insert_problem(problem)
                 assert False, "Was able to insert a problem twice."
 
@@ -170,12 +170,12 @@ class TestProblems(object):
             assert api.problem.get_problem(pid=problem['pid']) not in solved
 
         # test submitting correct twice
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.problem.submit_key(self.tid, self.base_problems[0]['pid'], self.correct, uid=self.uid)
             assert False, "Submitted key to problem that was already solved"
 
         # test submitting to disabled problem
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.problem.submit_key(self.tid, self.disabled_problems[0]['pid'], self.correct, uid=self.uid)
             assert False, "Submitted key to disabled problem"
 

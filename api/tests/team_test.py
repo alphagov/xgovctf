@@ -8,7 +8,7 @@ import api.team
 import api.common
 import bcrypt
 
-from api.common import APIException
+from api.common import WebException, InternalException
 from common import clear_collections, ensure_empty_collections
 from conftest import setup_db, teardown_db
 
@@ -112,6 +112,6 @@ class TestTeams(object):
             test_user['username'] += str(i)
             api.user.create_user_request(test_user)
 
-        with pytest.raises(APIException):
+        with pytest.raises(WebException):
             api.user.create_user_request(self.base_user.copy())
             assert False, "Team has too many users"
