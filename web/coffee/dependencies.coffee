@@ -17,3 +17,10 @@ window.apiNotify = (data) ->
 
   $.notify data.message, style
 
+$.fn.apiNotify = (data, configuration) ->
+  style = "info"
+  if data.status == 0
+    style = "error"
+  configuration["className"] = style
+
+  return $(this).notify(message, configuration)
