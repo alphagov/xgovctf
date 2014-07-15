@@ -5,6 +5,7 @@ API functions relating to team management.
 import api.common
 import api.user
 import api.auth
+import api.scoreboard
 
 from api.common import APIException
 
@@ -51,7 +52,8 @@ def get_groups(tid=None):
     for group in list(db.groups.find({'members': tid}, {'name': 1, 'gid': 1, 'owners': 1})):
         groups.append({'name': group['name'],
                        'gid': group['gid'],
-                       'owner': tid in group['owners']})
+                       'owner': tid in group['owners'],
+                       'score': api.scoreboard.get_group_score(gid=group['gid'])})
     return groups
 
 def create_team(params):

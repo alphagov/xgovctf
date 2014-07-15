@@ -2,6 +2,7 @@
 
 from api.common import cache, APIException
 import api.common
+import api.group
 import api.problem
 from datetime import datetime
 
@@ -23,3 +24,35 @@ def get_score(tid=None, uid=None):
     score = sum([api.problem.get_problem(pid)['score'] for pid in pids])
 
     return score
+
+def get_group_scores(gid=None, name=None):
+    """
+    Get the group scores.
+
+    Args:
+        gid: The group id
+        name: The group name
+    Returns:
+        A dictionary of tid:score mappings
+    """
+
+    members = api.group.get_group(gid, name)['members']
+
+    result = {}
+    for tid in members:
+        result[tid] = get_score(tid=tid)
+
+    return result
+
+def get_group_score(gid=None, name=None):
+    """
+    Get the group score.
+
+    Args:
+        gid: The group id
+        name: The group name
+    Returns:
+        The total score of the group
+    """
+
+    return sum(get_group_scores(gid, name).values())

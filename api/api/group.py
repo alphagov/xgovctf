@@ -39,7 +39,7 @@ delete_group_schema = Schema({
     )
 })
 
-def get_group(name=None, gid=None):
+def get_group(gid=None, name=None):
     """
     Retrieve a group based on its name or gid.
 
