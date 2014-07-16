@@ -5,11 +5,13 @@ apiOffline =
 userLoggedIn =
   Problems: "/problems"
   Team: "/team"
+  Scoreboard: "/scoreboard"
   Logout: "/api/user/logout"
 
 userNotLoggedIn =
   Registration: "/registration"
   Login: "/login"
+  Scoreboard: "/scoreboard"
 
 load_navbar = (renderNavbarLinks) ->
   apiCall "GET", "/api/user/isloggedin", {}
