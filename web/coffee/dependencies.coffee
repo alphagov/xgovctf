@@ -10,17 +10,19 @@ window.redirectIfNotLoggedIn = ->
       when 0
         window.location.href = "/login"
 
-window.apiNotify = (data) ->
+getStyle = (data) ->
   style = "info"
-  if data.status == 0
-    style = "error"
+  switch data.status
+    when 0
+      style = "error"
+    when 1
+      style = "success"
+  return style
 
+window.apiNotify = (data) ->
+  style = getStyle data
   $.notify data.message, style
 
 $.fn.apiNotify = (data, configuration) ->
-  style = "info"
-  if data.status == 0
-    style = "error"
-  configuration["className"] = style
-
-  return $(this).notify(message, configuration)
+  configuration["className"] = getStyle data
+  return $(this).notify(data.message, configuration)
