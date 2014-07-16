@@ -2,7 +2,7 @@ __author__ = 'Jonathan Burket'
 
 from api.annotations import *
 from voluptuous import Required, Length, Schema, Range
-from api.common import validate, check, WebException
+from api.common import validate, check, WebException, WebSuccess, WebError
 
 import api.problem
 import api.user
@@ -33,7 +33,7 @@ def get_category_statistics():
     for p in api.problem.get_solved_problems(api.user.get_team()['tid']):
         category_scores[p['category']]['solved'] += 1
 
-    return 1, category_scores
+    return WebSuccess(category_scores)
 
 
 pid_map = {}
@@ -109,7 +109,7 @@ etcid_map = {v: k for k, v in pid_map.items()}
 
 def get_solved_indices():
     solved_problems = api.problem.get_solved_problems(api.user.get_team()['tid'])
-    return 1, sorted([pid_map[p['pid']] for p in solved_problems])
+    return WebSuccess(data=sorted([pid_map[p['pid']] for p in solved_problems]))
 
 
 def get_game_problem(etcid):
@@ -123,22 +123,24 @@ def get_game_problem(etcid):
     p['name'] = p['displayname']
     p['points'] = p['basescore']
     p['ans'] = 'batman'
-    return 1, p
+    return WebSuccess(data=p)
 
 
 def etcid_to_pid(etcid):
     try:
         pid = etcid_map[int(etcid)]
-        return 1, pid
+        return WebSuccess(data=pid)
     except (IndexError, ValueError):
         raise WebException("Invalid Problem")
 
 
 def get_state():
     useracct = api.user.get_user()
-    return 1, {'level': useracct['level'],
-               'avatar': useracct['avatar'],
-               'eventid': useracct['eventid']}
+    return WebSuccess(data={
+        'level': useracct['level'],
+        'avatar': useracct['avatar'],
+        'eventid': useracct['eventid']
+    })
 
 
 def update_state(avatar, eventid, level):
@@ -159,5 +161,4 @@ def update_state(avatar, eventid, level):
     db.users.update({'uid': useracct['uid']},
                     {'$set': {'avatar': avatar, 'eventid': eventid, 'level': level}})
 
-    return 1, None, "Update Successful"
-
+    return WebSuccess("Update Successful")
