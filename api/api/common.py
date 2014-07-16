@@ -9,7 +9,7 @@ __status__ = "Production"
 import uuid
 
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure, InvalidName
 from werkzeug.contrib.cache import SimpleCache
 from voluptuous import Invalid, MultipleInvalid
 
@@ -29,7 +29,8 @@ mongo_db_name = ""
 external_client = None
 
 def get_conn():
-    """Get a database connection
+    """
+    Get a database connection
 
     Ensures that only one global database connection exists per thread.
     If the connection does not exist a new one is created and returned.
@@ -45,6 +46,8 @@ def get_conn():
             __connection = client[mongo_db_name]
         except ConnectionFailure:
             raise SevereInternalException("Could not connect to mongo database {} at {}:{}".format(mongo_db_name, mongo_addr, mongo_port))
+        except InvalidName as error:
+            raise SevereInternalException("Database {} is invalid! - {}".format(mongo_db_name, error))
     
     if not client.alive():
         raise SevereInternalException("Mongodb is down!")
