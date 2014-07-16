@@ -279,3 +279,21 @@ def leave_group_hook():
 def delete_group_hook():
     api.group.delete_group_request(api.common.flat_multi(request.form))
     return WebSuccess("Successfully deleted group")
+
+@app.route('/api/scoreboard', methods=['GET'])
+@api_wrapper
+def get_scoreboard_hook():
+    result = {}
+    result['public'] = api.scoreboard.get_all_team_scores()
+    result['groups'] = []
+
+    if api.auth.is_logged_in():
+        for group in api.team.get_groups():
+            result['groups'].append({
+                'gid': group['gid'],
+                'name': group['name'],
+                'scoreboard': api.scoreboard.get_group_scores(gid=group['gid'])
+
+            })
+
+    return WebSuccess(data=result)
