@@ -35,13 +35,16 @@ def get_group_scores(gid=None, name=None):
         A dictionary of tid:score mappings
     """
 
-    members = api.group.get_group(gid, name)['members']
+    members = [api.team.get_team(tid=tid) for tid in api.group.get_group(gid, name)['members']]
 
-    result = {}
-    for tid in members:
-        result[tid] = get_score(tid=tid)
+    result = []
+    for team in members:
+        result.append({
+            "name": team['team_name'],
+            "score": get_score(tid=team['tid'])
+        })
 
-    return result
+    return sorted(result, key=lambda entry: entry['score'], reverse=True)
 
 def get_group_score(gid=None, name=None):
     """
@@ -54,7 +57,7 @@ def get_group_score(gid=None, name=None):
         The total score of the group
     """
 
-    return sum(get_group_scores(gid, name).values())
+    return sum([entry['score'] for entry in get_group_scores(gid, name)])
 
 def get_all_team_scores():
     """
@@ -73,7 +76,7 @@ def get_all_team_scores():
             "score": get_score(tid=team['tid'])
         })
 
-    return result
+    return sorted(result, key=lambda entry: entry['score'], reverse=True)
 
 def get_all_user_scores():
     """
@@ -92,4 +95,4 @@ def get_all_user_scores():
             "score": get_score(uid=user['uid'])
         })
 
-    return result
+    return sorted(result, key=lambda entry: entry['score'], reverse=True)
