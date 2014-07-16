@@ -1,4 +1,8 @@
 window.logout = ->
   apiCall "GET", "/api/user/logout"
   .done (data) ->
-    document.location.href = "/"
+    switch data['status'] 
+      when 1
+        document.location.href = "/"
+      when 0
+        document.location.href = "/login"
