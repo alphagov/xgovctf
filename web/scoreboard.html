@@ -4,7 +4,6 @@ title: Scoreboard
 post_scripts:
  - js/scoreboard.js
 startup_functions:
- - redirectIfNotLoggedIn()
 ---
 
 <script type="text/template" id="scoreboard-tabs-template">
@@ -23,10 +22,12 @@ startup_functions:
   </ul>
   <div class="tab-content">
     <div id="public" class="tab-pane fade in active">
+      <h3>Public</h3>
       <%= renderScoreboard({scoreboard: data.public}) %>
     </div>
     <% _.each(data.groups, function(group) { %>
       <div id="<%= group.gid %>" class="tab-pane fade">
+        <h3><%- group.name %></h3>
         <%= renderScoreboard({scoreboard: group.scoreboard}) %>
       </div>
     <% }); %>

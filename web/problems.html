@@ -25,10 +25,20 @@ startup_functions:
       <div class="problem-body panel-body">
         <p class="problem-description">
           <%= problem.description %>
+          <% if(problem.hint) { %>
+              <div class="row">
+                <div class="col-md-11">
+                  <em class="problem-hint pull-left" id="<%= problem.pid %>-hint">
+                    <strong><h4>Hint:</h4></strong>
+                    <%= problem.hint %>
+                  </em>
+                </div>
+                <div class="col-md-1">
+                  <span data-pid="<%= problem.pid %>" class="glyphicon glyphicon-info-sign pull-right info-span"></span>
+                </div>
+              </div>
+          <% } %>
         </p>
-        <em class="problem-hint">
-          <%= problem.hint %>
-        </em>
         <form class="problem-submit">
           <div class="input-group input-group-sm">
             <span class="input-group-btn">

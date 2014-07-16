@@ -115,9 +115,11 @@ def insert_problem(problem):
     problem["pid"] = api.common.hash(problem["name"])
 
     weightmap = {}
-    for name, weight in problem["weightmap"].items():
-        name_hash = api.common.hash(name)
-        weightmap[name_hash] = weight
+
+    if problem.get("weightmap"):
+        for name, weight in problem["weightmap"].items():
+            name_hash = api.common.hash(name)
+            weightmap[name_hash] = weight
 
     problem["weightmap"] = weightmap
 
