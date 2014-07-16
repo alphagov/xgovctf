@@ -2,7 +2,11 @@ submit_registration = (e) ->
   e.preventDefault()
   $.post "/api/user/create", $("#user-registration-form").serialize()
   .done (data) ->
-    $("#message-box").html(data.message)
+    switch data['status']
+      when 0
+        $("#register-button").apiNotify(data, {position: "right"})
+      when 1
+        document.location.href = "/"
 
 $ ->
   $("#user-registration-form").on "submit", submit_registration
