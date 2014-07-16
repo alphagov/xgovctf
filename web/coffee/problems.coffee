@@ -10,6 +10,9 @@ submitProblem = (e) ->
     if data['status'] is 1
       loadProblems()
 
+toggleHint = (e) ->
+  pid = $(e.target).data("pid")
+  $("#"+pid+"-hint").toggle("fast")
 
 loadProblems = ->
   apiCall "GET", "/api/problems"
@@ -19,7 +22,9 @@ loadProblems = ->
         apiNotify(data)
       when 1
         $("#problem-list-holder").html renderProblemList({problems: data.data, renderProblem: renderProblem})
+        $(".problem-hint").hide()
         $(".problem-submit").on "submit", submitProblem
+        $(".info-span").on "click", toggleHint
 
 $ ->
   loadProblems()
