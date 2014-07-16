@@ -475,7 +475,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     problem = db.problems.find_one(match, {"_id":0})
 
     if problem is None:
-        raise InternalException("Could not find problem! You gave " + str(match))
+        raise SevereInternalException("Could not find problem! You gave " + str(match))
 
     return problem
 
