@@ -13,7 +13,7 @@ from flask import session
 from voluptuous import Schema, Required, Length
 
 from api.user import check
-from api.common import WebException, validate
+from api.common import WebException, validate, safe_fail
 
 debug_disable_general_login = False
 
@@ -39,7 +39,8 @@ def login(username, password):
         "username": username,
         "password": password
     })
-    user = api.user.get_user(name=username)
+
+    user = safe_fail(api.user.get_user, name=username)
     if user is None:
         raise WebException("Incorrect username.")
 
