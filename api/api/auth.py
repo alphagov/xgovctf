@@ -6,13 +6,14 @@ __credits__ = ["David Brumley", "Collin Petty", "Peter Chapman", "Tyler Nighswan
 __email__ = ["collin@cmu.edu", "peter@cmu.edu"]
 __status__ = "Production"
 
+import bcrypt
+import api
+
 from flask import session
 from voluptuous import Schema, Required, Length
 
-import api.user
 from api.user import check
 from api.common import WebException, validate
-import bcrypt
 
 debug_disable_general_login = False
 

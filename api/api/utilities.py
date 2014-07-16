@@ -8,14 +8,14 @@ __status__ = "Production"
 
 
 import smtplib
+import bcrypt
+
+import api
+
 from api.common import cache
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
-import bcrypt
-
-import api.common
-import api.user
 
 enable_email = False
 

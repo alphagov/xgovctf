@@ -1,11 +1,9 @@
 __author__ = ['Peter Chapman', 'Collin Petty']
 
-from api.common import WebSuccess, WebError, WebException, InternalException, SevereInternalException
-import api.common
-import api.auth
-import api.logger
-
 import json
+import api
+
+from api.common import WebSuccess, WebError, WebException, InternalException, SevereInternalException
 from datetime import datetime
 from functools import wraps
 from flask import session, request, abort

@@ -2,10 +2,7 @@
 API functions relating to team management.
 """
 
-import api.common
-import api.user
-import api.auth
-import api.scoreboard
+import api
 
 from api.common import APIException, safe_fail, InternalException
 

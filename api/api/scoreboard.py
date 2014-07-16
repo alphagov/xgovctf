@@ -1,11 +1,8 @@
 """ Module for getting scoreboard information """
 
+import api
+
 from api.common import cache, APIException
-import api.common
-import api.group
-import api.problem
-import api.team
-import api.user
 from datetime import datetime
 
 end = datetime(2020, 5, 7, 3, 59, 59)

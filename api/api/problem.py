@@ -3,9 +3,7 @@ import imp
 import json
 import pymongo
 
-import api.common
-import api.user
-import api.team
+import api
 
 from datetime import datetime
 from api.common import validate, check, safe_fail, InternalException, SevereInternalException, WebException

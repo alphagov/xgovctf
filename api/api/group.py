@@ -1,11 +1,9 @@
 """ Module for handling groups of teams """
 
+import api
+
 from voluptuous import Required, Length, Schema
 from api.common import check, validate, safe_fail, WebException, InternalException, SevereInternalException
-
-import api.common
-import api.user
-import api.team
 
 register_group_schema = Schema({
     Required("group-name"): check(

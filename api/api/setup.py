@@ -4,11 +4,7 @@ Setup routines for the api.
 
 import configparser
 
-import api.annotations
-import api.common
-import api.utilities
-import api.problem
-import api.logger
+import api
 
 log = api.logger.use(__name__)
 

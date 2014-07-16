@@ -2,10 +2,11 @@ from flask import Flask, url_for, request, session
 
 app = Flask(__name__)
 
+import api
+
 from api.common import WebSuccess, WebError
 from api.annotations import api_wrapper, require_login, require_admin
 
-import api
 
 log = api.logger.use(__name__)
 

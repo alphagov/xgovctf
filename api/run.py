@@ -3,7 +3,8 @@
 picoCTF API Startup script
 """
 
-import api.logger
+import api
+
 from argparse import ArgumentParser
 from api.app import app
 
@@ -30,6 +31,8 @@ def main():
 
     #Pass command line arguments to api.logger
     api.logger.setup_logs(keyword_args)
+
+    api.setup.load_config(app)
 
     app.run(host=args.listen, port=args.port, debug=args.debug)
 

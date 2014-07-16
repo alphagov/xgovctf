@@ -2,17 +2,14 @@
 API functions relating to user management and registration.
 """
 
-from voluptuous import Required, Length, Schema
+import bcrypt
+import re
+
+import api
+
 from api.common import check, validate, safe_fail
 from api.common import WebException, InternalException
-
-import api.team
-import api.common
-import api.auth
-
-import bcrypt
-
-import re
+from voluptuous import Required, Length, Schema
 
 user_schema = Schema({
     Required('email'): check(

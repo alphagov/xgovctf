@@ -7,7 +7,7 @@ import argparse
 import sys
 import json
 
-import api.problem
+import api
 from api.common import APIException
 
 from os.path import isfile

@@ -6,11 +6,12 @@ __maintainer__ = ["Collin Petty", "Peter Chapman", "Jonathan Burket"]
 __email__ = ["collin@cmu.edu", "peter@cmu.edu", "jburket@cmu.edu"]
 __status__ = "Production"
 
+import uuid
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from werkzeug.contrib.cache import SimpleCache
 from voluptuous import Invalid, MultipleInvalid
-import uuid
 
 
 allowed_protocols = []

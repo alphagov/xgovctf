@@ -3,13 +3,10 @@ Manage loggers for the api.
 """
 
 import logging
+import api
 
 from flask import request, has_request_context
 from flask import logging as flask_logging
-
-import api.auth
-import api.user
-import api.team
 
 from sys import stdout
 from colorama import init, Fore, Style
