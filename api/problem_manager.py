@@ -13,6 +13,10 @@ from api.common import APIException
 from os.path import isfile
 from bson import json_util
 
+api.common.mongo_addr = "127.0.0.1"
+api.common.mongo_port = 27017
+api.common.mongo_db_name = "pico"
+
 def insert_problems(files):
     for contents in files.values():
         for line in contents:
@@ -21,11 +25,14 @@ def insert_problems(files):
             except APIException as error:
                 raise
                 exit(1)
+    errors = api.problem.analyze_problems()
+    for error in errors:
+        print(error)
 
 def migrate_problems(files, output_file, debug):
 
     migration_key = {
-        "displayname": "display_name",
+        "displayname": "name",
         "basescore": "score",
         "desc": "description",
         "relatedproblems": "related_problems"
@@ -81,7 +88,7 @@ def get_output_file(output):
         try:
             return open(output, "w")
         except IOError as error:
-            print(error.msg)
+            print(error)
             exit(1)
 
 def main():
