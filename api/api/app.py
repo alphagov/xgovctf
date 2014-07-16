@@ -157,6 +157,7 @@ def get_all_users_hook():
 @require_login
 @api_wrapper
 def get_unlocked_problems_hook():
+    1/0
     return WebSuccess(data=api.problem.get_unlocked_problems(api.user.get_user()['tid']))
 
 @app.route('/api/problems/solved', methods=['GET'])

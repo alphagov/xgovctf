@@ -10,7 +10,7 @@ from flask import session, request, abort
 
 write_logs_to_db = False # Default value, can be overwritten by api.py
 
-log = api.logger.use("api.wrapper")
+log = api.logger.use(__name__)
 
 def api_wrapper(f):
     """
@@ -21,6 +21,7 @@ def api_wrapper(f):
     @wraps(f)
     def wrapper(*args, **kwds):
         web_result = {}
+        wrapper_log = api.logger.use(f.__module__)
         try:
             web_result = f(*args, **kwds)
         except WebException as error:
@@ -28,12 +29,13 @@ def api_wrapper(f):
         except InternalException as error:
             message = get_message(error)
             if type(error) == SevereInternalException:
-                log.critical(message)
+                wrapper_log.critical(message)
+                web_result = WebError("There was a critical internal error. It's Tim's fault.")
             else:
-                log.error(message)
-            web_result = WebError(message)
+                wrapper_log.error(message)
+                web_result = WebError(message)
         except Exception as error:
-            log.error(get_message(error))
+            wrapper_log.exception(get_message(error))
 
         return json.dumps(web_result)
 
