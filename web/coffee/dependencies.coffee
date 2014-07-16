@@ -10,6 +10,13 @@ window.redirectIfNotLoggedIn = ->
       when 0
         window.location.href = "/login"
 
+window.redirectIfLoggedIn = ->
+  apiCall "GET", "/api/user/isloggedin", {}
+  .done (data) ->
+    switch data["status"]
+      when 1
+        window.location.href = "/"
+
 getStyle = (data) ->
   style = "info"
   switch data.status
