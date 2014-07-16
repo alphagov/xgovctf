@@ -6,7 +6,7 @@ submit_registration = (e) ->
       when 0
         $("#register-button").apiNotify(data, {position: "right"})
       when 1
-        document.location.href = "/"
+        document.location.href = "/login"
 
 $ ->
   $("#user-registration-form").on "submit", submit_registration
