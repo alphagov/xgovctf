@@ -1,0 +1,65 @@
+---
+layout: default
+title: Scoreboard
+post_scripts:
+ - js/scoreboard.js
+startup_functions:
+ - redirectIfNotLoggedIn()
+---
+
+<script type="text/template" id="scoreboard-tabs-template">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#public">Public</a></li>
+    <% if(data.groups.length > 0) { %>
+      <li class="dropdown">
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">Groups <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <% _.each(data.groups, function(group) { %>
+            <li><a data-toggle="tab" href="#<%= group.gid %>"><%- group.name %></a></li>
+          <% }); %>
+        </ul>
+      </li>
+    <% } %>
+  </ul>
+  <div class="tab-content">
+    <div id="public" class="tab-pane fade in active">
+      <%= renderScoreboard({scoreboard: data.public}) %>
+    </div>
+    <% _.each(data.groups, function(group) { %>
+      <div id="<%= group.gid %>" class="tab-pane fade">
+        <%= renderScoreboard({scoreboard: group.scoreboard}) %>
+      </div>
+    <% }); %>
+  </div>
+</script>
+
+<script type="text/template" id="scoreboard-template">
+  <% if(!($.isEmptyObject(scoreboard))) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% _.each(scoreboard, function(team, i) { %>
+          <tr>
+            <td><%= i+1 %>.</td>
+            <td><p><%- team.name %></p></td>
+            <td><strong><p><%= team.score %></p></strong></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <pre>
+      <p class="text-center">No teams have registered yet!</p>
+    </pre>
+  <% } %>
+</script>
+
+<div class="container">
+  <div id="scoreboard-tabs"></div>
+</div>
