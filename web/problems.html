@@ -11,16 +11,14 @@ startup_functions:
   <%
     var panelClass = problem.solved ? 'solved' : '';
     var collapseClass = problem.solved ? '' : 'in';
-    var title = problem.display_name +  " - " + problem.score;
+    var title = problem.name +  " - " + problem.score;
     var status = (problem.solved ? "Solved" : "Unsolved");
   %>
   <div class="problem <%= panelClass %> panel panel-default">
-    <div class="problem-header panel-heading">
+    <div class="problem-header panel-heading" data-toggle="collapse" data-target="#<%- problem.pid %>">
       <h4 class="panel-title">
-        <a data-toggle="collapse" data-target="#<%- problem.pid %>">
-          <%- title %>
-          <div class="pull-right"><%- status %></div>
-        </a>
+        <%- title %>
+        <div class="pull-right"><%- status %></div>
       </h4>
     </div>
     <div class="panel-collapse collapse <%= collapseClass %>" id="<%= problem.pid %>">

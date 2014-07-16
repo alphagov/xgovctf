@@ -1,11 +1,3 @@
 body {
   padding-top: 60px;
 }
-
-.input-group-btn select {
-	border-color: #ccc;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-top: 7px;
-    padding-bottom: 7px;
-}
