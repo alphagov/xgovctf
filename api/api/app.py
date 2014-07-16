@@ -293,7 +293,6 @@ def get_scoreboard_hook():
                 'gid': group['gid'],
                 'name': group['name'],
                 'scoreboard': api.scoreboard.get_group_scores(gid=group['gid'])
-
             })
 
     return WebSuccess(data=result)

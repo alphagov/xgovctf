@@ -6,14 +6,14 @@ userLoggedIn =
   Problems: "/problems"
   Team: "/team"
   Scoreboard: "/scoreboard"
-  Logout: "/api/user/logout"
+  Logout: "/logout"
 
 userNotLoggedIn =
   Registration: "/registration"
   Login: "/login"
   Scoreboard: "/scoreboard"
 
-load_navbar = (renderNavbarLinks) ->
+loadNavbar = (renderNavbarLinks) ->
   apiCall "GET", "/api/user/isloggedin", {}
 
   .done (data) ->
@@ -28,4 +28,4 @@ load_navbar = (renderNavbarLinks) ->
 
 $ ->
   renderNavbarLinks = _.template($("#navbar-links-template").remove().text())
-  load_navbar(renderNavbarLinks)
+  loadNavbar(renderNavbarLinks)
