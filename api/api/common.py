@@ -12,7 +12,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from werkzeug.contrib.cache import SimpleCache
 from voluptuous import Invalid, MultipleInvalid
-
+from hashlib import md5
 
 allowed_protocols = []
 allowed_ports = []
@@ -75,12 +75,17 @@ def token():
     """
     return str(uuid.uuid4().hex)
 
+def hash(string):
+    """
+    Hashes a string
 
-def sec_token():
+    Args:
+        string: string to be hashed.
+    Returns:
+        The hex digest of the string.
     """
-    Generate a secure token that is cryptographically secure.
-    """
-    return token()
+
+    return md5(string.encode("utf-8")).hexdigest()
 
 class APIException(Exception):
     """
