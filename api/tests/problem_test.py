@@ -31,7 +31,7 @@ class TestProblems(object):
     # create 5 base problems
     base_problems = [
         {
-            "display_name" : "base-" + str(i),
+            "name" : "base-" + str(i),
             "score" : 10,
             "category": "",
             "grader" : "test.py",
@@ -44,7 +44,7 @@ class TestProblems(object):
     # create 5 disabled problems
     disabled_problems = [
         {
-            "display_name" : "locked-" + str(i),
+            "name" : "locked-" + str(i),
             "score" : 10,
             "category": "",
             "grader" : "test.py",
@@ -61,13 +61,13 @@ class TestProblems(object):
         # create 5 level1 problems
         level1_problems = [
             {
-                "display_name" : "level1-" + str(i),
+                "name" : "level1-" + str(i),
                 "score" : 60,
                 "category": "",
                 "grader" : "test.py",
                 "description" : "",
                 "threshold" : 3,
-                "weightmap" : {p['display_name']: 1 for p in base_problems}
+                "weightmap" : {p['name']: 1 for p in base_problems}
             }
             for i in range(5)
         ]
