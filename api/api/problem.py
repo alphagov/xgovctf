@@ -25,16 +25,14 @@ submission_schema = Schema({
 })
 
 problem_schema = Schema({
-    Required("display_name"): check(
+    Required("name"): check(
         ("The problem's display name must be a string.", [str])),
     Required("score"): check(
         ("Score must be a positive integer.", [int, Range(min=0)])),
     Required("category"): check(
         ("Category must be a string.", [str])),
     Required("grader"): check(
-        ("A grader does not exist at that path.", [
-            lambda grader: not check_graders_exist or
-            isfile(join(grader_base_path, grader))])),
+        ("The grader path must be a string.", [str])),
     Required("description"): check(
         ("The problem description must be a string.", [str])),
     Required("threshold"): check(
@@ -49,7 +47,7 @@ problem_schema = Schema({
     "related_problems": check(
         ("Related problems should be a list of related problems.", [list])),
     "pid": check(
-        ("The problem's pid should be a string.", [str])),
+        ("You should not specify a pid for a problem.", [lambda _: False])),
     "weightmap": check(
         ("Weightmap should be a dict.", [dict])),
     "tags": check(
@@ -60,6 +58,31 @@ problem_schema = Schema({
     "_id": check(
         ("Your problems should not already have _ids.", [lambda id: False]))
 })
+
+def analyze_problems():
+    """
+    Checks the sanity of inserted problems.
+    Includes weightmap and grader verification.
+
+    Returns:
+        A list of error strings describing the problems.
+    """
+
+    grader_missing_error = "{}: Missing grader at '{}'."
+    unknown_weightmap_pid = "{}: Has weightmap entry '{}' which does not exist."
+
+    problems = get_all_problems()
+
+    errors = []
+
+    for problem in problems:
+        if not isfile(join(grader_base_path, problem["grader"])):
+            errors.append(grader_missing_error.format(problem["name"], problem["grader"]))
+
+        for pid in problem["weightmap"].keys():
+            if safe_fail(get_problem, pid=pid) is None:
+                errors.append(unknown_weightmap_pid.format(problem["name"], pid))
+    return errors
 
 def insert_problem(problem):
     """
@@ -76,28 +99,33 @@ def insert_problem(problem):
         Optional:
         disabled: True or False. Defaults to False.
         hint: hint for completing the problem.
-        pid: if you care to manually specify a pid
         tags: list of problem tags.
         relatedproblems: list of related problems.
         weightmap: problem's unlock weightmap
         autogen: Whether or not the problem will be auto generated.
     Returns:
         The newly created problem id.
-        """
+    """
 
     db = api.common.get_conn()
     validate(problem_schema, problem)
 
     problem["disabled"] = problem.get("disabled", False)
 
-    if problem.get("pid", None) is None:
-        problem["pid"] = api.common.token()
+    problem["pid"] = api.common.hash(problem["name"])
+
+    weightmap = {}
+    for name, weight in problem["weightmap"].items():
+        name_hash = api.common.hash(name)
+        weightmap[name_hash] = weight
+
+    problem["weightmap"] = weightmap
 
     if safe_fail(get_problem, pid=problem["pid"]) is not None:
-        raise InternalException("Problem with identical pid already exists.")
+        raise WebException("Problem with identical pid already exists.")
 
-    if safe_fail(get_problem, name=problem["display_name"]) is not None:
-        raise InternalException("Problem with identical display_name already exists.")
+    if safe_fail(get_problem, name=problem["name"]) is not None:
+        raise WebException("Problem with identical name already exists.")
 
     db.problems.insert(problem)
 
@@ -208,7 +236,7 @@ def grade_problem(pid, key, uid=None):
             problem["grader"][:-3], join(grader_base_path, problem["grader"])
         ).grade(uid, key)
     except FileNotFoundError:
-        raise WebException("Problem grader for {} is offline.".format(get_problem(pid=pid)['display_name']))
+        raise WebException("Problem grader for {} is offline.".format(get_problem(pid=pid)['name']))
 
     return {
         "correct": correct,
@@ -324,7 +352,7 @@ def get_correct_submissions(pid=None, uid=None, tid=None, category=None):
     elif tid is not None:
         match.update({"tid": tid})
     else:
-        raise APIException(0, None, "Must specify uid or tid")
+        raise InternalException("Must specify uid or tid")
 
     if pid is not None:
         match.update({"pid": pid})
@@ -436,7 +464,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     if pid is not None:
         match.update({'pid': pid})
     elif name is not None:
-        match.update({'display_name': name})
+        match.update({'name': name})
     else:
         raise InternalException("Must supply pid or display name")
 
@@ -515,7 +543,7 @@ def get_unlocked_pids(tid, category=None):
         if 'weightmap' not in problem or 'threshold' not in problem:
             unlocked.append(problem['pid'])
         else:
-            weightsum = sum(problem['weightmap'].get(p['display_name'], 0) for p in solved)
+            weightsum = sum(problem['weightmap'].get(p['pid'], 0) for p in solved)
             if weightsum >= problem['threshold']:
                 unlocked.append(problem['pid'])
 
