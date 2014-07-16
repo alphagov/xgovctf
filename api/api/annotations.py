@@ -35,7 +35,7 @@ def api_wrapper(f):
                 wrapper_log.error(message)
                 web_result = WebError(message)
         except Exception as error:
-            wrapper_log.exception(get_message(error))
+            wrapper_log.exception(error)
 
         return json.dumps(web_result)
 

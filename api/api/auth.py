@@ -15,6 +15,8 @@ from voluptuous import Schema, Required, Length
 from api.user import check
 from api.common import WebException, validate, safe_fail
 
+log = api.logger.use(__name__)
+
 debug_disable_general_login = False
 
 user_login_schema = Schema({
