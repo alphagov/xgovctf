@@ -61,14 +61,17 @@ def get_all_team_scores():
     Gets the score for every team in the database.
 
     Returns:
-        A dictionary of team_name:score mappings
+        A list of dictionaries with name and score
     """
 
     teams = api.team.get_all_teams()
     
-    result = {}
+    result = []
     for team in teams:
-        result[team['team_name']] = get_score(tid=team['tid'])
+        result.append({
+            "name": team['team_name'],
+            "score": get_score(tid=team['tid'])
+        })
 
     return result
 
@@ -77,13 +80,16 @@ def get_all_user_scores():
     Gets the score for every user in the database.
 
     Returns:
-        A dictionary of username:score mappings
+        A list of dictionaries with name and score
     """
 
     users = api.user.get_all_users()
     
-    result = {}
+    result = []
     for user in users:
-        result[user['username']] = get_score(uid=user['uid'])
+        result.append({
+            "name": user['username'],
+            "score": get_score(uid=user['uid'])
+        })
 
     return result
