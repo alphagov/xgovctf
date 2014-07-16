@@ -36,7 +36,7 @@ class TestProblems(object):
             "category": "",
             "grader" : "test.py",
             "description" : "",
-            "threshold" : 0,
+            "threshold" : 0
         }
         for i in range(5)
     ]
