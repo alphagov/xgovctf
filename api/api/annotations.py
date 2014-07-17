@@ -12,12 +12,43 @@ write_logs_to_db = False # Default value, can be overwritten by api.py
 
 log = api.logger.use(__name__)
 
+_get_message = lambda exception: exception.args[0]
+
+def log_action(f):
+    """
+    Logs a given request if available.
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwds):
+        """
+        Provides contextual information to the logger.
+        """
+
+        log_information = {
+            "name": "{}.{}".format(f.__module__, f.__name__),
+            "args": args,
+            "kwargs": kwds,
+            "result": None,
+        }
+
+        try:
+            log_information["result"] = f(*args, **kwds)
+        except WebException as error:
+            log_information["exception"] = _get_message(error)
+            raise
+        finally:
+            log.info(log_information)
+
+        return log_information["result"]
+
+    return wrapper
+
 def api_wrapper(f):
     """
     Wraps api routing and handles potential exceptions
     """
 
-    get_message = lambda exception: exception.args[0]
     @wraps(f)
     def wrapper(*args, **kwds):
         web_result = {}
@@ -25,9 +56,9 @@ def api_wrapper(f):
         try:
             web_result = f(*args, **kwds)
         except WebException as error:
-            web_result = WebError(get_message(error))
+            web_result = WebError(_get_message(error))
         except InternalException as error:
-            message = get_message(error)
+            message = _get_message(error)
             if type(error) == SevereInternalException:
                 wrapper_log.critical(message)
                 web_result = WebError("There was a critical internal error. It's Tim's fault.")
