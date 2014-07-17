@@ -4,10 +4,14 @@ renderScoreboard = _.template($("#scoreboard-template").remove().text())
 load_scoreboard = ->
   apiCall "GET", "/api/scoreboard", {}
   .done (data) ->
-    $("#scoreboard-tabs").html renderScoreboardTabs({
-      data: data.data
-      renderScoreboard: renderScoreboard
-    })
+    switch data["status"]
+      when 1
+        $("#scoreboard-tabs").html renderScoreboardTabs({
+          data: data.data
+          renderScoreboard: renderScoreboard
+        })
+      when 0
+        apiNotify(data)
 
 $ ->
   load_scoreboard()
