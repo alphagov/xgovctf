@@ -500,9 +500,9 @@ def get_all_problems(category=None, show_disabled=False):
 
     return list(db.problems.find(match, {"_id":0}).sort('score', pymongo.ASCENDING))
 
-def get_solved_pids(tid, category=None):
+def get_solved_pids(tid, uid=None, category=None):
     """
-    Gets the solved pids for a given team.
+    Gets the solved pids for a given team or user.
 
     Args:
         tid: The team id
@@ -511,12 +511,12 @@ def get_solved_pids(tid, category=None):
         List of solved problem ids
     """
 
-    return [sub['pid'] for sub in get_submissions(tid=tid, category=category) if sub['correct'] == True]
+    return [sub['pid'] for sub in get_correct_submissions(tid=tid, uid=uid, category=category)]
 
 
-def get_solved_problems(tid, category=None):
+def get_solved_problems(tid, uid=None, category=None):
     """
-    Gets the solved problems for a given team.
+    Gets the solved problems for a given team or user.
 
     Args:
         tid: The team id
@@ -525,7 +525,7 @@ def get_solved_problems(tid, category=None):
         List of solved problem dictionaries
     """
 
-    return [get_problem(pid) for pid in get_solved_pids(tid, category)]
+    return [get_problem(pid) for pid in get_solved_pids(tid, uid, category)]
 
 def get_unlocked_pids(tid, category=None):
     """

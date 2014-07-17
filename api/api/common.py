@@ -21,6 +21,7 @@ cache = SimpleCache()
 admin_emails = None
 
 __connection = None
+__client = None
 
 mongo_addr = "127.0.0.1"
 mongo_port = 27017
@@ -39,17 +40,17 @@ def get_conn():
     if external_client is not None:
         return external_client
 
-    global client, __connection
+    global __client, __connection
     if not __connection:
         try:
-            client = MongoClient(mongo_addr, mongo_port)
-            __connection = client[mongo_db_name]
+            __client = MongoClient(mongo_addr, mongo_port)
+            __connection = __client[mongo_db_name]
         except ConnectionFailure:
             raise SevereInternalException("Could not connect to mongo database {} at {}:{}".format(mongo_db_name, mongo_addr, mongo_port))
         except InvalidName as error:
             raise SevereInternalException("Database {} is invalid! - {}".format(mongo_db_name, error))
-    
-    if not client.alive():
+
+    if not __client.alive():
         raise SevereInternalException("Mongodb is down!")
 
     return __connection

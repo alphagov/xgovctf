@@ -19,8 +19,7 @@ def get_score(tid=None, uid=None):
         The users's or team's score
     """
 
-    pids = [s['pid'] for s in api.problem.get_correct_submissions(tid=tid, uid=uid)]
-    score = sum([api.problem.get_problem(pid)['score'] for pid in pids])
+    score = sum([problem['score'] for problem in api.problem.get_solved_problems(tid=tid, uid=uid)])
 
     return score
 
