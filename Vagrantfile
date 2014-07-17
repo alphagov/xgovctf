@@ -16,5 +16,9 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "game", "/home/vagrant/game"
   config.vm.provision :shell, :path => "scripts/vagrant_setup.sh"
   config.ssh.forward_agent = true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
 end
 
