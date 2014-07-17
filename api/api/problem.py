@@ -238,7 +238,7 @@ def grade_problem(pid, key, uid=None):
             problem["grader"][:-3], join(grader_base_path, problem["grader"])
         ).grade(uid, key)
     except FileNotFoundError:
-        raise WebException("Problem grader for {} is offline.".format(get_problem(pid=pid)['name']))
+        raise InternalException("Problem grader for {} is offline.".format(get_problem(pid=pid)['name']))
 
     return {
         "correct": correct,
