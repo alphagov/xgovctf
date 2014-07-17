@@ -16,12 +16,19 @@ apt-get -y install npm
 apt-get -y install libclosure-compiler-java
 apt-get -y install ruby-dev
 apt-get -y install dos2unix
+apt-get -y install mercurial
+apt-get -y install cython3
 
 npm install -g coffee-script
 npm install -g react-tools
 npm install -g jsxhint
 
 pip3 install -r /home/vagrant/api/requirements.txt
+
+#kernprof/line_profiler
+hg clone https://bitbucket.org/kmike/line_profiler /home/vagrant/libs/line_profiler
+cd /home/vagrant/libs/line_profiler
+python3 /home/vagrant/libs/line_profiler/setup.py install
 
 # Jekyll
 gem install jekyll
