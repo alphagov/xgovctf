@@ -298,7 +298,7 @@ def submit_key(tid, pid, key, uid=None, ip=None):
 
     return result
 
-def get_submissions(pid=None, uid=None, tid=None, category=None):
+def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=None):
     """
     Gets the submissions from a team or user.
     Optional filters of pid or category.
@@ -309,6 +309,7 @@ def get_submissions(pid=None, uid=None, tid=None, category=None):
 
         category: category filter.
         pid: problem filter.
+        correctness: correct filter
     Returns:
         A list of submissions from the given entity
     """
@@ -328,39 +329,8 @@ def get_submissions(pid=None, uid=None, tid=None, category=None):
     if category is not None:
       match.update({"category": category})
 
-    return list(db.submissions.find(match, {"_id":0}))
-
-def get_correct_submissions(pid=None, uid=None, tid=None, category=None):
-    """
-    Gets the correct submissions from a team or user.
-    Optional filters of pid or category.
-
-    Args:
-        uid: the user id
-        tid: the team id
-
-        category: category filter.
-        pid: problem filter.
-    Returns:
-        A list of submissions from the given entity.
-    """
-
-    db = api.common.get_conn()
-
-    match = {"correct": True}
-
-    if uid is not None:
-        match.update({"uid": uid})
-    elif tid is not None:
-        match.update({"tid": tid})
-    else:
-        raise InternalException("Must specify uid or tid")
-
-    if pid is not None:
-        match.update({"pid": pid})
-
-    if category is not None:
-        match.update({"category": category})
+    if correctness is not None:
+        match.update({"correct": correctness})
 
     return list(db.submissions.find(match, {"_id":0}))
 
@@ -511,7 +481,7 @@ def get_solved_pids(tid, uid=None, category=None):
         List of solved problem ids
     """
 
-    return [sub['pid'] for sub in get_correct_submissions(tid=tid, uid=uid, category=category)]
+    return [sub['pid'] for sub in get_submissions(tid=tid, uid=uid, category=category, correctness=True)]
 
 
 def get_solved_problems(tid, uid=None, category=None):
