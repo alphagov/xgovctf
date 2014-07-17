@@ -9,37 +9,41 @@ import api
 
 from api.common import check, validate, safe_fail
 from api.common import WebException, InternalException
+from api.annotations import log_action
 from voluptuous import Required, Length, Schema
+
+_check_email_format = lambda email: re.match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None
 
 user_schema = Schema({
     Required('email'): check(
         ("Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
-        ("This does not look like an email address.", [
-            lambda email: re.match(r"[A-Za-z0-9\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,4}", email) is not None])
+        ("Your email does not look like an email address.", [_check_email_format])
     ),
     Required('username'): check(
-        ("Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("Usernames must be between 3 and 20 characters.", [str, Length(min=3, max=20)]),
         ("This username already exists.", [
             lambda name: safe_fail(get_user, name=name) is None])
     ),
     Required('password'):
-        check(("Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
+        check(("Passwords must be between 3 and 20 characters.", [str, Length(min=3, max=20)]))
 }, extra=True)
 
 new_team_schema = Schema({
     Required('team-name-new'): check(
-        ("The team name must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
+        ("The team name must be between 3 and 40 characters.", [str, Length(min=3, max=40)]),
         ("A team with that name already exists.", [
             lambda name: safe_fail(api.team.get_team, name=name) is None])
     ),
     Required('team-password-new'):
-        check(("Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
+        check(("Team passwords must be between 3 and 20 characters.", [str, Length(min=3, max=20)])),
     Required('team-adv-name-new'):
         check(("Adviser names should be between 3 and 50 characters.", [str, Length(min=3, max=50)])),
-    Required('team-adv-email-new'):
-        check(("Adviser emails must be between 5 and 100 characters.", [str, Length(min=5, max=100)])),
+    Required('team-adv-email-new'): check(
+        ("Adviser emails must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
+        ("Your adviser email does not look like an email address.", [_check_email_format])
+    ),
     Required('team-school-new'):
-        check(("School names must be between 3 and 150 characters.", [str, Length(min=3, max=150)]))
+        check(("School names must be between 3 and 100 characters.", [str, Length(min=3, max=100)]))
 
 }, extra=True)
 
@@ -155,7 +159,7 @@ def get_all_users():
     db = api.common.get_conn()
     return list(db.users.find({}, {"uid": 1, "username": 1, "email": 1, "tid": 1}))
 
-
+@log_action
 def create_user_request(params):
     """
     Registers a new user and creates/joins a team. Validates all fields.
@@ -192,9 +196,6 @@ def create_user_request(params):
             "school": params["team-school-new"],
             "password" : params["team-password-new"]
         }
-
-        if safe_fail(api.team.get_team, name=params["team-name-new"]) is not None:
-            raise WebException("Team {} already exists!".format(params['team-name-new']))
 
         tid = api.team.create_team(team_params)
 
