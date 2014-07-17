@@ -30,6 +30,8 @@ hg clone https://bitbucket.org/kmike/line_profiler /home/vagrant/libs/line_profi
 cd /home/vagrant/libs/line_profiler
 python3 /home/vagrant/libs/line_profiler/setup.py install
 
+pip3 install -e git+https://github.com/joerick/pyinstrument.git#egg=pyinstrument
+
 # Jekyll
 gem install jekyll
 
