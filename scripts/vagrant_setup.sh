@@ -18,6 +18,8 @@ apt-get -y install ruby-dev
 apt-get -y install dos2unix
 apt-get -y install mercurial
 apt-get -y install cython3
+apt-get -y install memcached
+apt-get -y install libmemcached-dev
 
 npm install -g coffee-script
 npm install -g react-tools
