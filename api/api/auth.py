@@ -13,6 +13,7 @@ from flask import session
 from voluptuous import Schema, Required, Length
 
 from api.user import check
+from api.annotations import log_action
 from api.common import WebException, validate, safe_fail
 
 log = api.logger.use(__name__)
@@ -28,6 +29,7 @@ user_login_schema = Schema({
     )
 })
 
+@log_action
 def login(username, password):
     """Authenticates a user.
 
@@ -58,6 +60,8 @@ def login(username, password):
     else:
         raise WebException("Incorrect Password")
 
+
+@log_action
 def logout():
     """ 
     Clears the session
