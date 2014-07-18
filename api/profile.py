@@ -73,7 +73,7 @@ def run_profiling(args):
     lprofiler = LineProfiler() 
 
     monitor_fuctions = [api.problem.submit_key, api.problem.get_unlocked_pids, api.problem.get_solved_pids,
-                        api.problem.get_all_problems, api.scoreboard.get_score]
+                        api.problem.get_all_problems, api.problem.get_solved_problems, api.scoreboard.get_score]
 
     for func in monitor_fuctions:
         lprofiler.add_function(func)
