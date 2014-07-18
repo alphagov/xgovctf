@@ -166,8 +166,8 @@ def get_solved_problems_hook():
     return WebSuccess(api.problem.get_solved_problems(api.user.get_user()['tid']))
 
 @app.route('/api/problems/submit', methods=['POST'])
-@api_wrapper
 @require_login
+@api_wrapper
 def submit_key_hook():
     user_account = api.user.get_user()
     tid = user_account['tid']
