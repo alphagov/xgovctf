@@ -6,12 +6,34 @@ from functools import wraps
 from bson import json_util
 
 import api
-import memcache
+from pymemcache.client import Client
+
+from api.common import InternalException
+
+log = api.logger.use(__name__)
 
 memcache_host = "127.0.0.1"
 memcache_port = 11211
 
-cache = memcache.Client(["{}:{}".format(memcache_host, memcache_port)])
+def json_serializer(_, value):
+    """
+    Memcache json serializer
+    """
+
+    return (value, 1) if type(value) == str else (json_util.dumps(value), 2)
+
+def json_deserializer(_, value, flag):
+    """
+    Memcache json deserializer
+    """
+    return value if flag == 1 else json_util.loads(value.decode("utf-8"))
+
+cache = Client(
+    (memcache_host, memcache_port),
+    serializer=json_serializer,
+    deserializer=json_deserializer
+)
+
 
 def get_key(f, *args, **kwargs):
     """
@@ -25,9 +47,11 @@ def get_key(f, *args, **kwargs):
         The key.
     """
 
-    return "{}.{}${}${}".format(f.__module__, f.__name__, str(args), str(kwargs))
+    key = "{}.{}${}${}".format(f.__module__, f.__name__, str(args), str(kwargs)).replace(" ", "~")
 
-def memoize(f, timeout=0):
+    return key
+
+def memoize(timeout=0):
     """
     Cache a function based on its arguments.
 
@@ -37,25 +61,42 @@ def memoize(f, timeout=0):
         The functions result.
     """
 
-    @wraps(f)
-    def wrapper(*args, **kwargs):
+    def decorator(f):
         """
-        Function cache
+        Inner decorator
         """
 
-        key = get_key(f, *args, **kwargs)
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            """
+            Function cache
+            """
 
-        cached_result = cache.get(key)
-        function_result = None
+            key = get_key(f, *args, **kwargs)
 
-        if cached_result is None:
-            function_result = f(*args, **kwargs)
+            cached_result = cache.get(key)
 
-            serialized_result = json_util.dumps(function_result)
-            cache.set(key, serialized_result, timeout)
-        else:
-            function_result = json_util.loads(cached_result)
+            if cached_result is None:
+                function_result = f(*args, **kwargs)
 
-        return function_result
+                cache.set(key, function_result, timeout)
+                return function_result
 
-    return wrapper
+            return cached_result
+
+        return wrapper
+
+    return decorator
+
+def invalidate_memoization(f, *args, **kwargs):
+    """
+    Invalidate a memoized function.
+
+    Args:
+        f: the function
+        You must pass all arguments given to the function to accurately invalidate it.
+    """
+
+    key = get_key(f, *args, **kwargs)
+    cache.delete(key)
+
