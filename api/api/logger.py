@@ -33,7 +33,6 @@ class StatsHandler(logging.StreamHandler):
 
     def __init__(self):
 
-        self.db = api.common.get_conn()
         logging.StreamHandler.__init__(self)
 
     def emit(self, record):
@@ -70,7 +69,7 @@ class StatsHandler(logging.StreamHandler):
                 information["action"].update(action_result)
 
             print(json_util.dumps(information, indent=4))
-            self.db.statistics.insert(information)
+            api.common.get_conn().statistics.insert(information)
 
 def set_level(name, level):
     """
