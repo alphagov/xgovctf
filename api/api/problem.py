@@ -1,14 +1,13 @@
 """ Module for interacting with the problems """
 import imp
-import json
 import pymongo
 
 import api
+import api.cache
 
 from datetime import datetime
 from api.common import validate, check, safe_fail, InternalException, SevereInternalException, WebException
 from voluptuous import Schema, Length, Required, Range
-from pymongo.errors import DuplicateKeyError
 from bson import json_util
 from os.path import join, isfile
 
@@ -296,9 +295,16 @@ def submit_key(tid, pid, key, uid=None, ip=None):
 
     db.submissions.insert(submission)
 
+    if submission["correct"]:
+        api.cache.invalidate_memoization(
+            get_submissions,
+            tid=submission["tid"], correctness=True, uid=None, category=None
+        )
+
     return result
 
-def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=None):
+@api.cache.memoize(timeout=60)
+def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=True):
     """
     Gets the submissions from a team or user.
     Optional filters of pid or category.
@@ -402,7 +408,7 @@ def reevaluate_submissions_for_problem(pid):
 
     db = api.common.get_conn()
 
-    problem = get_problem(pid=pid)
+    get_problem(pid=pid)
 
     keys = {}
     for submission in get_submissions(pid=pid):
@@ -418,6 +424,7 @@ def reevaluate_submissions_for_problem(pid):
         if change is not None:
             db.submissions.update({"key": key}, {"correct": change}, multi=True)
 
+@api.cache.memoize(timeout=60)
 def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     """
     Gets a single problem.
