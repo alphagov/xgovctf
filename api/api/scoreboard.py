@@ -58,6 +58,7 @@ def get_group_score(gid=None, name=None):
 
     return sum([entry['score'] for entry in get_group_scores(gid, name)])
 
+@api.cache.memoize(timeout=60)
 def get_all_team_scores():
     """
     Gets the score for every team in the database.
