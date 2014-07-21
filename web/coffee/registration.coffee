@@ -2,9 +2,8 @@ submit_registration = (e) ->
   e.preventDefault()
   
   registrationData = $("#user-registration-form").serializeObject()
-  
-  registrationData["create-new-team"] = registrationData["create-new-team"] == "on"
-  console.log registrationData
+  registrationData["create-new-team"] = $("#new-team").hasClass("active")
+
   $.post "/api/user/create", registrationData
   .done (data) ->
     switch data['status']
@@ -15,7 +14,3 @@ submit_registration = (e) ->
 
 $ ->
   $("#user-registration-form").on "submit", submit_registration
-
-  $("#new-team-registration").hide()
-  $("#create-new-team").on "change", (e) ->
-    $(".team-registration-form").toggle()

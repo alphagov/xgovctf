@@ -7,7 +7,7 @@ startup_functions:
  - redirectIfLoggedIn()
 ---
 <div class="container-narrow">
-    <div class="contentbox row">
+    <div class="contentbox">
         <div class="col-md-4 col-md-offset-4">
             <form class="form-horizontal" id="user-registration-form">
                 <div class="form-group">
@@ -28,67 +28,65 @@ startup_functions:
                         <input id="password" name="password" placeholder="Password" type="password" class="form-control">
                     </div>
                 </div>
-                <hr>
-                <div>Create a New Team</div>
-                <div class="form-group">
-                    <div class="controls registration-controls">
-                        <input id="create-new-team" name="create-new-team" type="checkbox">
+                
+                <ul class="nav nav-tabs">
+                  <li class="active"><a data-toggle="tab" href="#new-team">Create New Team</a></li>
+                  <li><a data-toggle="tab" href="#join-team">Join Existing Team</a></li>
+                </ul>
+
+                <div class="tab-content">
+                  <div id="new-team" class="tab-pane fade in active">
+                    <div id="new-team-registration" class="team-registration-form">
+                      <div class="form-group">
+                          <label class="control-label" for="team-name-new">Team Name</label>
+                          <div class="controls registration-controls">
+                              <input id="team-name-new" name="team-name-new" placeholder="Team Name" type="text" class="form-control">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="control-label" for="team-password-new">Team Password</label>
+                          <div class="controls registration-controls">
+                              <input id="team-password-new" name="team-password-new" placeholder="Team Password" type="password" class="form-control">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="control-label" for="team-school-new">School</label>
+                          <div class="controls registration-controls">
+                              <input id="team-school-new" name="team-school-new" placeholder="School" type="text" class="form-control">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="control-label" for="team-adv-name-new">Adviser Name</label>
+                          <div class="controls registration-controls">
+                              <input id="team-adv-name-new" name="team-adv-name-new" placeholder="Adviser Name" type="text" class="form-control">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="control-label" for="team-adv-email-new">Adviser Email</label>
+                          <div class="controls registration-controls">
+                              <input id="team-adv-email-new" name="team-adv-email-new" placeholder="Adviser Email" type="text" class="form-control">
+                          </div>
+                      </div>
                     </div>
-                </div>
-                <div id="new-team-registration" class="team-registration-form">
-                  <div class="form-group">
-                      <label class="control-label" for="team-name-new">Team Name</label>
-                      <div class="controls registration-controls">
-                          <input id="team-name-new" name="team-name-new" placeholder="Team Name" type="text" class="form-control">
-                      </div>
                   </div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-password-new">Team Password</label>
-                      <div class="controls registration-controls">
-                          <input id="team-password-new" name="team-password-new" placeholder="Team Password" type="password" class="form-control">
+                  <div id="join-team" class="tab-pane fade">
+                    <div id="existing-team-registration" class="team-registration-form">
+                      <div class="form-group">
+                          <label class="control-label" for="team-name-existing">Team Name</label>
+                          <div class="controls registration-controls">
+                              <input id="team-name-existing" name="team-name-existing" placeholder="Team Name" type="text" class="form-control">
+                          </div>
                       </div>
-                  </div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-school-new">School</label>
-                      <div class="controls registration-controls">
-                          <input id="team-school-new" name="team-school-new" placeholder="School" type="text" class="form-control">
+                      <div class="form-group">
+                          <label class="control-label" for="team-password-existing">Team Password</label>
+                          <div class="controls registration-controls">
+                              <input id="team-password-existing" name="team-password-existing" placeholder="Team Password" type="password" class="form-control">
+                          </div>
                       </div>
-                  </div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-adv-name-new">Adviser Name</label>
-                      <div class="controls registration-controls">
-                          <input id="team-adv-name-new" name="team-adv-name-new" placeholder="Adviser Name" type="text" class="form-control">
-                      </div>
-                  </div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-adv-email-new">Adviser Email</label>
-                      <div class="controls registration-controls">
-                          <input id="team-adv-email-new" name="team-adv-email-new" placeholder="Adviser Email" type="text" class="form-control">
-                      </div>
-                  </div>
-                </div>
-                <hr>
-                <div id="existing-team-registration" class="team-registration-form">
-                  <div>Join an Existing Team</div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-name-existing">Team Name</label>
-                      <div class="controls registration-controls">
-                          <input id="team-name-existing" name="team-name-existing" placeholder="Team Name" type="text" class="form-control">
-                      </div>
-                  </div>
-                  <div class="form-group">
-                      <label class="control-label" for="team-password-existing">Team Password</label>
-                      <div class="controls registration-controls">
-                          <input id="team-password-existing" name="team-password-existing" placeholder="Team Password" type="password" class="form-control">
-                      </div>
-                  </div>
-                </div>
-                <hr>
-                <div class="message">
-                    <div id="message-box">
                     </div>
+                  </div>
                 </div>
-                <hr>
+                
                 <div class="form-group">
                     <div class="controls registration-controls">
                         <button id="register-button" type="submit" class="btn btn-primary">
