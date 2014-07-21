@@ -186,7 +186,7 @@ def create_user_request(params):
 
     validate(user_schema, params)
 
-    if params.get("create-new-team", None) == "on":
+    if params.get("create-new-team", None):
         validate(new_team_schema, params)
 
         team_params = {

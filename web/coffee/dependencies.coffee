@@ -33,3 +33,17 @@ window.apiNotify = (data) ->
 $.fn.apiNotify = (data, configuration) ->
   configuration["className"] = getStyle data
   return $(this).notify(data.message, configuration)
+
+# Source: http://stackoverflow.com/a/17488875
+$.fn.serializeObject = ->
+   o = {}
+   a = this.serializeArray()
+   $.each(a, ->
+       if o[this.name]
+           if !o[this.name].push
+               o[this.name] = [o[this.name]]
+           o[this.name].push(this.value || '')
+       else
+           o[this.name] = this.value || ''
+   )
+   return o
