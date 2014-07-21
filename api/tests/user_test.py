@@ -22,7 +22,7 @@ class TestUsers(object):
         "username": "valid",
         "password": "valid",
         "email": "valid@hs.edu",
-        "create-new-team": "on",
+        "create-new-team": True,
 
         "team-name-new": "Valid Hacks",
         "team-adv-name-new": "Dr. Hacks",
@@ -35,7 +35,7 @@ class TestUsers(object):
         "username": "valid",
         "password": "valid",
         "email": "valid@hs.edu",
-        "create-new-team": "off",
+        "create-new-team": False,
 
         "team-password-existing": "leet_hax",
         "team-name-existing": "massive_hacks"
@@ -166,7 +166,7 @@ class TestUsers(object):
                     if sheep_user["create-new-team"] != "on" and \
                     safe_fail(api.team.get_team, name=sheep_user["team-name-existing"]) is None:
                         team = self.base_team.copy()
-                        team['team_name'] , team['password'] = \
+                        team['team_name'], team['password'] = \
                                 sheep_user["team-name-existing"], sheep_user["team-password-existing"]
                         api.team.create_team(team)
 

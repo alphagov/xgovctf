@@ -29,7 +29,7 @@ class TestTeams(object):
         "username": "valid",
         "password": "valid",
         "email": "valid@hs.edu",
-        "create-new-team": "false",
+        "create-new-team": False,
 
         "team-name-existing": base_team['team_name'],
         "team-password-existing": base_team['password']
