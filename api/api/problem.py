@@ -1,9 +1,9 @@
 """ Module for interacting with the problems """
+
 import imp
 import pymongo
 
 import api
-import api.cache
 
 from datetime import datetime
 from api.common import validate, check, safe_fail, InternalException, SevereInternalException, WebException
@@ -11,8 +11,12 @@ from voluptuous import Schema, Length, Required, Range
 from bson import json_util
 from os.path import join, isfile
 
+import api.cache
+
 grader_base_path = "./graders"
 check_graders_exist = True
+
+cached_graders = {}
 
 submission_schema = Schema({
     Required("tid"): check(
@@ -80,8 +84,16 @@ def analyze_problems():
 
         for pid in problem["weightmap"].keys():
             if safe_fail(get_problem, pid=pid) is None:
+                print(problem)
                 errors.append(unknown_weightmap_pid.format(problem["name"], pid))
     return errors
+
+def clear_grader_cache():
+    """
+    Deletes grader cache. Necessary if a grader is updated."
+    """
+
+    cached_graders.clear()
 
 def insert_problem(problem):
     """
@@ -232,12 +244,15 @@ def grade_problem(pid, key, uid=None):
 
     problem = get_problem(pid=pid)
 
-    try:
-        (correct, message) = imp.load_source(
-            problem["grader"][:-3], join(grader_base_path, problem["grader"])
-        ).grade(uid, key)
-    except FileNotFoundError:
-        raise InternalException("Problem grader for {} is offline.".format(get_problem(pid=pid)['name']))
+    if pid not in cached_graders:
+        try:
+            cached_graders[pid] = imp.load_source(
+                problem["grader"][:-3],
+                join(grader_base_path, problem["grader"]))
+        except FileNotFoundError:
+            raise InternalException("Problem grader for {} is offline.".format(get_problem(pid=pid)['name']))
+
+    (correct, message) = cached_graders[pid].grade(uid, key)
 
     return {
         "correct": correct,
@@ -424,7 +439,7 @@ def reevaluate_submissions_for_problem(pid):
         if change is not None:
             db.submissions.update({"key": key}, {"correct": change}, multi=True)
 
-@api.cache.memoize(timeout=60)
+@api.cache.fast_memoize()
 def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     """
     Gets a single problem.
@@ -458,6 +473,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=False):
 
     return problem
 
+@api.cache.memoize(timeout=600)
 def get_all_problems(category=None, show_disabled=False):
     """
     Gets all of the problems in the database.
