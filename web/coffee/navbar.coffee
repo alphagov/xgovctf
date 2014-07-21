@@ -6,26 +6,45 @@ userLoggedIn =
   Problems: "/problems"
   Team: "/team"
   Scoreboard: "/scoreboard"
+  About:
+    FAQ: "/faq"
+    Sponsors: "/sponsors"
+    News: "/news"
   Logout: "/logout"
 
 userNotLoggedIn =
   Registration: "/registration"
-  Login: "/login"
   Scoreboard: "/scoreboard"
+  About:
+    FAQ: "/faq"
+    Sponsors: "/sponsors"
+    News: "/news"
+  Login: "/login"
 
-loadNavbar = (renderNavbarLinks) ->
+
+loadNavbar = (renderNavbarLinks, renderNestedNavbarLinks) ->
+
+  navbarLayout = {
+    renderNavbarLinks: renderNavbarLinks,
+    renderNestedNavbarLinks: renderNestedNavbarLinks
+  }
+
   apiCall "GET", "/api/user/isloggedin", {}
-
   .done (data) ->
-    navLinks = userNotLoggedIn
-    if data["status"] == 1
-      navLinks = userLoggedIn
+    navbarLayout.links = userNotLoggedIn
 
-    $("#navbar-links").html renderNavbarLinks({links: navLinks})
+    if data["status"] == 1
+      navbarLayout.links = userLoggedIn
+
+    $("#navbar-links").html renderNavbarLinks(navbarLayout)
 
   .fail ->
-    $("#navbar-links").html renderNavbarLinks({links: apiOffline})
+    navbarLayout.links = apiOffline
+    console.log(navbarLayout)
+    $("#navbar-links").html renderNavbarLinks(navbarLayout)
 
 $ ->
   renderNavbarLinks = _.template($("#navbar-links-template").remove().text())
-  loadNavbar(renderNavbarLinks)
+  renderNestedNavbarLinks = _.template($("#navbar-links-dropdown-template").remove().text())
+
+  loadNavbar(renderNavbarLinks, renderNestedNavbarLinks)
