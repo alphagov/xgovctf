@@ -2,16 +2,12 @@
 """
 picoCTF Profiling script
 """
-
 from pyinstrument import Profiler
 from line_profiler import LineProfiler
-from argparse import ArgumentParser
-
+from argparse import ArgumentParser 
 import api
 import random
-
-api.setup.load_config(api.app.app)
-
+api.setup.load_config(api.app.app) 
 operations = []
 
 def profile(func, *args, **kwargs):
@@ -73,7 +69,8 @@ def run_profiling(args):
     lprofiler = LineProfiler() 
 
     monitor_fuctions = [api.problem.submit_key, api.problem.get_unlocked_pids, api.problem.get_solved_pids,
-                        api.problem.get_all_problems, api.problem.get_solved_problems, api.scoreboard.get_score]
+                        api.problem.get_all_problems, api.problem.get_solved_problems, api.scoreboard.get_score,
+			api.cache.memoize]
 
     for func in monitor_fuctions:
         lprofiler.add_function(func)
@@ -140,6 +137,7 @@ def main():
 
     db.submissions.remove()
 
+    api.cache.clear()
     print("Re-running operations with profiling...")
 
     run_profiling(args)
