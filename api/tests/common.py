@@ -1,13 +1,30 @@
-import pytest
-import api.common
+"""
+Common Testing Functionality.
+"""
+
+import api
 
 from functools import wraps
+
+def clear_cache():
+    """
+    Clears the cache before the function is run.
+    """
+
+    def clear(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            api.cache.clear()
+            return f(*args, **kwargs)
+        return wrapper
+    return clear
 
 def ensure_empty_collections(*collections):
     """
     Clears collections listed after function has completed.
     Will throw an assertion if any collection is not empty when called.
     """
+
     def clear(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -26,6 +43,7 @@ def clear_collections(*collections):
     Clears collections listed after function has completed.
     Will throw an assertion if any collection is not empty when called.
     """
+
     def clear(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
