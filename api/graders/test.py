@@ -1,4 +1,4 @@
 def grade(uid, key):
     if key == "test":
-        return True, "yay"
-    return False, "boo"
+        return True, "You've successfully solved the problem!"
+    return False, "That was an incorrect solution. :("
