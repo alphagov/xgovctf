@@ -319,7 +319,7 @@ def submit_key(tid, pid, key, uid=None, ip=None):
     return result
 
 @api.cache.memoize(timeout=60)
-def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=True):
+def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=None):
     """
     Gets the submissions from a team or user.
     Optional filters of pid or category.
