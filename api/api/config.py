@@ -44,7 +44,8 @@ class EST(datetime.tzinfo):
     def dst(self, dt):
         return datetime.timedelta(0)
 
-start_time = datetime.datetime(2014, 10, 27, 12, 0, 0, tzinfo=EST(4)) # DST changes!
+#start_time = datetime.datetime(2014, 10, 27, 12, 0, 0, tzinfo=EST(4)) # DST changes!
+start_time = datetime.datetime(2014, 8, 4, 11, 40, 0, tzinfo=EST(4))
 end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
 
 # Root directory of all problem graders
