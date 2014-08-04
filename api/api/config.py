@@ -5,6 +5,8 @@ Note this is just a python script. It does config things.
 """
 
 import api
+import datetime
+
 
 """ FLASK """
 
@@ -30,6 +32,20 @@ api.common.mongo_port = 27017
 
 # Max users on any given team
 api.team.max_team_users = 5
+
+# start and end times!
+class EST(datetime.tzinfo):
+    def __init__(self, utc_offset):
+        self.utc_offset = utc_offset
+
+    def utcoffset(self, dt):
+      return datetime.timedelta(hours=-self.utc_offset)
+
+    def dst(self, dt):
+        return datetime.timedelta(0)
+
+start_time = datetime.datetime(2014, 10, 27, 12, 0, 0, tzinfo=EST(4)) # DST changes!
+end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
 
 # Root directory of all problem graders
 api.problem.grader_base_path = "./graders"
