@@ -33,6 +33,9 @@ api.common.mongo_port = 27017
 # Max users on any given team
 api.team.max_team_users = 5
 
+# Teams to display on scoreboard graph
+api.stats.top_teams = 10
+
 # start and end times!
 class EST(datetime.tzinfo):
     def __init__(self, utc_offset):
@@ -45,7 +48,7 @@ class EST(datetime.tzinfo):
         return datetime.timedelta(0)
 
 #start_time = datetime.datetime(2014, 10, 27, 12, 0, 0, tzinfo=EST(4)) # DST changes!
-start_time = datetime.datetime(2014, 8, 4, 11, 40, 0, tzinfo=EST(4))
+start_time = datetime.datetime(2014, 8, 4, 12, 13, 0, tzinfo=EST(4))
 end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
 
 # Root directory of all problem graders
