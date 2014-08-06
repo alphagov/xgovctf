@@ -1,5 +1,5 @@
 """
-picoCTF API Configuration File
+CTF API Configuration File
 
 Note this is just a python script. It does config things.
 """
@@ -7,6 +7,8 @@ Note this is just a python script. It does config things.
 import api
 import datetime
 
+competition_name = "picoCTF"
+competition_url = "127.0.0.1:8080"
 
 """ FLASK """
 
@@ -56,6 +58,7 @@ api.problem.grader_base_path = "./graders"
 """ EMAIL (SMTP) """
 
 api.utilities.enable_email = False
+api.utilities.smtp_url = ""
 api.utilities.email_username = ""
 api.utilities.email_password = ""
 api.utilities.from_addr = ""
