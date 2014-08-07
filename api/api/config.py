@@ -7,9 +7,6 @@ Note this is just a python script. It does config things.
 import api
 import datetime
 
-competition_name = "picoCTF"
-competition_url = "127.0.0.1:8080"
-
 """ FLASK """
 
 api.app.session_cookie_domain = "127.0.0.1"
@@ -31,6 +28,12 @@ api.common.mongo_addr = "127.0.0.1"
 api.common.mongo_port = 27017
 
 """ CTF SETTINGS """
+
+enable_teachers = False
+enable_feedback = True
+
+competition_name = "picoCTF"
+competition_url = "127.0.0.1:8080"
 
 # Max users on any given team
 api.team.max_team_users = 5
