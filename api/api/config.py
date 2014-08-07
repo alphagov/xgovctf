@@ -36,7 +36,7 @@ api.common.mongo_port = 27017
 api.team.max_team_users = 5
 
 # Teams to display on scoreboard graph
-api.stats.top_teams = 10
+api.stats.top_teams = 5
 
 # start and end times!
 class EST(datetime.tzinfo):
