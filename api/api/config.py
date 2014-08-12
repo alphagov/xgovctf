@@ -60,6 +60,8 @@ api.problem.grader_base_path = "./graders"
 
 """ SHELL SERVER """
 
+shell_enabled = True
+
 shell_host = "127.0.0.1"
 shell_username = "vagrant"
 shell_password = "vagrant"
