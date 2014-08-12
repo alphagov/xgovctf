@@ -58,6 +58,14 @@ end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
 # Root directory of all problem graders
 api.problem.grader_base_path = "./graders"
 
+""" Shell Server """
+
+shell_host = "localhost"
+shell_user = "vagrant"
+
+free_acounts = 10
+max_accounts = 10000
+
 """ EMAIL (SMTP) """
 
 api.utilities.enable_email = False
