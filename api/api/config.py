@@ -98,3 +98,4 @@ api.autogen.seed = "0413688f8ef14e96b0afe25e2f662fef"
 # Will be emailed any severe internal exceptions!
 # Requires email block to be setup.
 api.logger.admin_emails = ["ben@example.com", "joe@example.com"]
+api.logger.critical_error_timeout = 600
