@@ -60,7 +60,7 @@ api.problem.grader_base_path = "./graders"
 
 """ SHELL SERVER """
 
-shell_enabled = True
+enable_shell = True
 
 shell_host = "127.0.0.1"
 shell_username = "vagrant"
@@ -84,7 +84,7 @@ api.utilities.from_addr = ""
 api.utilities.from_name = ""
 
 """ CAPTCHA """
-enable_captcha = True
+enable_captcha = False
 captcha_url = "http://www.google.com/recaptcha/api/verify"
 reCAPTCHA_private_key = ""
 
