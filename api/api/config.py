@@ -84,7 +84,7 @@ api.utilities.from_addr = ""
 api.utilities.from_name = ""
 
 """ CAPTCHA """
-enable_captcha = True
+enable_captcha = False
 captcha_url = "http://www.google.com/recaptcha/api/verify"
 reCAPTCHA_private_key = ""
 
