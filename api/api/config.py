@@ -62,7 +62,7 @@ api.problem.grader_base_path = "./graders"
 
 enable_achievements = True
 
-api.achievements.processor_base_path = "./achievements"
+api.achievement.processor_base_path = "./achievements"
 
 """ SHELL SERVER """
 
