@@ -58,6 +58,12 @@ end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
 # Root directory of all problem graders
 api.problem.grader_base_path = "./graders"
 
+""" ACHIEVEMENTS """
+
+enable_achievements = True
+
+api.achievement.processor_base_path = "./achievements"
+
 """ SHELL SERVER """
 
 enable_shell = True
