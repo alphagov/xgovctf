@@ -66,7 +66,7 @@ api.achievement.processor_base_path = "./achievements"
 
 """ SHELL SERVER """
 
-enable_shell = True
+enable_shell = False
 
 shell_host = "127.0.0.1"
 shell_username = "vagrant"
