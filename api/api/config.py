@@ -9,7 +9,7 @@ import datetime
 
 """ FLASK """
 
-api.app.session_cookie_domain = "uvray.local"
+api.app.session_cookie_domain = "127.0.0.1"
 api.app.session_cookie_path = "/"
 api.app.session_cookie_name = "flask"
 
