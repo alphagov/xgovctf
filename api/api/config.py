@@ -7,6 +7,8 @@ Note this is just a python script. It does config things.
 import api
 import datetime
 
+import api.app
+
 """ FLASK """
 
 api.app.session_cookie_domain = "127.0.0.1"
