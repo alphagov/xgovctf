@@ -54,8 +54,8 @@ class EST(datetime.tzinfo):
     def dst(self, dt):
         return datetime.timedelta(0)
 
-start_time = datetime.datetime(2013, 10, 27, 12, 13, 0, tzinfo=EST(4))
-end_time = datetime.datetime(2014, 11, 7, 23, 59, 59, tzinfo=EST(5))
+start_time = datetime.datetime(2000, 10, 27, 12, 13, 0, tzinfo=EST(4))
+end_time = datetime.datetime(2055, 11, 7, 23, 59, 59, tzinfo=EST(5))
 
 # Root directory of all problem graders
 api.problem.grader_base_path = "./graders"
