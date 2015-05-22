@@ -116,6 +116,13 @@ The grader then performs a similar calculation:
 ```
 
 Note that autogen problems must set two additional fields in the `problem.json` file. In addition to "grader", there needs to be a "generator" field pointing to the generator script. Also, the "autogen" field must be set to `true`. See `example_problems/web/hidden-message/problem.json` for an example.
+
+### Problem Categories
+
+The category of a problem is specified in the "category" field of the `problem.json` file. Note that there is not a fixed set of categories; you may use any free-form category name. Many features, such as the code to generate problem statistics, will group problems by category name. Thus, it is useful to make sure that you are consistent in your spelling and formatting for each category.
+
+If you plan on using both the existing achievements and different categories than picoCTF, you will need to edit the "Category Completion" and "Category Solved 5" achievements based on your new names.
+
 ### Loading Problems
 
 Problems are loaded into the database and set up for deployment using the `api_manager.py` script. To load your problems, run the following command in `~/api`:
@@ -211,6 +218,104 @@ Client-side events can be recorded for use with [Google Analytics](http://www.go
 	</script>
 
 Then change `mode: development` to `mode: production` in `_config.yml` to enable Analytics. Note that we currently only support the ["Universal Analytics"](https://support.google.com/analytics/answer/2790010?hl=en) method and not the "Classic" method of Google Analytics.
+
+## Achievements 
+
+Achievements are small awards given to teams as they complete challenges or perform special actions in the competition. Note that the achievement system is completely divorced from the scoring system; there currently is no way to make achievements impact competition performance. They are designed to be purely for fun.
+
+Achievements are only earned by *teams*. There is no notion of an individual *user* having an achievement, even though a single user may be responsible for unlocking the achievement. A given achievement can only be earned by a team once (except for *multi-achievements* described below). 
+
+Like problems, achievements are defined as *json* files that are imported into the database that refer to a specific script containing each achievement's implementation. The following example achievement is included in the file `api/achievements/categorycompletion.json`:  
+
+	{"name": "Category Completion",
+	 "description": "You team has solved every 'x' problem.",
+	 "event": "submit",
+	 "multiple": true,
+	 "hidden": false,
+	 "score": 300,
+	 "processor": "categorycompletion/categorycompletion.py",
+	 "image": "/img/achievements/silver.png",
+	 "smallimage": "/img/achievements/silver_unlock.png"}
+
+These fields mean the following:
+
+- *name*: The name of the achievement displayed to the user
+- *description*: The description of how the achievement was earned
+- *image*: The image displayed alongside the achievement (Recommended dimensions: 233px x 200px)
+- *score*: Unrelated to the score of a team on the scoreboard. This is used to prioritize the order in which achievements are displayed. Achievements with a higher score are displayed higher in the list.
+- *event*: Achievements are unlocked in response to events. When the event type specified here occurs, the *processor* script is called to check whether or not the achievement has been earned. Possible events are:
+	- "review": A problem has just been reviewed
+	- "submit": A **correct** answer to problem has just been submitted
+- *processor*: The script used to tell whether the achievement has been earned in response to the trigger event. Similar to a problem *grader*.
+- *multiple*: Achievements come in two types: normal achievements and *multi-achievements*. This distinction is similar to the basic/autogen problem division. A normal achievement can be earned once per team and contains exactly the name and description in the *.json* file. A multi-achievement can be earned multiple times, each potentially with a different name or description. This is how the "Category Completion" achievement actually serves as multiple different achievements (one for each category) and has a different name for each one. 
+
+The *hidden* and *smallimage* fields are deprecated.
+
+### Creating a Processor Script ###
+
+An achievement *processor* script is expected to implement the following interface: `process(api, data)` where `api` is an imported version of the top level picoCTF API library and `data` contains extra information based on the achievement's `event` type.
+
+The `data` dictionary has the following values based on the event:
+
+- "review": "uid" (user id of the reviewer), "tid" (team id of that user), "pid" (problem id of the reviewed problem)
+- "submit": "uid" (user id of the problem solver), "tid" (team id of that user), "pid" (problem id of the problem just solved correctly)
+
+Processor scripts are expected to return a pair where the first value is a boolean indicating whether or not the achievement has been earned, and the second is a dictionary with values to change in the achievement (for multi-achievements) 
+
+Now consider the following simple processor that awards an achievement when a team gets more than 100 points:
+
+```python
+	def process(api, data):
+	    return api.stats.get_score(tid=data["tid"]) > 100, {}
+```
+ 
+This script checks the score of the team that submitted the problem correctly and returns True if the score is over 100. The second argument is an empty dictionary since it is not a multi-achievement. Since non-multi-achievements can earned only once, there is no need to check if the team already has the achievement. If a teams solves a series of problems, they will receive the achievement as soon as they achieve 100 points and will not earn it again for solving subsequent problems.
+
+Now consider the processor for the multi-achievement `Category Completion`:
+
+```python
+
+	def process(api, data):
+	    pid = data["pid"]
+	    pid_map = api.stats.get_pid_categories()
+	    category = pid_map[pid]
+	    category_pids = api.stats.get_pids_by_category()[category]
+	    solved_pids = api.problem.get_solved_pids(tid=data['tid'])
+
+	    earned = True
+	    for pid in category_pids:
+	        if pid not in solved_pids:
+	            earned = False
+	
+	    name = "Category Master"
+	    if category == "Cryptography":
+	        name = "Cryptography Experts"
+	    elif category == "Reverse Engineering":
+	        name = "Reversing Champions"
+	    ...
+	
+	    description = "Solved every '%s' challenge" % category
+	    return earned, {"name": name, "description": description}
+```
+
+The first half of this processor checks if all problems in a given category have successfully been completed. In the second half, it produces the correct version of the achievement to return based on the category. If, for example, a user solves every problem in the "Cryptography" category, then it will set the name of the achievement to "Cryptography Experts" and the description to "Solved every 'Cryptography' challenge.
+
+Note that unlike normal achievements, multi-achievements have no checks for repetition. For example, in the multi-achievement `Category Solved 5`, where a team gets an achievement if they solve 5 problems in a category, we must check for *exactly* 5 submissions. If we checked for 5 or more submissions (as in the earlier 100 points example), we could earn the same achievement multiple times.   
+
+### Loading Achievements
+
+Like problems, achievements are loaded via the `api_manager.py` script. In the `api` folder, run the following command:
+
+	python3 api_manager.py -v achievements load achievements/*.json
+
+Assuming you store all of your achievements in the `api/achievements` folder. As always, you will need to run `devploy` for your changes to take effect.
+
+### Removing Achievements
+
+Achievements must be removed directly from the database. To remove all of the achievements, perform the following steps:
+
+1. Run `mongo pico`
+2. In the mongo terminal, run `db.achievements.remove()`
 
 ## Security
 
