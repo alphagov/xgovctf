@@ -186,6 +186,22 @@ You may want to make it so that you do not have to include ".html" in the URL fo
 
 This will cause `127.0.0.1:8080/mynewpage` to serve content from `web/mynewpage.html`.
 
+### Adjusting the Links in the Navbar
+
+The links displayed on the navbar (the menu bar at the top of every page) are not defined in a template, but instead set in JavaScript. This allows the navbar to change based on whether the competition is active and whether or not the user is currently logged in.
+
+All of the links displayed in different contexts are defined in the CoffeeScript file `web/coffee/navbar.coffee`. Consider the following menu definition:
+
+	teacherLoggedInNoCompetition =
+	  Classroom: "/classroom"
+	  About: "/about"
+	  News: "/news"
+	  Account:
+	    Manage: "/account"
+	    Logout: "#"
+
+This defines the navbar that will be displayed for a teacher account that is logged in outside of the competition dates (defined in `api/api/config.py`). The "key" dictates the text that appears on the navbar button, while the "value" serves as the link target. Note that you can nest these definitions (as with "Account") to create navbar items with dropdown menus. Note that generated navbar buttons have predictable names ("navbar-item-" + lower case button text with spaces replaced with underscores) if you want to bind JavaScript functions to them (as is the case with "Logout"). 
+
 ### Configuring Site Options
 
 Most configuration settings for the picoCTF Platform are specified in `api/api/config.py`. Useful setting values include:
