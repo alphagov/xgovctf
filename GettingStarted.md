@@ -74,7 +74,7 @@ Assuming you have already created and added your problems (see next section), th
 
 ### <a name="quickstart-ending"></a> Ending the Competition
 
-Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at then end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final scoreboard.
+Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at the end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final scoreboard.
 
 ## <a name="problems"></a> Problems
 
@@ -112,11 +112,11 @@ Some problems need to provide additional files for the user to view or download 
 
 ### <a name="problems-autogen"></a> Autogen Problems
 
-Automatically generated (autogen) problems allow different teams to receive different versions of the same challenge. For example, the picoCTF 2014 problem `Substitution` (a substitution chipher problem) uses different letter mappings and Disney song lyrics for different problem instances. This has numerous advantages, including the prevention and detection of flag sharing between teams. 
+Automatically generated (autogen) problems allow different teams to receive different versions of the same challenge. For example, the picoCTF 2014 problem `Substitution` (a substitution cipher problem) uses different letter mappings and Disney song lyrics for different problem instances. This has numerous advantages, including the prevention and detection of flag sharing between teams.
 
 Before deploying a competition, you need to generate some number of autogen problem instances per problem which will serve as the pool of possible version of the problem that a team can get. During the competition, teams will randomly be assigned an autogen instance from the pool of available instances.
 
-Where as basic problems have just a *grader* script, autogen problems have both a *grader* and a *generator*. The *generator* contains code for producing all of the content needed for a given problem isntance. The *grader*, as in basic problems, is used to determine whether an flag submitted by a user for a given problem instance is correct. 
+Whereas basic problems have just a *grader* script, autogen problems have both a *grader* and a *generator*. The *generator* contains code for producing all of the content needed for a given problem instance. The *grader*, as in basic problems, is used to determine whether an flag submitted by a user for a given problem instance is correct.
 
 The `Hidden Message` problem under `example_problems` contains example code for creating an autogen problem. We will use this as a working example of how to develop an autogen problem.
 
@@ -376,7 +376,7 @@ Achievements must be removed directly from the database. To remove all of the ac
 
 ## <a name="competitiondata"></a> Working with Competition Data
 
-There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the revelant api endpoint in Python or communicate with the Mongo database directly.
+There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the relevant api endpoint in Python or communicate with the Mongo database directly.
 
 ### <a name="competitiondata-api"></a> Running API Commands Directly
 
