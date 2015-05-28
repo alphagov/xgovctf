@@ -26,7 +26,7 @@
 	- [Running API Commands Directly](#competitiondata-api)
 	- [Getting Statistics](#competitiondata-stats)
 	- [Getting Review Data Directly](#competitiondata-reviews)
-	- [Disabling Accounts](#competitiondata-accounts)
+	- [Disabling Accounts](#competitiondata-disabling)
 	- [Disqualifying Teams](#competitiondata-disqualifying)
 - [Eligibility](#eligibility)
 	- [Other Cases](#eligibility-other)
