@@ -1,7 +1,41 @@
 # Getting Started with the picoCTF Platform 2#
 
 1. [Setting Up a Development Environment](#devenv)
-2. [Achievements](#achievements)
+	- [What if I don't want to use Vagrant?](#devenv-novagrant)
+- [Starting the picoCTF Platform](#starting)
+- [Competition Quick Start](#quickstart)
+	- [Ending the Competition](#quickstart-ending)
+- [Problems](#problems)
+	- [Creating Problems](#problems-creating)
+	- [Autogen Problems](#problems-autogen)
+	- [Problem Categories](#problems-categories)
+	- [Loading Problems](#problems-loading)
+	- [Updating and Deleting Problems](#problems-updating)
+- [Customizing the Site](#customizingsite)
+	- [Jekyll and Static Templates](#customizingsite-jekyll)
+	- [Creating a New Page](#customizingsite-newpage)
+	- [Adjusting the Links in the Navbar](#customizingsite-navbar)
+	- [Configuring Site Options](#customizingsite-options)
+	- [CoffeeScript](#customizingsite-coffeescript)
+	- [Adding Google Analytics](#customizingsite-analytics)
+- [Achievements](#achievements)
+	- [Creating a Processor Script](#achievements-script)
+	- [Loading Achievements](#achievements-loading)
+	- [Removing Achievements](#achievements-removing)
+- [Working with Competition Data](#competitiondata)
+	- [Running API Commands Directly](#competitiondata-api)
+	- [Getting Statistics](#competitiondata-stats)
+	- [Getting Review Data Directly](#competitiondata-reviews)
+	- [Disabling Accounts](#competitiondata-accounts)
+	- [Disqualifying Teams](#competitiondata-disqualifying)
+- [Eligibility](#eligibility)
+	- [Other Cases](#eligibility-other)
+	- [Updating Eligibility](#eligibility-updating)
+- [Security](#security)
+	- [Setting the Passphrase](#security-passphrase)
+	- [Note on the Team Password](#security-password)
+	- [Protecting the Database](#security-database)
+	- [CSRF Defenses](#security-csrf)
 
 ## <a name="devenv"></a> Setting up a Development Environment ##
 
@@ -16,17 +50,17 @@ After installing VirtualBox and Vagrant, follow these steps to get your developm
 There are many other useful [Vagrant commands](http://docs.vagrantup.com/v2/cli/ "Vagrant commands") that it will be useful to be familiar with, such as `vagrant suspend` to suspend your development VM and `vagrant reload` to restart it.
 
 
-### What if I don't want to use Vagrant?
+###<a name="devenv-novagrant"></a>  What if I don't want to use Vagrant?
 You do not need to use either Vagrant or VirtualBox to run the picoCTF Platform. This is purely to ease development. You can always run the picoCTF Platform directly on Ubuntu 14.04 or a similar Linux distribution by running the `scripts/vagrant_setup.sh` directly on the target machine (as root). This is the recommended approach for setting up the picoCTF Platform on a production server.
 
 
-## Starting the picoCTF Platform ##
+## <a name="starting"></a> Starting the picoCTF Platform ##
 
 Once inside your development VM, you can launch the picoCTF Platform by running the `devploy` command. This will deploy the latest version of your code to be served by the web server, then restart both the web server and the picoCTF API.
 
 You should now be able to visit the deployed site in a browser at `127.0.0.1:8080` on the host machine (or `127.0.0.1` directly on the VM). Note that going to `localhost` will display the site, but will **not** handle cookies correctly.
 
-## Competition Quick Start
+## <a name="quickstart"></a> Competition Quick Start
 
 Assuming you have already created and added your problems (see next section), these steps will prepare your competition to go live:  
 
@@ -38,13 +72,13 @@ Assuming you have already created and added your problems (see next section), th
 - Run `devploy` to copy the static files to the server directory and launch the API.
 - Start the scoreboard with `python3 daemon_manager.py -i 300 cache_stats` in the `api` folder. Change 300 seconds, which represents how frequently the scoreboard graphs refresh, to whatever interval you prefer. It is recommended that you run this command under `tmux` or `screen`.
 
-### Ending the Competition
+### <a name="quickstart-ending"></a> Ending the Competition
 
 Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at then end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final scoreboard.
 
-## Problems
+## <a name="problems"></a> Problems
 
-### Creating Problems
+### <a name="problems-creating"></a> Creating Problems
 There are two types of problems supported by this framework: *basic* problems, and *auto-generated* problems. Auto-generated problems allow for different users to receive different versions of the same problem. Basic problems have only one version. In this section we will discuss adding basic problems. Several example problems are included under the *example_problems* directory.
 
 Every basic problem needs two components: a *problem.json* file and a *grader* directory containing a grading script. A *problem.json* file should look like this:
@@ -76,7 +110,7 @@ The "threshold" and "weightmap" fields are used to manage problem unlocking. If 
 
 Some problems need to provide additional files for the user to view or download (binaries, encrypted messages, images, etc.). To add static files to your problem, add a *static* folder in the directory for that problem (`/problems/misc/myproblem/static/`, for example) and place any files in that directory that you want to serve statically. Then, in your problem description (or hint), you can link to this file using the URL `/problem-static/[path to problem in problems directory]/[file name]`. Look at the example problem `Sdrawkcab` to see this in action.
 
-### Autogen Problems
+### <a name="problems-autogen"></a> Autogen Problems
 
 Automatically generated (autogen) problems allow different teams to receive different versions of the same challenge. For example, the picoCTF 2014 problem `Substitution` (a substitution chipher problem) uses different letter mappings and Disney song lyrics for different problem instances. This has numerous advantages, including the prevention and detection of flag sharing between teams. 
 
@@ -124,13 +158,13 @@ The grader then performs a similar calculation:
 
 Note that autogen problems must set two additional fields in the `problem.json` file. In addition to "grader", there needs to be a "generator" field pointing to the generator script. Also, the "autogen" field must be set to `true`. See `example_problems/web/hidden-message/problem.json` for an example.
 
-### Problem Categories
+### <a name="problems-categories"></a> Problem Categories
 
 The category of a problem is specified in the "category" field of the `problem.json` file. Note that there is not a fixed set of categories; you may use any free-form category name. Many features, such as the code to generate problem statistics, will group problems by category name. Thus, it is useful to make sure that you are consistent in your spelling and formatting for each category.
 
 If you plan on using both the existing achievements and different categories than picoCTF, you will need to edit the "Category Completion" and "Category Solved 5" achievements based on your new names.
 
-### Loading Problems
+### <a name="problems-loading"></a> Loading Problems
 
 Problems are loaded into the database and set up for deployment using the `api_manager.py` script. To load your problems, run the following command in `~/api`:
 
@@ -146,7 +180,7 @@ In addition to loading problems, you must also generate instances for any autoge
 
 Note that this command is idempotent. Assuming your autogen instances use only the provided source of randomness, repeatedly running this command will regenerate the exact same set of 100 problem instances.
 
-### Updating and Deleting Problems 
+### <a name="problems-updating"></a> Updating and Deleting Problems 
 
 In order to update problems, you must first remove the old version of the problems from the database. Currently, this is done by connecting to the database and deleting the problems as follows:
 
@@ -155,9 +189,9 @@ In order to update problems, you must first remove the old version of the proble
 
 Once you have removed the problems, you can load in the new versions as described in the previous section. If any autogen problems have been deleted, you will also need to rebuild the autogen instances.
 
-## Customizing the Site
+## <a name="customizingsite"></a> Customizing the Site
 
-### Jekyll and Static Templates
+### <a name="customizingsite-jekyll"></a> Jekyll and Static Templates
 
 Web pages for the picoCTF Platform are built using static [Jekyll](http://jekyllrb.com/ "Jekyll") templates. When `devploy` is run, the Jekyll templates are compiled into static HTML pages, which are then served directly by Nginx. 
 
@@ -167,7 +201,7 @@ The file `web/_config.yml` contains global settings related to Jekyll templates.
 
 The `web/_posts` folder is a special folder used to store posts to be displayed on the "News" page. Placing markdown files here will automatically add them to both the News page and the site RSS feed. Check out the ["Jekyll Documentation"](http://jekyllrb.com/docs/posts/ "Jekyll Documentation") for more information.
 
-### Creating a New Page
+### <a name="customizingsite-newpage"></a> Creating a New Page
 
 In order to add a new page to the site, create a new HTML document under `web` with the following format:
 
@@ -193,7 +227,7 @@ You may want to make it so that you do not have to include ".html" in the URL fo
 
 This will cause `127.0.0.1:8080/mynewpage` to serve content from `web/mynewpage.html`.
 
-### Adjusting the Links in the Navbar
+### <a name="customizingsite-navbar"></a> Adjusting the Links in the Navbar
 
 The links displayed on the navbar (the menu bar at the top of every page) are not defined in a template, but instead set in JavaScript. This allows the navbar to change based on whether the competition is active and whether or not the user is currently logged in.
 
@@ -209,7 +243,7 @@ All of the links displayed in different contexts are defined in the CoffeeScript
 
 This defines the navbar that will be displayed for a teacher account that is logged in outside of the competition dates (defined in `api/api/config.py`). The "key" dictates the text that appears on the navbar button, while the "value" serves as the link target. Note that you can nest these definitions (as with "Account") to create navbar items with dropdown menus. Note that generated navbar buttons have predictable names ("navbar-item-" + lower case button text with spaces replaced with underscores) if you want to bind JavaScript functions to them (as is the case with "Logout"). 
 
-### Configuring Site Options
+### <a name="customizingsite-options"></a> Configuring Site Options
 
 Most configuration settings for the picoCTF Platform are specified in `api/api/config.py`. Useful setting values include:
 
@@ -222,11 +256,11 @@ Most configuration settings for the picoCTF Platform are specified in `api/api/c
 
 Changing these settings is as easy as editing the relevant Python assignments. Note that you will need to run `devploy` in order for any changes to setting to take effect.
 
-### CoffeeScript
+### <a name="customizingsite-coffeescript"></a> CoffeeScript
 
 All of the client-side code for the picoCTF Platform is written in [CoffeeScript](http://coffeescript.org/). When `devploy` is used to deploy the site, all CoffeeScript files in `web/coffee` are compiled to JavaScript and stored in `web/js` before being copied to the server directory. This means that any edits to the client-side code should occur in the relevant `.coffee` file NOT the `.js` file.
 
-### Adding Google Analytics
+### <a name="customizingsite-analytics"></a> Adding Google Analytics
 
 Client-side events can be recorded for use with [Google Analytics](http://www.google.com/analytics). In order to enable analytics, first create a new file `web/_includes/analytics.html` and fill it with your Analytics tracking code. It should look something like this:
 
@@ -274,7 +308,7 @@ These fields mean the following:
 
 The *hidden* and *smallimage* fields are deprecated.
 
-### Creating a Processor Script ###
+### <a name="achievements-script"></a> Creating a Processor Script ###
 
 An achievement *processor* script is expected to implement the following interface: `process(api, data)` where `api` is an imported version of the top level picoCTF API library and `data` contains extra information based on the achievement's `event` type.
 
@@ -325,7 +359,7 @@ The first half of this processor checks if all problems in a given category have
 
 Note that unlike normal achievements, multi-achievements have no checks for repetition. For example, in the multi-achievement `Category Solved 5`, where a team gets an achievement if they solve 5 problems in a category, we must check for *exactly* 5 submissions. If we checked for 5 or more submissions (as in the earlier 100 points example), we could earn the same achievement multiple times.   
 
-### Loading Achievements
+### <a name="achievements-loading"></a> Loading Achievements
 
 Like problems, achievements are loaded via the `api_manager.py` script. In the `api` folder, run the following command:
 
@@ -333,34 +367,34 @@ Like problems, achievements are loaded via the `api_manager.py` script. In the `
 
 Assuming you store all of your achievements in the `api/achievements` folder. As always, you will need to run `devploy` for your changes to take effect.
 
-### Removing Achievements
+### <a name="achievements-removing"></a> Removing Achievements
 
 Achievements must be removed directly from the database. To remove all of the achievements, perform the following steps:
 
 1. Run `mongo pico`
 2. In the mongo terminal, run `db.achievements.remove()`
 
-## Working with Competition Data
+## <a name="competitiondata"></a> Working with Competition Data
 
 There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the revelant api endpoint in Python or communicate with the Mongo database directly.
 
-### Running API Commands Directly
+### <a name="competitiondata-api"></a> Running API Commands Directly
 
 The Python API is designed to run out of the `api` folder (not to be confused with the `api/api` folder). Thus, the easiest way to run API commands directly is to switch to the `api` directory, run `python3`, then import the relevant portion of the API using commands such as `import api.stats`.
 
-### Getting Statistics
+### <a name="competitiondata-stats"></a> Getting Statistics
 
 The `api/api/stats.py` file provides a number of useful statistics gathering functions for the picoCTF Platform. You can obtain most of the interesting statistics by running the function `get_stats`.
 
 Note that with the exception of the scoreboard functionality, the functions in `api/api/stats.py` are designed to be run by an administrator in the background and are likely too slow to be served directly to users.  
 
-### Getting Review Data Directly
+### <a name="competitiondata-reviews"></a> Getting Review Data Directly
 
 The picoCTF Platform allows users to provide feedback on whether or not they found a problem interesting, educational, etc. This information is then stored in the MongoDB collection `problem_feedback`. Based on how you want to use the review data, you may want to query the database directly. Running the command `db.problem_feedback.find({}, {"pid": true, "feedback.comment": true})` in the MongoDB terminal, for example, will yield all of the text comments provided in problem reviews.
 
 The `get_review_stats` and `print_review_comments` functions in `api/api/stats.py` are also useful for easily accessing data from problem reviews.
 
-### Disabling Accounts
+### <a name="competitiondata-disabling"></a> Disabling Accounts
 
 As a competition organizer, you may want to disable specific user accounts. Disabled users cannot log in and do not count towards the team limit. Note that disabling a user does not allow another user to create a new user with the same name. Users can voluntarily disable their accounts on the "Account->Manage" page. You can also manually disable a user's account with the following command in the MongoDB terminal:
 
@@ -368,7 +402,7 @@ As a competition organizer, you may want to disable specific user accounts. Disa
 
 You can re-enable a user with a similar command. Note, however, that doing so may allow a team to have more members than allowed by the team limit.
 
-### Disqualifying Teams
+### <a name="competitiondata-disqualifying"></a> Disqualifying Teams
 
 Rather than disabling accounts, you may simply want to mark a team as *ineligible* (not on the public scoreboard). To mark a team as disqualified, use the following command in the MongoDB terminal:
 
@@ -376,7 +410,7 @@ Rather than disabling accounts, you may simply want to mark a team as *ineligibl
 
 Note that to actually mark the team as ineligible, you will need to run the `determine_eligibility` function with the `tid` for the given team after marking it as disqualified (see next section).
 
-## Eligibility
+## <a name="eligibility"></a> Eligibility
 
 The picoCTF Platform supports the notion of teams that are *eligible* and teams that are *ineligible*. The key difference between these two team types is that ineligible teams do not show up on the main scoreboard. Ineligible teams may, however, show up on Classroom scoreboards. Some of the included achievements also rely on eligibility. The "Breakthrough" achievement, for example, is earned by the first *eligible* team that solves a given challenge.
 
@@ -388,7 +422,7 @@ First, edit the `eligible = True` line in the `create_user_request` function in 
 
 Whenever the member's of team change, the function `determine_eligibility` in `/api/api/team.py` is called to determine if the team is still eligible. In order to add eligibility restrictions, you will need to edit this function as well. Some example code is included as comments in this function. Note that the `determine_eligibility`   also returns a set of 'justifications'. These are displayed to the user on the "Team" page to explain why a team is not considered eligible.
 
-### Other Cases
+### <a name="eligibility-other"></a> Other Cases
 
 Teacher Accounts are special accounts that can create Class Groups and cannot join teams. In order to allow Teacher Accounts to play through the competition, each Teacher Account is associated with a unique hidden team with the prefix "TEACHER-". These Teacher Account teams are always marked as ineligible and are not designed to ever show up on any scoreboard.
 
@@ -396,24 +430,24 @@ If all members of a team disable their accounts, then a team will be marked as i
 
 If a team is marked as "disqualified" (see previous section), then they will always be considered ineligible.
 
-### Updating Eligibility
+### <a name="eligibility-updating"></a> Updating Eligibility
 
 Team eligibility is recalculated every time a new member joins or leaves a team *via the web interface*. If you as the competition organizer manually modify a team, you will need to manually trigger the eligibility update by calling the `determine_eligibility` function in `api.team` with the appropriate `tid` (team id).
 
-## Security
+## <a name="security"></a> Security
 
-### Setting the Passphrase
+### <a name="security-passphrase"></a> Setting the Passphrase
 
 The picoCTF Platform uses encrypted cookies to store session information without the need to store session state server side. In order to prevent session hijacking, you MUST change the application secret key. To change the key, edit the `api.app.secret_key` value in `api/api/config.py`. Be sure to use an unpredictable and reasonably long value for the key.
 
-### Note on the Team Password
+### <a name="security-password"></a> Note on the Team Password
 
 Passwords for individual users are stored in the database as salted hashes. *Team Passphrases*, however, are stored in plaintext so that they can be displayed back to users on the *Team* page. This allowed us to avoid creating a separate mechanism for forgotten team passphrases, at the risk that a database leak would allow a user to join a team with which they are not affiliated. 
 
-### Protecting the Database
+### <a name="security-database"></a> Protecting the Database
 
 The default MongoDB configuration used by the picoCTF Platform blocks all non-local connections and therefore does not use password authentication for local users. This means that if you use the server with the database to also host CTF problems that give shell access to users, you MUST [take steps to control access to the database](http://docs.mongodb.org/manual/tutorial/enable-authentication/).
 
-### CSRF Defenses
+### <a name="security-csrf"></a> CSRF Defenses
 
 For design reasons, the picoCTF Platform does not use tokens embedded in `<form>` tags in order to prevent CSRF attacks. Instead, it uses the [Double Submit Cookies](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#Double_Submit_Cookies) method in which a token is read from a cookie and submitted with requests that need to be protected. This happens transparently client-side, as long as a request goes through the `apiCall` function (see `web/coffee/dependencies.coffee`). Server-side, API requests that need CSRF protection should use the `@check_csrf` annotation to indicate that checking the value of the submitted cookie is required.
