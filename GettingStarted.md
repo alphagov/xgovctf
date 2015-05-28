@@ -35,6 +35,10 @@ Assuming you have already created and added your problems (see next section), th
 - Run `devploy` to copy the static files to the server directory and launch the API.
 - Start the scoreboard with `python3 daemon_manager.py -i 300 cache_stats` in the `api` folder. Change 300 seconds, which represents how frequently the scoreboard graphs refresh, to whatever interval you prefer. It is recommended that you run this command under `tmux` or `screen`.
 
+### Ending the Competition
+
+Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at then end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final scoreboard.
+
 ## Problems
 
 ### Creating Problems
@@ -332,6 +336,66 @@ Achievements must be removed directly from the database. To remove all of the ac
 
 1. Run `mongo pico`
 2. In the mongo terminal, run `db.achievements.remove()`
+
+## Working with Competition Data
+
+There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the revelant api endpoint in Python or communicate with the Mongo database directly.
+
+### Running API Commands Directly
+
+The Python API is designed to run out of the `api` folder (not to be confused with the `api/api` folder). Thus, the easiest way to run API commands directly is to switch to the `api` directory, run `python3`, then import the relevant portion of the API using commands such as `import api.stats`.
+
+### Getting Statistics
+
+The `api/api/stats.py` file provides a number of useful statistics gathering functions for the picoCTF Platform. You can obtain most of the interesting statistics by running the function `get_stats`.
+
+Note that with the exception of the scoreboard functionality, the functions in `api/api/stats.py` are designed to be run by an administrator in the background and are likely too slow to be served directly to users.  
+
+### Getting Review Data Directly
+
+The picoCTF Platform allows users to provide feedback on whether or not they found a problem interesting, educational, etc. This information is then stored in the MongoDB collection `problem_feedback`. Based on how you want to use the review data, you may want to query the database directly. Running the command `db.problem_feedback.find({}, {"pid": true, "feedback.comment": true})` in the MongoDB terminal, for example, will yield all of the text comments provided in problem reviews.
+
+The `get_review_stats` and `print_review_comments` functions in `api/api/stats.py` are also useful for easily accessing data from problem reviews.
+
+### Disabling Accounts
+
+As a competition organizer, you may want to disable specific user accounts. Disabled users cannot log in and do not count towards the team limit. Note that disabling a user does not allow another user to create a new user with the same name. Users can voluntarily disable their accounts on the "Account->Manage" page. You can also manually disable a user's account with the following command in the MongoDB terminal:
+
+	db.users.update({"username": "[enter username here]"}, {$set: {"disabled": true}})
+
+You can re-enable a user with a similar command. Note, however, that doing so may allow a team to have more members than allowed by the team limit.
+
+### Disqualifying Teams
+
+Rather than disabling accounts, you may simply want to mark a team as *ineligible* (not on the public scoreboard). To mark a team as disqualified, use the following command in the MongoDB terminal:
+
+	db.teams.update({"team_name": "[enter team name here]"}, {$set: {"disqualified": true}})
+
+Note that to actually mark the team as ineligible, you will need to run the `determine_eligibility` function with the `tid` for the given team after marking it as disqualified (see next section).
+
+## Eligibility
+
+The picoCTF Platform supports the notion of teams that are *eligible* and teams that are *ineligible*. The key difference between these two team types is that ineligible teams do not show up on the main scoreboard. Ineligible teams may, however, show up on Classroom scoreboards. Some of the included achievements also rely on eligibility. The "Breakthrough" achievement, for example, is earned by the first *eligible* team that solves a given challenge.
+
+A team is *eligible* if ever member of the team meets a certain set of criteria. By default, the requirement is that each team member must be a middle or high school student from the United States. For the picoCTF Platform, there is no requirement by default. To adjust the eligibility criteria, you will need to modify the code in several places.
+
+First, edit the `eligible = True` line in the `create_user_request` function in `api/api/user.py`. picoCTF 2014, for example, has the following line instead:
+
+	eligible = params['country'] == "US" and params['background'] in ['student_el', 'student_ms', 'student_hs', 'student_home']
+
+Whenever the member's of team change, the function `determine_eligibility` in `/api/api/team.py` is called to determine if the team is still eligible. In order to add eligibility restrictions, you will need to edit this function as well. Some example code is included as comments in this function. Note that the `determine_eligibility`   also returns a set of 'justifications'. These are displayed to the user on the "Team" page to explain why a team is not considered eligible.
+
+### Other Cases
+
+Teacher Accounts are special accounts that can create Class Groups and cannot join teams. In order to allow Teacher Accounts to play through the competition, each Teacher Account is associated with a unique hidden team with the prefix "TEACHER-". These Teacher Account teams are always marked as ineligible and are not designed to ever show up on any scoreboard.
+
+If all members of a team disable their accounts, then a team will be marked as ineligible.
+
+If a team is marked as "disqualified" (see previous section), then they will always be considered ineligible.
+
+### Updating Eligibility
+
+Team eligibility is recalculated every time a new member joins or leaves a team *via the web interface*. If you as the competition organizer manually modify a team, you will need to manually trigger the eligibility update by calling the `determine_eligibility` function in `api.team` with the appropriate `tid` (team id).
 
 ## Security
 
