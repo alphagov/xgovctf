@@ -1,6 +1,9 @@
 # Getting Started with the picoCTF Platform 2#
 
-## Setting up a Development Environment ##
+1. [Setting Up a Development Environment](#devenv)
+2. [Achievements](#achievements)
+
+## <a name="devenv"></a> Setting up a Development Environment ##
 
 In order to facilitate development by different users with different systems, the picoCTF Platform uses [Vagrant](http://vagrantup.com "Vagrant") to create an identical Linux setup across platforms. Vagrant works on top of any number of different virtualization [providers](https://docs.vagrantup.com/v2/providers/ "providers"), though we recommend [VirtualBox](https://www.virtualbox.org/ "VirtualBox"), since this is the one we have tested the most. 
 
@@ -239,7 +242,7 @@ Client-side events can be recorded for use with [Google Analytics](http://www.go
 
 Then change `mode: development` to `mode: production` in `_config.yml` to enable Analytics. Note that we currently only support the ["Universal Analytics"](https://support.google.com/analytics/answer/2790010?hl=en) method and not the "Classic" method of Google Analytics.
 
-## Achievements 
+## <a name="achievements"></a> Achievements 
 
 Achievements are small awards given to teams as they complete challenges or perform special actions in the competition. Note that the achievement system is completely divorced from the scoring system; there currently is no way to make achievements impact competition performance. They are designed to be purely for fun.
 
@@ -280,7 +283,7 @@ The `data` dictionary has the following values based on the event:
 - "review": "uid" (user id of the reviewer), "tid" (team id of that user), "pid" (problem id of the reviewed problem)
 - "submit": "uid" (user id of the problem solver), "tid" (team id of that user), "pid" (problem id of the problem just solved correctly)
 
-Processor scripts are expected to return a pair where the first value is a boolean indicating whether or not the achievement has been earned, and the second is a dictionary with values to change in the achievement (for multi-achievements) 
+Processor scripts are expected to return a pair where the first value is a boolean indicating whether or not the achievement has been earned, and the second is a dictionary with values to change in the achievement (for multi-achievements). 
 
 Now consider the following simple processor that awards an achievement when a team gets more than 100 points:
 
