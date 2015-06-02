@@ -39,7 +39,7 @@
 
 ## <a name="devenv"></a> Setting up a Development Environment ##
 
-In order to facilitate development by different users with different systems, the picoCTF Platform uses [Vagrant](http://vagrantup.com "Vagrant") to create an identical Linux setup across platforms. Vagrant works on top of any number of different virtualization [providers](https://docs.vagrantup.com/v2/providers/ "providers"), though we recommend [VirtualBox](https://www.virtualbox.org/ "VirtualBox"), since this is the one we have tested the most. 
+In order to facilitate development by different users with different systems, the picoCTF Platform uses [Vagrant](http://vagrantup.com "Vagrant") to create an identical Linux setup across platforms. Vagrant works on top of any number of different virtualization [providers](https://docs.vagrantup.com/v2/providers/ "providers"), though we recommend [VirtualBox](https://www.virtualbox.org/ "VirtualBox"), since this is the one we have used with the most success.
 
 After installing VirtualBox and Vagrant, follow these steps to get your development environment up and running:
 
@@ -68,13 +68,13 @@ Assuming you have already created and added your problems (see next section), th
 - Change the value of `api.app.session_cookie_domain` in `api/api/config.py` to the domain you will be using to host your competition.
 - Change the value of `start_time` and `end_time` in `api/api/config.py` to the start and end dates of your competition.
 - (Optional) Add SMTP information in `api/api/config.py` to enable recovery of lost passwords
-- Edit `scripts/devploy` to replace the line `tmux new-session -s picoapi -d "cd /home/vagrant/api && python3 run.py"` with `cd /home/vagrant/api && ./gunicorn_start.sh &`. This will switch to using [Gunicorn](http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/) to run the API.
+- Edit `scripts/devploy` to replace the line `tmux new-session -s picoapi -d "cd /home/vagrant/api && python3 run.py"` with `cd /home/vagrant/api && ./gunicorn_start.sh &`. This will cause the picoCTF platform to use [Gunicorn](http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/) to run the API.
 - Run `devploy` to copy the static files to the server directory and launch the API.
-- Start the scoreboard with `python3 daemon_manager.py -i 300 cache_stats` in the `api` folder. Change 300 seconds, which represents how frequently the scoreboard graphs refresh, to whatever interval you prefer. It is recommended that you run this command under `tmux` or `screen`.
+- Start the scoreboard with `python3 daemon_manager.py -i 300 cache_stats` in the `api` folder. Change 300, which represents how the number of seconds between scoreboard refreshes, to whatever interval you prefer. It is recommended that you run this command under `tmux` or `screen`.
 
 ### <a name="quickstart-ending"></a> Ending the Competition
 
-Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at the end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final scoreboard.
+Once the competition end date (as specified in `api/api/config.py`) is reached, submissions will no longer be accepted. This may or may not be what you want to have happen at the end of your competition. For picoCTF, we leave the competition online, but fix the *scoreboard* at the end of the competition. To accomplish this, we initially set the end date to the end of the competition to ensure that the scoreboard could not be changed after the competition. We then copied the scoreboard itself as raw HTML and replaced the contents of `web/scoreboard.html` with the scoreboard dump. Finally, we moved the competition end date to an indefinite future date to re-allow submissions, knowing that they would not affect the final (now static) scoreboard.
 
 ## <a name="problems"></a> Problems
 
@@ -106,7 +106,7 @@ A grading script, written in Python, should look like this:
 
 Note that the problem loading script (`api_manager.py problems load`) makes a number of assumptions about the folder structure used to hold your problems. Suppose you want to create a new problem *My Problem* and you are storing all of your problems in ~/problems. First we make a directory for our problem, such as `/problems/misc/myproblem`. Now we place our *problem.json* file at `/problems/misc/myproblem/problem.json` and our grading script at `/problems/misc/myproblem/grader/grader.py`. Now we double check that our "grader" path in *problem.json* points to the grader. Note that this path is NOT an absolute path. It instead has the following format: if our grader is at `[problem directory]/[path to problem in problem directory]/grader/[grader name]`, then the "grader" path should be set to `[path to problem in problem directory]/[grader name]`. Thus, for `/problems/misc/myproblem/grader/grader.py`, we use `misc/myproblem/grader.py`.
 
-The "threshold" and "weightmap" fields are used to manage problem unlocking. If you would like a problem to always be available, set "threshold" to 0 and "weightmap" to `{}`. Suppose we have four problems "A", "B", "C", and "D". If we want to make "D" unlock if any 2 of "A", "B", or "C" are solved, we set the "weightmap" to `{"A": 1, "B": 1, "C": 1}` since all these problems are weighted equally and "threshold" to 2, since we want to unlock the problem when any two problems are solved.
+The "threshold" and "weightmap" fields are used to manage problem unlocking. If you would like a problem to always be available, set "threshold" to 0 and "weightmap" to `{}`. Suppose we have four problems "A", "B", "C", and "D". If we want to make "D" unlock if any 2 of "A", "B", or "C" are solved, we set the "weightmap" to `{"A": 1, "B": 1, "C": 1}`, since all these problems are weighted equally, and "threshold" to 2, since we want to unlock the problem when any two problems are solved.
 
 Some problems need to provide additional files for the user to view or download (binaries, encrypted messages, images, etc.). To add static files to your problem, add a *static* folder in the directory for that problem (`/problems/misc/myproblem/static/`, for example) and place any files in that directory that you want to serve statically. Then, in your problem description (or hint), you can link to this file using the URL `/problem-static/[path to problem in problems directory]/[file name]`. Look at the example problem `Sdrawkcab` to see this in action.
 
@@ -114,9 +114,9 @@ Some problems need to provide additional files for the user to view or download 
 
 Automatically generated (autogen) problems allow different teams to receive different versions of the same challenge. For example, the picoCTF 2014 problem `Substitution` (a substitution cipher problem) uses different letter mappings and Disney song lyrics for different problem instances. This has numerous advantages, including the prevention and detection of flag sharing between teams.
 
-Before deploying a competition, you need to generate some number of autogen problem instances per problem which will serve as the pool of possible version of the problem that a team can get. During the competition, teams will randomly be assigned an autogen instance from the pool of available instances.
+Before deploying a competition, you need to generate some number of autogen problem instances per autogen problem. These instances will serve as a pool of possible versions of the problem. During the competition, teams will randomly be assigned one autogen instance from the pool of available instances.
 
-Whereas basic problems have just a *grader* script, autogen problems have both a *grader* and a *generator*. The *generator* contains code for producing all of the content needed for a given problem instance. The *grader*, as in basic problems, is used to determine whether an flag submitted by a user for a given problem instance is correct.
+Whereas basic problems have just a *grader* script, autogen problems have both a *grader* and a *generator* script. The *generator* contains code for producing all of the content needed for a given problem instance. The *grader*, as with basic problems, is used to determine whether an flag submitted by a user for a given problem instance is correct.
 
 The `Hidden Message` problem under `example_problems` contains example code for creating an autogen problem. We will use this as a working example of how to develop an autogen problem.
 
@@ -131,7 +131,7 @@ The `generate` function should return a dictionary with three fields: "resource_
 
 *Graders* must implement the following function signature: `grade(autogen, key)`, where each argument is as follows:
 
-- *autogen*: An instance of the `GraderProblemInstance` class defined in `api/api/autogen`. Notably it has the field `instance` which gives you the instance number (same as `n` in the generator). 
+- *autogen*: An instance of the `GraderProblemInstance` class defined in `api/api/autogen.py`. Notably it has the field `instance` which gives you the instance number (same as `n` in the generator).
 - *key*: The flag submitted by the user to be checked for correctness
  
 Graders return a boolean, string pair as with basic problems.
@@ -160,9 +160,9 @@ Note that autogen problems must set two additional fields in the `problem.json` 
 
 ### <a name="problems-categories"></a> Problem Categories
 
-The category of a problem is specified in the "category" field of the `problem.json` file. Note that there is not a fixed set of categories; you may use any free-form category name. Many features, such as the code to generate problem statistics, will group problems by category name. Thus, it is useful to make sure that you are consistent in your spelling and formatting for each category.
+The category of a problem is specified in the "category" field of the `problem.json` file. Note that there is not a fixed set of categories; you may use any free-form category name. Many features, such as the code to generate problem statistics, will group problems by category name. Thus, it is useful to make sure that you are consistent in your spelling and formatting for each category name.
 
-If you plan on using both the existing achievements and different categories than picoCTF, you will need to edit the "Category Completion" and "Category Solved 5" achievements based on your new names.
+If you plan on using the existing achievements from picoCTF, you will need to edit the "Category Completion" and "Category Solved 5" achievements based on your new category names.
 
 ### <a name="problems-loading"></a> Loading Problems
 
@@ -186,8 +186,11 @@ In order to update problems, you must first remove the old version of the proble
 
 1. Run `mongo pico`
 2. Enter `db.problems.remove()` in the MongoDB terminal
+3. Enter `db.submissions.remove()` in the MongoDB terminal (deletes all problem submissions)
 
 Once you have removed the problems, you can load in the new versions as described in the previous section. If any autogen problems have been deleted, you will also need to rebuild the autogen instances.
+
+**Note on updating problems during the live competition**: During the competition, you may want to update problems without clearing out all submissions (step three above). Existing submissions will be correctly associated with an updated problem if both the new and old problem share *exactly the same name*. Thus, if you want to update a problem, but not its name, you need not delete existing submissions. If you change the problem name, you **must** delete existing submissions, or users will receive errors on the "Problems" page. Note that if you change a problem's *grader* and keep existing submissions they will not be reevaluated using the new grader. In other words, if you keep existing submissions to a problem, all correct submissions will always remain correct for the new version of the problem.
 
 ## <a name="customizingsite"></a> Customizing the Site
 
@@ -217,7 +220,7 @@ In order to add a new page to the site, create a new HTML document under `web` w
 
 Note that both the `post_scripts` field and the `startup_functions` field can be omitted altogether. Check out `web/about.html` and `web/shell.html` for good examples of simple pages.
 
-You may want to make it so that you do not have to include ".html" in the URL for your new page. `web/about.html`, for example, is served from `127.0.0.1:8080/about`. In order to add an alias for your page go to `config/ctf.nginx` and add the name of your page to the list of existing pages with rewrite rules:
+You may want to make it so that you do not have to include ".html" in the URL for your new page. `web/about.html`, for example, is served from `127.0.0.1:8080/about` as well as `127.0.0.1:8080/about.html`. In order to add an alias for your page, go to `config/ctf.nginx` and add the name of your page to the list of existing pages with rewrite rules:
 
 	    location ~ ^/(problems|login|chat|logout|compete|...|contact|mynewpage)$
         {
@@ -241,7 +244,7 @@ All of the links displayed in different contexts are defined in the CoffeeScript
 	    Manage: "/account"
 	    Logout: "#"
 
-This defines the navbar that will be displayed for a teacher account that is logged in outside of the competition dates (defined in `api/api/config.py`). The "key" dictates the text that appears on the navbar button, while the "value" serves as the link target. Note that you can nest these definitions (as with "Account") to create navbar items with dropdown menus. Note that generated navbar buttons have predictable names ("navbar-item-" + lower case button text with spaces replaced with underscores) if you want to bind JavaScript functions to them (as is the case with "Logout"). 
+This defines the navbar that will be displayed for a teacher account that is logged in outside of the competition dates (defined in `api/api/config.py`). The dictionary "keys" dictate the text that appears on the navbar buttons, while the "values" serve as the link targets. Note that you can nest these definitions (as with "Account") to create navbar items with dropdown menus. Generated navbar buttons have predictable names ("navbar-item-" + lower case button text with spaces replaced with underscores) if you want to bind JavaScript functions to them (as is done with "Logout").
 
 ### <a name="customizingsite-options"></a> Configuring Site Options
 
@@ -319,7 +322,7 @@ The `data` dictionary has the following values based on the event:
 
 Processor scripts are expected to return a pair where the first value is a boolean indicating whether or not the achievement has been earned, and the second is a dictionary with values to change in the achievement (for multi-achievements). 
 
-Now consider the following simple processor that awards an achievement when a team gets more than 100 points:
+Consider the following simple processor that awards an achievement when a team gets more than 100 points:
 
 ```python
 	def process(api, data):
@@ -365,18 +368,19 @@ Like problems, achievements are loaded via the `api_manager.py` script. In the `
 
 	python3 api_manager.py -v achievements load achievements/*.json
 
-Assuming you store all of your achievements in the `api/achievements` folder. As always, you will need to run `devploy` for your changes to take effect.
+This assumes that you store all of your achievements in the `api/achievements` folder. As always, you will need to run `devploy` for your changes to take effect.
 
 ### <a name="achievements-removing"></a> Removing Achievements
 
 Achievements must be removed directly from the database. To remove all of the achievements, perform the following steps:
 
 1. Run `mongo pico`
-2. In the mongo terminal, run `db.achievements.remove()`
+2. In the MongoDB terminal, run `db.achievements.remove()`
+3. In the MongoDB terminal, run `db.earned_acheivements.remove()`
 
 ## <a name="competitiondata"></a> Working with Competition Data
 
-There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the relevant api endpoint in Python or communicate with the Mongo database directly.
+There is currently no web interface for competition organizers. This means that in order to access non-public data about the competition, you will need to directly call the relevant API endpoint in Python or communicate with the MongoDB database directly.
 
 ### <a name="competitiondata-api"></a> Running API Commands Directly
 
@@ -384,7 +388,7 @@ The Python API is designed to run out of the `api` folder (not to be confused wi
 
 ### <a name="competitiondata-stats"></a> Getting Statistics
 
-The `api/api/stats.py` file provides a number of useful statistics gathering functions for the picoCTF Platform. You can obtain most of the interesting statistics by running the function `get_stats`.
+The `api/api/stats.py` file provides a number of useful statistics-gathering functions for the picoCTF Platform. You can obtain most of the interesting statistics by running the function `get_stats()`.
 
 Note that with the exception of the scoreboard functionality, the functions in `api/api/stats.py` are designed to be run by an administrator in the background and are likely too slow to be served directly to users.  
 
@@ -402,6 +406,8 @@ As a competition organizer, you may want to disable specific user accounts. Disa
 
 You can re-enable a user with a similar command. Note, however, that doing so may allow a team to have more members than allowed by the team limit.
 
+We strongly recommend against removing a user from the database altogether, as submission and achievement logs reference specific users in the database and may behave incorrectly if the relevant users are not present in the database.
+
 ### <a name="competitiondata-disqualifying"></a> Disqualifying Teams
 
 Rather than disabling accounts, you may simply want to mark a team as *ineligible* (not on the public scoreboard). To mark a team as disqualified, use the following command in the MongoDB terminal:
@@ -414,13 +420,13 @@ Note that to actually mark the team as ineligible, you will need to run the `det
 
 The picoCTF Platform supports the notion of teams that are *eligible* and teams that are *ineligible*. The key difference between these two team types is that ineligible teams do not show up on the main scoreboard. Ineligible teams may, however, show up on Classroom scoreboards. Some of the included achievements also rely on eligibility. The "Breakthrough" achievement, for example, is earned by the first *eligible* team that solves a given challenge.
 
-A team is *eligible* if ever member of the team meets a certain set of criteria. By default, the requirement is that each team member must be a middle or high school student from the United States. For the picoCTF Platform, there is no requirement by default. To adjust the eligibility criteria, you will need to modify the code in several places.
+A team is *eligible* if every member of the team meets a certain set of criteria. For picoCTF, the requirement is that each team member must be a middle or high school student from the United States. For the picoCTF Platform, there is no requirement by default. To adjust the eligibility criteria, you will need to modify the code in several places.
 
 First, edit the `eligible = True` line in the `create_user_request` function in `api/api/user.py`. picoCTF 2014, for example, has the following line instead:
 
 	eligible = params['country'] == "US" and params['background'] in ['student_el', 'student_ms', 'student_hs', 'student_home']
 
-Whenever the member's of team change, the function `determine_eligibility` in `/api/api/team.py` is called to determine if the team is still eligible. In order to add eligibility restrictions, you will need to edit this function as well. Some example code is included as comments in this function. Note that the `determine_eligibility`   also returns a set of 'justifications'. These are displayed to the user on the "Team" page to explain why a team is not considered eligible.
+Whenever the members of team change, the function `determine_eligibility` in `/api/api/team.py` is called to determine if the team is still eligible. In order to add eligibility restrictions, you will need to edit this function as well. Some example code is included as comments in this function. Note that the `determine_eligibility`   also returns a set of 'justifications'. These are displayed to the user on the "Team" page to explain why a team is not considered eligible.
 
 ### <a name="eligibility-other"></a> Other Cases
 
