@@ -99,7 +99,7 @@ api.utilities.from_name = ""
 
 """ CAPTCHA """
 enable_captcha = False
-captcha_url = "http://www.google.com/recaptcha/api/verify"
+captcha_url = "https://www.google.com/recaptcha/api/siteverify"
 reCAPTCHA_private_key = ""
 
 

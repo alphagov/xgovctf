@@ -2,7 +2,7 @@
 API functions relating to user management and registration.
 """
 
-import bcrypt, re, urllib, flask
+import bcrypt, re, urllib.parse, urllib.request, flask, json
 
 import api
 
@@ -219,15 +219,15 @@ def _validate_captcha(data):
     """
 
     post_data = urllib.parse.urlencode({
-        "privatekey": api.config.reCAPTCHA_private_key,
-        "remoteip": flask.request.remote_addr,
-        "challenge": data["recaptcha_challenge_field"],
-        "response": data["recaptcha_response_field"]
+        "secret": api.config.reCAPTCHA_private_key,
+        "response": data["g-recaptcha-response"],
+        "remoteip": flask.request.remote_addr
     }).encode("utf-8")
 
-    request = urllib.request.Request(api.config.captcha_url, post_data)
+    request = urllib.request.Request(api.config.captcha_url, post_data, method='POST')
     response = urllib.request.urlopen(request).read().decode("utf-8")
-    return response.split("\n")[0].lower() == "true"
+    parsed_response = json.loads(response)
+    return parsed_response['success'] == True
 
 @log_action
 def create_user_request(params):
