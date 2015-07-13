@@ -5,7 +5,7 @@ reloadCaptcha = ->
   .done (data) ->
     console.log(data.data.enable_captcha)
     if data.data.enable_captcha
-        Recaptcha.reload()
+        grecaptcha.reset()
     ga('send', 'event', 'Registration', 'NewCaptcha')
 
 
@@ -68,7 +68,7 @@ submitRegistration = (e) ->
       when 0
         $(submitButton).apiNotify(data, {position: "right"})
         ga('send', 'event', 'Registration', 'Failure', logType + "::" + data.message)
-        reloadCaptcha()
+        grecaptcha.reset()
       when 1
         ga('send', 'event', 'Registration', 'Success', logType)
         if creatingTeacherAccount
@@ -80,7 +80,7 @@ $ ->
   apiCall "GET", "/api/user/status", {}
   .done (data) ->
     if data.data.enable_captcha
-        Recaptcha.create(recaptchaPublicKey, "captcha", { theme: "red" })
+        grecaptcha.render("captcha", { "sitekey": recaptchaPublicKey })
 
   $("#user-registration-form").on "submit", submitRegistration
 
