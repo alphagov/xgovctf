@@ -9,12 +9,12 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="EMAIL" elementType="Argument">
             <stringProp name="Argument.name">EMAIL</stringProp>
-            <stringProp name="Argument.value">peter@cmu.edu</stringProp>
+            <stringProp name="Argument.value">rragsdale@cmu.edu</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NAME" elementType="Argument">
             <stringProp name="Argument.name">NAME</stringProp>
-            <stringProp name="Argument.value">Peter</stringProp>
+            <stringProp name="Argument.value">Roy</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="SCHOOL" elementType="Argument">

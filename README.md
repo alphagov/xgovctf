@@ -90,9 +90,9 @@ Copyright: Carnegie Mellon University
 
 License: MIT
 
-Maintainers: Peter Chapman, Jonathan Burket
+Maintainers: Roy Ragsdale
 
 Credits: David Brumley, Tim Becker, Chris Ganas, Peter Chapman, Jonathan Burket
 
-Email: peter@cmu.edu, jburket@cmu.edu
+Email: rragsdale@cmu.edu
 
