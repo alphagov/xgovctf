@@ -26,7 +26,7 @@ npm install -g jsxhint
 pip3 install -r /home/vagrant/api/requirements.txt
 
 # Jekyll
-gem install jekyll
+gem install jekyll -v 2.5.3
 
 # Configure Environment
 echo 'PATH=$PATH:/home/vagrant/scripts' >> /etc/profile
