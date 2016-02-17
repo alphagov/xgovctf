@@ -18,6 +18,7 @@
 	- [Configuring Site Options](#customizingsite-options)
 	- [CoffeeScript](#customizingsite-coffeescript)
 	- [Adding Google Analytics](#customizingsite-analytics)
+	- [Adding a favicon](#customizingsite-favicon)
 - [Achievements](#achievements)
 	- [Creating a Processor Script](#achievements-script)
 	- [Loading Achievements](#achievements-loading)
@@ -278,6 +279,10 @@ Client-side events can be recorded for use with [Google Analytics](http://www.go
 	</script>
 
 Then change `mode: development` to `mode: production` in `_config.yml` to enable Analytics. Note that we currently only support the ["Universal Analytics"](https://support.google.com/analytics/answer/2790010?hl=en) method and not the "Classic" method of Google Analytics.
+
+### <a name="customizingsite-favicon"></a> Adding a favicon
+
+Simplest way is to add a `<link rel="icon" href="/path/to/favicon.ico" />` in `/web/_includes/head.html`. This is included in the default layout and will be used for all the pages.
 
 ## <a name="achievements"></a> Achievements 
 

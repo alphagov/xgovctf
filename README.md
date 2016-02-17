@@ -48,7 +48,7 @@ All tests should pass with your changes.
 Getting Started
 ---------------
 
-A detailed explanaion of the basics of the picoCTF Platform 2 can be found in our Getting Started Guide (GettingStarted.md).
+A detailed explanation of the basics of the picoCTF Platform 2 can be found in our [Getting Started Guide](GettingStarted.md).
 
 
 Contact
