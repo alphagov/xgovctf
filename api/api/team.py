@@ -242,13 +242,18 @@ def determine_eligibility(tid=None):
     else:
         eligible = True
         justification = []
-        for member in members:
-            if member['background'] not in set(['student_hs', 'student_ms', 'student_el', 'student_home']):
-                eligible = False
-                justification.append("User %s is not a middle or high school student" % member['username'])
-            if member['country'] != "US":
-                eligible = False
-                justification.append("User %s is not from the United States" % member['username'])
+
+        # By default, all teams (other than teacher teams or disqualified teams) are marked as
+        # eligible. The following code demonstrates how to make it so only middle and high
+        # school students from the US are eligible.
+        #
+        # for member in members:
+        #    if member['background'] not in set(['student_hs', 'student_ms', 'student_el', 'student_home']):
+        #        eligible = False
+        #        justification.append("User %s is not a middle or high school student" % member['username'])
+        #    if member['country'] != "US":
+        #        eligible = False
+        #        justification.append("User %s is not from the United States" % member['username'])
     db.teams.update({'tid': tid}, {'$set': {'eligible': eligible, 'justification': justification}})
     return eligible
 
