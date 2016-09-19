@@ -23,16 +23,28 @@ npm install -g coffee-script
 npm install -g react-tools
 npm install -g jsxhint
 
-pip3 install -r /home/vagrant/api/requirements.txt
+if [ -d /home/vagrant ]; then
+  export VAGRANT_PATH = /home/vagrant
+else
+  export VAGRANT_PATH = $(cd $(dirname $0)/..; pwd)
+fi
+
+pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
 
 # Jekyll
 gem install jekyll -v 2.5.3
 
 # Configure Environment
-echo 'PATH=$PATH:/home/vagrant/scripts' >> /etc/profile
+echo "PATH=$PATH:${VAGRANT_PATH}/scripts" >> /etc/profile
+echo "export VAGRANT_PATH=${VAGRANT_PATH}" >> /etc/profile
+
+pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
+
+# Jekyll
+gem install jekyll -v 2.5.3
 
 # Configure Nginx
-cp /vagrant/config/ctf.nginx /etc/nginx/sites-enabled/ctf
+cp ${VAGRANT_PATH}/config/ctf.nginx /etc/nginx/sites-enabled/ctf
 rm /etc/nginx/sites-enabled/default
 mkdir -p /srv/http/ctf
 service nginx restart
