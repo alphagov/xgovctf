@@ -24,9 +24,9 @@ npm install -g react-tools
 npm install -g jsxhint
 
 if [ -d /home/vagrant ]; then
-  export VAGRANT_PATH = /home/vagrant
+  export VAGRANT_PATH=/home/vagrant
 else
-  export VAGRANT_PATH = $(cd $(dirname $0)/..; pwd)
+  export VAGRANT_PATH=$(cd $(dirname $0)/..; pwd)
 fi
 
 pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
