@@ -5,27 +5,17 @@ server {
 
 	error_page 404  =  /404.html;
 
-        location = / {
-                default_type text/html;
-                index  index.html;
-        }
-
-        location ~
-^/(problems|login|chat|logout|compete|registration|team|scoreboard|classroom|account|reset|shell|faq|news|contact|teachers|game-preview|sponsors|about|learn|promotional|tshirts)$
-        {
-            default_type text/html;
-            alias /srv/http/ctf/$1.html;
-        }
 
         location ~ /problem-static/ {
             default_type application/octet-stream;
         }
 
-        location ~ /api/ {
+
+        location ~ / {
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_pass http://localhost:8000;
+            proxy_pass http://localhost:8001;
             proxy_redirect off;
         }
 }

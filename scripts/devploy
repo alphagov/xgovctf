@@ -36,3 +36,8 @@ ${VAGRANT_PATH}/api/api_manager.py database clear cache
 echo "Starting the picoCTF API"
 tmux kill-session -t picoapi 2> /dev/null
 tmux new-session -s picoapi -d "cd ${VAGRANT_PATH}/api && python3 run.py"
+
+#Start picoCTF API
+echo "Starting the picoCTF FlaskWeb"
+tmux kill-session -t flaskweb 2> /dev/null
+tmux new-session -s flaskweb -d "cd ${VAGRANT_PATH}/flaskweb && python3 run.py"

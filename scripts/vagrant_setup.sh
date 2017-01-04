@@ -30,6 +30,7 @@ else
 fi
 
 pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
+pip3 install -r ${VAGRANT_PATH}/flaskweb/requirements.txt
 
 # Jekyll
 gem install jekyll -v 2.5.3
@@ -44,7 +45,7 @@ pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
 gem install jekyll -v 2.5.3
 
 # Configure Nginx
-cp ${VAGRANT_PATH}/config/ctf.nginx /etc/nginx/sites-enabled/ctf
+ln -s ${VAGRANT_PATH}/config/ctf.nginx /etc/nginx/sites-enabled/ctf
 rm /etc/nginx/sites-enabled/default
 mkdir -p /srv/http/ctf
 service nginx restart
