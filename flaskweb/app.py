@@ -3,7 +3,7 @@ Flask routing
 """
 
 import os
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 from werkzeug.contrib.fixers import ProxyFix
 
 app = Flask(__name__, static_path="/static")
@@ -49,8 +49,10 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
+    if request.method == "POST":
+        app.logger.error("{}".format(request.form))
     return render_template("register.html")
 
 
