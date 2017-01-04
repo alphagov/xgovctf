@@ -23,11 +23,7 @@ npm install -g coffee-script
 npm install -g react-tools
 npm install -g jsxhint
 
-if [ -d /home/vagrant ]; then
-  export VAGRANT_PATH=/home/vagrant
-else
-  export VAGRANT_PATH=$(cd $(dirname $0)/..; pwd)
-fi
+export VAGRANT_PATH=/vagrant
 
 pip3 install -r ${VAGRANT_PATH}/api/requirements.txt
 pip3 install -r ${VAGRANT_PATH}/flaskweb/requirements.txt
