@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# Add repository for newer ruby versions
+apt-add-repository ppa:brightbox/ruby-ng
+
 # Updates
 apt-get -y update
 apt-get -y upgrade
 
 # CTF-Platform Dependencies
+apt-get -y install ruby2.2
 apt-get -y install python3-pip
 apt-get -y install nginx
 apt-get -y install mongodb
@@ -14,7 +18,7 @@ apt-get -y install libzmq-dev
 apt-get -y install nodejs-legacy
 apt-get -y install npm
 apt-get -y install libclosure-compiler-java
-apt-get -y install ruby-dev
+apt-get -y install ruby2.2-dev
 apt-get -y install dos2unix
 apt-get -y install tmux
 apt-get -y install openjdk-7-jdk
