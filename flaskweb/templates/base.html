@@ -66,9 +66,15 @@
       <a href='/' id='proposition-name'>X-Gov-CTF</a>
       <ul id='proposition-links'>
         {% block links %}
-        <li><a href='/login' class='active'>Login</a></li>
-        <li><a href='/register'>Register</a></li>
-        <li><a href='/scoreboard'>Scoreboard</a></li>
+          {% if session["token"] %}
+            <li><a href='/logout'>Logout</a></li>
+            <li><a href='/problems'>Problems</a></li>
+            <li><a href='/scoreboard'>Scoreboard</a></li>
+          {% else %}
+            <li><a href='/login'>Login</a></li>
+            <li><a href='/register'>Register</a></li>
+            <li><a href='/scoreboard'>Scoreboard</a></li>
+          {% endif %}
         {% endblock %}
       </ul>
     </nav>

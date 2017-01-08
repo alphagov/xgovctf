@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="content" role="main">
+  <h1 class="heading-large">Scores</h1>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Team</th>
+        <th class="numeric" scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for team in scores.public %}
+      <tr>
+        <td>{{team.name}}</td>
+        <td class="numeric">{{team.score}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</main>
+{% endblock %}

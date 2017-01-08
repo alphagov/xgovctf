@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="content" role="main">
+  <h1 class="heading-large">Problem: {{problem.name}} ({{problem.score}})</h1>
+
+  <div class="grid-row">
+    <div class="column-full">
+      <p>{{problem.description|safe}}</p>
+    </div>
+    <div class="column-full">
+      <p>Score: {{problem.score}}</p>
+    </div>
+  </div>
+  <div class="grid-row">
+    <div class="column-full">
+    <form action="" method="post" class="form">
+      <div class="form-section">
+        <div class="form-group">
+          <label class="form-label" for="solution">Solution</label>
+          <input class="form-control" name="solution" type="text"
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-group">
+          <input class="button" type="submit" value="Submit">
+        </div>
+      </div>
+    </form>
+  </div>
+  </div>
+</main>
+{% endblock %}

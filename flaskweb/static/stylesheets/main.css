@@ -2127,3 +2127,7 @@ input[type=number] {
     display: revert;
   }
 }
+
+.problem {
+  padding: 5px;
+}

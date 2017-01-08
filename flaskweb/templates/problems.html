@@ -5,15 +5,16 @@
 
   <h2 class="heading-large">User Info</h1>
   <div class="grid-row">
+    <div class="column-full">
 
     <p>You are in team: {{team_info.team_name}}</p>
-    <p>Other members {{team_info.size}}/{{team_info.max_team_size}}:
-      <ul>
+    <p>Score: {{team_info.score}}</p>
+    <p>Members:
       {% for user in team_info.members %}
-        <li>{{user}}</li>
+        <span>{{user}}</span>
       {% endfor %}
-      </ul>
     </p>
+  </div>
   </div>
 
   <h2 class="heading-large">Problems</h1>
@@ -22,9 +23,12 @@
       <div class="column-one-third">
         <h3 class="heading-medium">{{group.grouper}}</h3>
         {% for problem in group.list %}
-          <h3 class="heading-small">{{problem.name}}</h3>
+        <div class="problem" {% if problem.solved %}style="background: #85994B
+"{% endif %}>
+          <h3 class="heading-small"><a href="/problem/{{problem.pid}}">{{problem.name}}</a></h3>
           <p>{{problem.description|safe}}</p>
           <p>Score: {{problem.score}}</p>
+        </div>
         {% endfor %}
       </div>
     {% endfor %}

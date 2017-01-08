@@ -18,6 +18,31 @@ session_cookie_name = "flask"
 secret_key = "not_a_real_secret"
 
 
+def api_get(path):
+    if "token" in session:
+        token = session["token"]
+        response = requests.get("http://127.0.0.1:8000" + path,
+            cookies={
+                "token": token,
+                "flask": session["api-session"]
+            })
+        app.logger.info(response.text)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            abort(response.status_code)
+    else:
+        response = requests.get("http://127.0.0.1:8000" + path)
+        app.logger.info(response.text)
+        if response.status_code == 200:
+            if "token" in response.cookies:
+                session["token"] = response.cookies["token"]
+                session["api-session"] = response.cookies["flask"]
+            return response.json()
+        else:
+            abort(response.status_code)
+
+
 def config_app(*args, **kwargs):
     """
     Return the app object configured correctly.
@@ -68,7 +93,7 @@ def register():
             r = requests.post("http://localhost:8000/api/user/create", data=post_data)
             resp = r.json()
             if resp["status"] == 1:
-                app.logger.info("User created "+r.text)
+                app.logger.info("User created " + r.text)
                 session["token"] = r.cookies["token"]
                 return redirect("/problems")
             else:
@@ -92,7 +117,7 @@ def register():
             r = requests.post("http://localhost:8000/api/user/create", data=post_data)
             resp = r.json()
             if resp["status"] == 1:
-                app.logger.info("User created "+r.text)
+                app.logger.info("User created " + r.text)
                 session["token"] = r.cookies["token"]
                 return redirect("/problems")
             else:
@@ -113,8 +138,6 @@ def login():
         r = requests.post("http://127.0.0.1:8000/api/user/login", data=post_data)
         resp = r.json()
         if resp["status"] == 1:
-            app.logger.info(r.cookies)
-            app.logger.info(r.cookies.get("flask"))
             session["token"] = r.cookies["token"]
             session["api-session"] = r.cookies["flask"]
             return redirect("/problems")
@@ -125,31 +148,69 @@ def login():
         return render_template("login.html")
 
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
 @app.route("/problems")
 def problems():
-    if "token" in session:
-        token = session["token"]
-        team_info = requests.get("http://localhost:8000/api/team", cookies={"token": token, "flask": session["api-session"]})
-        app.logger.info(team_info.text)
-
-        status = requests.get("http://localhost:8000/api/user/status", cookies={"token": token, "flask": session["api-session"]})
-        app.logger.info(status.text)
-
-        problems = requests.get("http://localhost:8000/api/problems", cookies={"token": token, "flask": session["api-session"]})
-        app.logger.info(problems.text)
-
-        return render_template("problems.html", team_info=team_info.json()["data"], status=status.json()["data"], problems=problems.json()["data"])
-    else:
+    if "token" not in session:
         return redirect("/")
+
+    team_info = api_get("/api/team")
+    status = api_get("/api/user/status")
+    problems = api_get("/api/problems")
+
+    return render_template("problems.html",
+        team_info=team_info["data"],
+        status=status["data"],
+        problems=problems["data"])
+
+
+@app.route("/problem/<pid>", methods=["GET", "POST"])
+def problem(pid):
+    if "token" not in session:
+        return redirect("/")
+    if request.method == "POST":
+        r = requests.post("http://127.0.0.1:8000/api/problems/submit",
+            data={
+                "pid": pid,
+                "key": request.form["solution"],
+            },
+            cookies={
+                "token": session["token"],
+                "flask": session["api-session"]
+            })
+        app.logger.info(r.text)
+        app.logger.info(r.status_code)
+        resp = r.json()
+        if resp.get("status", 0) == 0:
+            flash(resp.get("message", "That's not the correct answer"))
+            return redirect("/problem/" + pid)
+        else:
+            return redirect("/problems")
+    else:
+        problem = api_get("/api/problems/" + pid)
+        return render_template("problem.html",
+            problem=problem["data"])
+
+
+@app.route("/scoreboard")
+def scoreboard():
+    scores = api_get("/api/stats/scoreboard")
+    return render_template("scoreboard.html", scores=scores["data"])
 
 
 @app.route("/api/autogen/serve/<path>")
 def serve(path):
-    if "token" in session:
-        app.logger.info(path)
-        token = session["token"]
-        content = requests.get("http://127.0.0.1:8000/api/autogen/serve/"+path, cookies={"token": token, "flask": session["api-session"]}, params=request.args)
-        app.logger.info(content.text)
-        return content.text
-    else:
-        return abort(400)
+    if "token" not in session:
+        return redirect("/")
+
+    content = requests.get("http://127.0.0.1:8000/api/autogen/serve/" + path,
+        cookies={
+            "token": session["token"],
+            "flask": session["api-session"]},
+        params=request.args)
+    return content.text
