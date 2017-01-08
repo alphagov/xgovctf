@@ -18,8 +18,15 @@
 
   <h2 class="heading-large">Problems</h1>
   <div class="grid-row">
-    {% for problem in problems %}
-    <p>{{problem.description}}</p>
+    {% for group in problems|groupby("category") %}
+      <div class="column-one-third">
+        <h3 class="heading-medium">{{group.grouper}}</h3>
+        {% for problem in group.list %}
+          <h3 class="heading-small">{{problem.name}}</h3>
+          <p>{{problem.description|safe}}</p>
+          <p>Score: {{problem.score}}</p>
+        {% endfor %}
+      </div>
     {% endfor %}
   </div>
 </main>

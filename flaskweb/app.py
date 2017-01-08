@@ -2,7 +2,7 @@
 Flask routing
 """
 
-from flask import Flask, request, render_template, flash, redirect, session
+from flask import Flask, request, render_template, flash, redirect, session, abort
 from werkzeug.contrib.fixers import ProxyFix
 import requests
 
@@ -130,8 +130,26 @@ def problems():
     if "token" in session:
         token = session["token"]
         team_info = requests.get("http://localhost:8000/api/team", cookies={"token": token, "flask": session["api-session"]})
+        app.logger.info(team_info.text)
+
         status = requests.get("http://localhost:8000/api/user/status", cookies={"token": token, "flask": session["api-session"]})
+        app.logger.info(status.text)
+
         problems = requests.get("http://localhost:8000/api/problems", cookies={"token": token, "flask": session["api-session"]})
+        app.logger.info(problems.text)
+
         return render_template("problems.html", team_info=team_info.json()["data"], status=status.json()["data"], problems=problems.json()["data"])
     else:
         return redirect("/")
+
+
+@app.route("/api/autogen/serve/<path>")
+def serve(path):
+    if "token" in session:
+        app.logger.info(path)
+        token = session["token"]
+        content = requests.get("http://127.0.0.1:8000/api/autogen/serve/"+path, cookies={"token": token, "flask": session["api-session"]}, params=request.args)
+        app.logger.info(content.text)
+        return content.text
+    else:
+        return abort(400)
