@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="content" role="main">
+  <h1 class="heading-large">Problems</h1>
+
+  <h2 class="heading-large">User Info</h1>
+  <div class="grid-row">
+
+    <p>You are in team: {{team_info.team_name}}</p>
+    <p>Other members {{team_info.size}}/{{team_info.max_team_size}}:
+      <ul>
+      {% for user in team_info.members %}
+        <li>{{user}}</li>
+      {% endfor %}
+      </ul>
+    </p>
+  </div>
+
+  <h2 class="heading-large">Problems</h1>
+  <div class="grid-row">
+    {% for problem in problems %}
+    <p>{{problem.description}}</p>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

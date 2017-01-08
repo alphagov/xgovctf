@@ -82,6 +82,16 @@
 
 
     <div id="global-header-bar"></div>
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="error-summary" role="group" aria-labelledby="error-summary-heading-example-1" tabindex="-1">
+    {% for message in messages %}
+    <h1 class="heading-medium error-summary-heading" id="error-summary-heading-example-1">
+      {{ message }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
 
 {% block content %}
 {% endblock %}
@@ -110,18 +120,6 @@
         </div>
       </div>
     </footer>
-
-    {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div id="global-app-error" class="app-error">
-      <ul>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-  {% endwith %}
 
     <script src="/static/javascripts/govuk-template.js"></script>
     <script src="/static/javascripts/vendor/jquery-1.11.0.min.js"></script>

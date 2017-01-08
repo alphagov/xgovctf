@@ -3,83 +3,79 @@
 <main id="content" role="main">
   <h1 class="heading-large">Register a new account</h1>
   <form action="/register" method="post" class="form">
-    <!-- <div class="form-section">
-      <p>Please provide a name for the scoreboard</p>
-      <div class="form-group">
-        <label class="form-label" for="firstname">First name</label>
-        <input class="form-control" id="firstname" type="text"
-      </div>
-    </div>
-    <div class="form-section">
-      <div class="form-group">
-        <label class="form-label" for="lastname">Last name</label>
-        <input class="form-control" id="lastname" type="text"
-      </div>
-    </div> -->
-
     <div class="form-section">
       <p>Please provide login details</p>
       <div class="form-group">
         <label class="form-label" for="username">Username</label>
-        <input class="form-control" id="username" type="text">
+        <input class="form-control" name="username" type="text">
       </div>
     </div>
+
     <div class="form-section">
       <div class="form-group">
         <label class="form-label" for="password">Password</label>
-        <input class="form-control" id="password" type="password">
+        <input class="form-control" name="password" type="password">
       </div>
     </div>
+
     <div class="form-section">
       <p>Please provide an email address for password reset emails</p>
       <div class="form-group">
         <label class="form-label" for="email">Email</label>
-        <input class="form-control" id="email" type="email">
+        <input class="form-control" name="email" type="email">
       </div>
     </div>
 
     <div class="form-section">
       <div class="form-group">
-          <legend class="">Do you need to create a team?</legend>
-          <label class="block-label selection-button-radio" for="create-team" data-target="create-team-subform">
-           <input id="create-team" type="radio" name="create-team" value="Yes">
-           Yes
-          </label>
-          <div class="panel panel-border-narrow js-hidden" id="create-team-subform">
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label" for="create-team-name">Team name</label>
-                <input class="form-control" name="create-team-name" type="text" id="create-team-name">
-              </div>
-            </div>
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label" for="create-team-password">Team password</label>
-                <input class="form-control" name="create-team-password" type="password" id="create-team-password">
-              </div>
-            </div>
-          </div>
-          <label class="block-label selection-button-radio" for="select-team" data-target="select-team-subform">
-           <input id="select-team" type="radio" name="create-team" value="No">
-           No
-          </label>
-          <div class="panel panel-border-narrow js-hidden" id="select-team-subform">
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label" for="team-name">Team name</label>
-                <input class="form-control" id="team-name" type=text>
+        <legend class="">Do you need to create a team?</legend>
+        <label class="block-label selection-button-radio" for="create-team" data-target="create-team-subform">
+         <input id="create-team" type="radio" name="create-team" value="Yes">
+         Yes
+        </label>
 
-              </div>
-            </div>
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label" for="team-select-password">Team password</label>
-                <input class="form-control" id="team-select-password" type="password">
-              </div>
+        <div class="panel panel-border-narrow js-hidden" id="create-team-subform">
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label" for="create-team-name">Team name</label>
+              <input class="form-control" name="create-team-name" type="text" id="create-team-name">
             </div>
           </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label" for="create-team-password">Team password</label>
+              <input class="form-control" name="create-team-password" type="password" id="create-team-password">
+            </div>
+          </div>
+
+        </div>
+
+        <label class="block-label selection-button-radio" for="select-team" data-target="select-team-subform">
+         <input id="select-team" type="radio" name="create-team" value="No">
+         No
+        </label>
+
+        <div class="panel panel-border-narrow js-hidden" id="select-team-subform">
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label" for="team-name">Team name</label>
+              <input class="form-control" name="team-name" type=text>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label" for="team-select-password">Team password</label>
+              <input class="form-control" name="team-select-password" type="password">
+            </div>
+          </div>          
+        </div>
       </div>
     </div>
+
     <div class="form-section">
       <div class="form-group">
         <input class="button" type="submit" value="Register">
