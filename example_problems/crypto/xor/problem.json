@@ -1,0 +1,10 @@
+{"name": "XOR",
+ "score": 20,
+ "category": "Cryptography",
+ "grader": "crypto/xor/grader.py",
+ "generator": "crypto/xor/generator.py",
+ "autogen": true,
+ "description": "",
+ "threshold": 0,
+ "weightmap": {},
+ "hint": "Try using <a target=_blank href='https://gchq.github.io/CyberChef/'>CyberChef</a>'"}
