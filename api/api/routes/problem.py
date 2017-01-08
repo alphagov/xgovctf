@@ -25,7 +25,6 @@ def get_solved_problems_hook():
 
 @blueprint.route('/submit', methods=['POST'])
 @api_wrapper
-@check_csrf
 @require_login
 @block_before_competition(WebError("The competition has not begun yet!"))
 @block_after_competition(WebError("The competition is over!"))
