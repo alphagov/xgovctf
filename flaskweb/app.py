@@ -95,6 +95,7 @@ def register():
             if resp["status"] == 1:
                 app.logger.info("User created " + r.text)
                 session["token"] = r.cookies["token"]
+                session["api-session"] = r.cookies["flask"]
                 return redirect("/problems")
             else:
                 flash(resp["message"])
@@ -119,6 +120,7 @@ def register():
             if resp["status"] == 1:
                 app.logger.info("User created " + r.text)
                 session["token"] = r.cookies["token"]
+                session["api-session"] = r.cookies["flask"]
                 return redirect("/problems")
             else:
                 flash(resp["message"])
