@@ -90,7 +90,7 @@ def register():
                 "team-password-new": request.form["create-team-password"],
                 "ctf-emails": "false"
             }
-            r = requests.post("http://localhost:8000/api/user/create", data=post_data)
+            r = requests.post("http://127.0.0.1:8000/api/user/create", data=post_data)
             resp = r.json()
             if resp["status"] == 1:
                 app.logger.info("User created " + r.text)
@@ -115,7 +115,7 @@ def register():
                 "team-password-existing": request.form["team-select-password"],
                 "ctf-emails": "false"
             }
-            r = requests.post("http://localhost:8000/api/user/create", data=post_data)
+            r = requests.post("http://127.0.0.1:8000/api/user/create", data=post_data)
             resp = r.json()
             if resp["status"] == 1:
                 app.logger.info("User created " + r.text)
