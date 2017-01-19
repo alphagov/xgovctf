@@ -7,9 +7,9 @@ def xor(key, src):
 
 
 def gen_code(n, key):
-    secret_key = "secret_key"
-    flag = "flag_"+str(sha1(secret_key.encode('utf-8')).hexdigest())
+    flag = "flag_{}_574rbuck5_c0ffee".format(n)
     return xor(key, flag)
+
 
 
 def generate(random, pid, autogen_tools, n):
