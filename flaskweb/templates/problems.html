@@ -23,11 +23,13 @@
       <div class="column-one-third">
         <h3 class="heading-medium">{{group.grouper}}</h3>
         {% for problem in group.list %}
-        <div class="problem" {% if problem.solved %}style="background: #85994B
-"{% endif %}>
-          <h3 class="heading-small"><a href="/problem/{{problem.pid}}">{{problem.name}}</a></h3>
-          <p>{{problem.description|safe}}</p>
-          <p>Score: {{problem.score}}</p>
+        <div class="problem panel">
+          <p><a href="/problem/{{problem.pid}}">{{problem.name}}</a></p>
+          {% if problem.solved %}
+          <p style="color:#006435"><span class="font-xxlarge">{{problem.score}}</span> points</p>
+          {% else %}
+          <p><span class="font-xxlarge">{{problem.score}}</span> points</p>
+          {% endif %}
         </div>
         {% endfor %}
       </div>

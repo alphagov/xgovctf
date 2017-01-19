@@ -9,24 +9,33 @@
     </div>
     <div class="column-full">
       <p>Score: {{problem.score}}</p>
+
+      <details>
+
+        <summary><span class="summary">Do you need a hint?</span></summary>
+
+        <div class="panel panel-border-narrow">
+          <p>{{problem.hint|safe}}</p>
+        </div>
+      </details>
     </div>
   </div>
   <div class="grid-row">
     <div class="column-full">
-    <form action="" method="post" class="form">
-      <div class="form-section">
-        <div class="form-group">
-          <label class="form-label" for="solution">Solution</label>
-          <input class="form-control" name="solution" type="text"
+      <form action="" method="post" class="form">
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label" for="solution">Solution</label>
+            <input class="form-control" name="solution" type="text"
+          </div>
         </div>
-      </div>
-      <div class="form-section">
-        <div class="form-group">
-          <input class="button" type="submit" value="Submit">
+        <div class="form-section">
+          <div class="form-group">
+            <input class="button" type="submit" value="Submit">
+          </div>
         </div>
-      </div>
-    </form>
-  </div>
+      </form>
+    </div>
   </div>
 </main>
 {% endblock %}
