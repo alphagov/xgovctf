@@ -50,6 +50,8 @@ def submit_key_hook():
 @block_after_competition(WebError("The competition is over!"))
 def get_single_problem_hook(pid):
     problem_info = api.problem.get_problem(pid, tid=api.user.get_user()['tid'])
+    if problem_info.get("autogen", False):
+        problem_info = api.autogen.get_problem_instance(pid, api.user.get_user()['tid'])
     return WebSuccess(data=problem_info)
 
 @blueprint.route('/feedback', methods=['POST'])
