@@ -1,24 +1,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
-  char flag[32];
-  char buffer[9];
-  char password[9];
-  FILE *f;
+/*
+  Deiberately vulnerable app 1
+  This app doesn't check the password, it only checks the length
+  Sample input: 12345678
+*/
 
-  f = fopen("flag.txt", "r");
+int main(int argc, char *argv[]) {
+  FILE *f = fopen("flag.txt", "r");
+  char flag[32];
   fgets(flag, 32, f);
   fclose(f);
 
-  f = fopen("password.txt", "r");
-  fgets(password, 9, f);
-  fclose(f);
-
+  char buffer[9];
   printf("Enter password to get flag: ");
   fflush(stdout);
   gets(buffer);
-  if (memcmp(buffer, password, 8) == 0) {
+  if (buffer[8] == 0) {
     printf("Password Accepted\nFlag = %s\n", flag);
   } else {
     printf("Wrong password\n");
