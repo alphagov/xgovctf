@@ -1,0 +1,9 @@
+{"name": "Stackoverflow",
+ "score": 50,
+ "category": "Buffers",
+ "grader": "buffer_overflow/04_smash_the_stack/grader.py",
+ "description": "<p>The signon-o-tron team have isolated the buffer reading and comparison into it's own function.  If the function returns a 1, the password was ok.  This way nobody can read or write over any extra buffers right?</p><p>It's running on port 4003</p><p>See if you can guess the password</p>",
+ "autogen": false,
+ "threshold": 1,
+ "weightmap": {"Terminate this": 1},
+ "hint": "The return code is after the buffer, can you change the return value?"}

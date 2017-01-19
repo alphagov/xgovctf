@@ -1,0 +1,9 @@
+{"name": "Password length",
+ "score": 10,
+ "category": "Buffers",
+ "grader": "buffer_overflow/01_length_check/grader.py",
+ "description": "<p>Our poor signon-o-tron team got told to build a new authentication system.</p><p>They've built an alpha, but somebody has put it into production on port 4000 to protect the flag.</p><p>See if you can guess the password</p>",
+ "autogen": false,
+ "threshold": 0,
+ "weightmap": {},
+ "hint": "The team only implemented the most basic checking"}

@@ -1,0 +1,9 @@
+{"name": "Terminate this",
+ "score": 30,
+ "category": "Buffers",
+ "grader": "buffer_overflow/03_overflow_null/grader.py",
+ "description": "<p>The signon-o-tron team have learnt about memory layout and fixed the problem.</p><p>However a new story came up, can the team print the incorrect password when it's not correct?</p><p>It's running on port 4002</p><p>See if you can guess the password</p>",
+ "autogen": false,
+ "threshold": 1,
+ "weightmap": {"Long passwords": 1},
+ "hint": "Strings are null terminated in C"}

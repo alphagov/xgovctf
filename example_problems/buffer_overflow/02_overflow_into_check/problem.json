@@ -1,0 +1,9 @@
+{"name": "Long passwords",
+ "score": 20,
+ "category": "Buffers",
+ "grader": "buffer_overflow/02_overflow_into_check/grader.py",
+ "description": "<p>The signon-o-tron team have now implemented the key story, to compare the password.</p><p>Sadly, the team hasn't ever coded C before, so the code is a bit ropey.  It's running on port 4001</p><p>See if you can guess the password</p>",
+ "autogen": false,
+ "threshold": 1,
+ "weightmap": {"Password length":1},
+ "hint": "<code>char flag[32];<br>char buffer[9];<br>char password[9];<br>my_gets(buffer);<br>if (memcmp(buffer, password, 8) == 0) {</code>"}
