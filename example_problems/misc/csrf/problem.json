@@ -1,8 +1,0 @@
-{"name": "CSRF",
- "score": 20,
- "category": "Miscellaneous",
- "grader": "misc/csrf/grader.py",
- "description": "What does CSRF stand for?",
- "autogen": false,
- "threshold": 0,
- "hint": ""}
