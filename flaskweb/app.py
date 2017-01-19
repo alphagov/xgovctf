@@ -50,7 +50,6 @@ def config_app(*args, **kwargs):
     """
 
     app.secret_key = secret_key
-    app.config["SESSION_COOKIE_DOMAIN"] = session_cookie_domain
     app.config["SESSION_COOKIE_PATH"] = session_cookie_path
     app.config["SESSION_COOKIE_NAME"] = session_cookie_name
     return app
