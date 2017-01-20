@@ -1,0 +1,10 @@
+{"name": "Military grade encryption",
+ "score": 20,
+ "category": "Cryptography",
+ "grader": "crypto/simple_aes/grader.py",
+ "generator": "crypto/simple_aes/generator.py",
+ "autogen": true,
+ "description": "",
+ "threshold": 1,
+ "weightmap": {"Longer passphrases": 1},
+ "hint": "We used <a href='https://www.dlitz.net/software/pycrypto/'>AES in ECB mode</a>, which requires a key of 16 bytes.  The key can be found easily, but is only 14 bytes... Hmmm"}

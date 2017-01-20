@@ -1,5 +1,5 @@
 {"name": "XOR",
- "score": 20,
+ "score": 10,
  "category": "Cryptography",
  "grader": "crypto/xor/grader.py",
  "generator": "crypto/xor/generator.py",

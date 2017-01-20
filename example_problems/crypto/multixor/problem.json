@@ -1,0 +1,10 @@
+{"name": "Longer passphrases",
+ "score": 20,
+ "category": "Cryptography",
+ "grader": "crypto/multixor/grader.py",
+ "generator": "crypto/multixor/generator.py",
+ "autogen": true,
+ "description": "",
+ "threshold": 1,
+ "weightmap": {"XOR": 1},
+ "hint": "You are going to want to try to work out the length of the key first, then take every nth characters and treat it as a single character XOR.  To work out the length, you might want to use <a href='https://en.wikipedia.org/wiki/Hamming_distance'>Hamming Distance</a>"}

@@ -1,14 +1,19 @@
 from os import path
+import Crypto.Cipher.AES
 import base64
 
 
-def xor(key, src):
-    return "".join([chr(key ^ ord(b)) for b in src])
+def stretch(key):
+    while len(key) % 16 != 0:
+        key += " "
+    return key
 
 
 def gen_code(n, key):
-    flag = "flag_{}_start_with_user_needs".format(n)
-    return base64.b64encode(xor(key, flag).encode("ascii")).decode()
+    flag = stretch("flag_{}_Do_the_hard_work_to_make_it_simple".format(n))
+    nkey = stretch(key)
+    ciphertext = Crypto.Cipher.AES.new(nkey).encrypt(flag)
+    return base64.b64encode(ciphertext+b":"+key.encode("ascii")).decode()
 
 
 def generate(random, pid, autogen_tools, n):
@@ -24,7 +29,7 @@ def generate(random, pid, autogen_tools, n):
 
     autogen_tools.replace_source_tokens(
         template_path,
-        {"flag": gen_code(n, 10)},
+        {"flag": gen_code(n, "Aviation House")},
         rendered_template_path
     )
 
@@ -39,6 +44,6 @@ def generate(random, pid, autogen_tools, n):
         "static_files": {
         },
         "problem_updates": {
-            "description": "<p>The security engineering team has been asked to ensure that dangerous adversaries cannot read the passwords.</p><p>We all know that the best engineers invent their own tools, so we created our own encryption scheme.</p><p>The team have stored the password in %s. Bet you can't get into it</p>" % code_link
+            "description": "<p>We've updated the system to AES.  We heard that this is military grade encryption so that should fix everything</p><p>The team have stored the password in %s. Bet you can't get into it</p>" % code_link
         }
     }
