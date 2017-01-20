@@ -201,7 +201,7 @@ def problem(pid):
 @app.route("/scoreboard")
 def scoreboard():
     scores = api_get("/api/stats/scoreboard")
-    return render_template("scoreboard.html", scores=scores["data"])
+    return render_template("scoreboard.html", scores=scores["data"], achievements=api_get("/api/achievements/earned"))
 
 
 @app.route("/api/autogen/serve/<path>")
@@ -215,3 +215,8 @@ def serve(path):
             "flask": session["api-session"]},
         params=request.args)
     return content.text
+
+
+@app.route("/apis/<path:path>")
+def rawapi(path):
+    return render_template("code.html", data=api_get("/api/" + path))

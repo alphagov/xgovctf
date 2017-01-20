@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="content" role="main">
+  <code class="language-javascript">
+    {{data|tojson(indent=4)}}
+  </code>
+</main>
+{% endblock %}

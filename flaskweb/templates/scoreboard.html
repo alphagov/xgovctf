@@ -18,5 +18,28 @@
       {% endfor %}
     </tbody>
   </table>
+  <h1 class="heading-large">Achievements</h1>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Team</th>
+        <th scope="col">Achievement</th>
+        <th scope="col">Description</th>
+        <th class="numeric" scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+
+  {% for achievement in achievements.data %}
+  <tr>
+    <td>{{achievement.team}}</td>
+    <td>{{achievement.name}}</td>
+    <td>{{achievement.description}}</td>
+    <td class="numeric">{{achievement.score}}</td>
+  </tr>
+
+  {% endfor %}
+</tbody>
+</table>
 </main>
 {% endblock %}
