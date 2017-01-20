@@ -10,7 +10,6 @@ from hashlib import sha1
 _get_problem_names = lambda problems: [problem['name'] for problem in problems]
 top_teams = 10
 
-@api.cache.memoize()
 def get_score(tid=None, uid=None):
     """
     Get the score for a user or team.
@@ -73,7 +72,6 @@ def get_group_average_score(gid=None, name=None):
     return int(total_score / len(group_scores)) if len(group_scores) > 0 else 0
 
 # Stored by the cache_stats daemon
-@api.cache.memoize()
 def get_all_team_scores():
     """
     Gets the score for every team in the database.
@@ -171,7 +169,6 @@ def get_team_member_stats(tid):
 
     return {member['username']: _get_problem_names(api.problem.get_solved_problems(uid=member['uid'])) for member in members}
 
-@api.cache.memoize()
 def get_score_progression(tid=None, uid=None, category=None):
     """
     Finds the score and time after each correct submission of a team or user.
@@ -215,7 +212,7 @@ def get_top_teams():
     return all_teams if len(all_teams) < top_teams else all_teams[:top_teams]
 
 # Stored by the cache_stats daemon
-@api.cache.memoize()
+@api.cache.memoize(timeout=120, fast=True)
 def get_top_teams_score_progressions():
     """
     Gets the score_progressions for the top teams

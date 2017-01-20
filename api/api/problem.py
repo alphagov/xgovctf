@@ -587,7 +587,7 @@ def get_all_problems(category=None, show_disabled=False):
 
     return list(db.problems.find(match, {"_id":0}).sort('score', pymongo.ASCENDING))
 
-@api.cache.memoize()
+@api.cache.memoize(timeout=120, fast=True)
 def get_solved_pids(tid=None, uid=None, category=None):
     """
     Gets the solved pids for a given team or user.
@@ -614,7 +614,7 @@ def get_solved_problems(tid=None, uid=None, category=None):
 
     return [get_problem(pid=pid) for pid in get_solved_pids(tid=tid, uid=uid, category=category)]
 
-@api.cache.memoize()
+@api.cache.memoize(timeout=120, fast=True)
 def get_unlocked_pids(tid, category=None):
     """
     Gets the unlocked pids for a given team.
