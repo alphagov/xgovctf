@@ -1,0 +1,9 @@
+{"name": "Static password",
+ "score": 20,
+ "category": "Reverse Engineering",
+ "grader": "buffer_overflow/02_static_password/grader.py",
+ "description": "<p>The signon-o-tron team have convinced the PM to take down the prototype, and have built the minimum viable product, a server which actually checks the password submitted now</p><p>It's running on port 4001</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/02_static_password/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
+ "autogen": false,
+ "threshold": 1,
+ "weightmap": {"Password length":1},
+ "hint": "Decompiling the binary or running it in GDB might be interesting"}

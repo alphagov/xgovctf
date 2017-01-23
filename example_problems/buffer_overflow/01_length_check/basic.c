@@ -9,9 +9,11 @@
 
 int main(int argc, char *argv[]) {
   FILE *f = fopen("flag.txt", "r");
-  char flag[32];
+  char flag[32] = "NOT_THE_FLAG";
+  if (f) {
   fgets(flag, 32, f);
   fclose(f);
+  }
 
   char buffer[9];
   printf("Enter password to get flag: ");

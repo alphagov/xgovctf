@@ -1,4 +1,4 @@
-CFLAGS := -w -O0
+CFLAGS := -w
 
 
 all:
@@ -6,6 +6,10 @@ all:
 
 host:
 	socat TCP4-LISTEN:4002,fork,reuseaddr exec:./basic &
+
+install:
+	cp basic static/
+
 
 clean:
 	rm -f basic

@@ -1,9 +1,9 @@
 {"name": "Stackoverflow",
  "score": 50,
- "category": "Buffers",
+ "category": "Reverse Engineering",
  "grader": "buffer_overflow/04_smash_the_stack/grader.py",
- "description": "<p>The signon-o-tron team have isolated the buffer reading and comparison into it's own function.  If the function returns a 1, the password was ok.  This way nobody can read or write over any extra buffers right?</p><p>It's running on port 4003</p><p>See if you can guess the password</p>",
+ "description": "<p>The team have asked for help from the security engineers, and have isolated the buffer reading and writing to it's own function so it can't read or write from the global buffers.</p><p>It's running on port 4003</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/04_smash_the_stack/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. ",
  "autogen": false,
  "threshold": 1,
  "weightmap": {"Terminate this": 1},
- "hint": "The return code is after the buffer, can you change the return value?"}
+ "hint": "After the local buffer should be any variable pushed onto the stack.  You are going to need to write some new opcodes into the stack"}

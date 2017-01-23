@@ -1,9 +1,9 @@
 {"name": "Long passwords",
- "score": 20,
- "category": "Buffers",
+ "score": 30,
+ "category": "Reverse Engineering",
  "grader": "buffer_overflow/02_overflow_into_check/grader.py",
- "description": "<p>The signon-o-tron team have now implemented the key story, to compare the password.</p><p>Sadly, the team hasn't ever coded C before, so the code is a bit ropey.  It's running on port 4001</p><p>See if you can guess the password</p>",
+ "description": "<p>The team have been asked to implement the story to allow the product manager to set the password dynamically.  Now it's impossible for an attacker to reverse engineer the password</p><p>It's running on port 4001</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/02_overflow_into_check/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
  "autogen": false,
  "threshold": 1,
- "weightmap": {"Password length":1},
- "hint": "<code>char flag[32];<br>char buffer[9];<br>char password[9];<br>my_gets(buffer);<br>if (memcmp(buffer, password, 8) == 0) {</code>"}
+ "weightmap": {"Static password":1},
+ "hint": "Try running the binary under a debugger.  See how big the buffer is, watch what happens if you enter 1 more character than can fit"}

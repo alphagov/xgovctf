@@ -21,44 +21,34 @@ void my_gets(char *destination) {
   }
 }
 
-// void dump_memory(void *memloc, int rows) {
-//   int r, c;
-//   for (r = 0; r != rows; r++) {
-//     printf("%8x: ", memloc+(r*8));
-//     for (c = 0; c != 8; c++) {
-//       printf("%02x ", *(char*)(memloc+(r*8)+c));
-//     }
-//     printf("    ");
-//     for (c = 0; c != 8; c++) {
-//       printf("%c", *(char*)(memloc+(r*8)+c));
-//     }
-//     printf("\n");
-//   }
-// }
-
 int main(int argc, char *argv[]) {
-  char buffer[7];
-  char flag[32];
-  char *password = "P0stIt!";
+  char buffer[15];
+  char password[15] = "P0stIt!";
+  char flag[32] = "NOT_THE_FLAG";
   FILE *f;
 
-  memset(buffer, 0, 8);
-  memset(flag, 0, 32);
+  memset(buffer, 0, 15);
 
   f = fopen("flag.txt", "r");
-  fgets(flag, 32, f);
-  fclose(f);
+  if (f) {
+    fgets(flag, 32, f);
+    fclose(f);
+  }
 
-  // dump_memory(buffer, 6);
+  f = fopen("password.txt", "r");
+  if (f) {
+    fscanf(f, "%s", password);
+    fclose(f);
+  }
 
   printf("Enter password to get flag: ");
   fflush(stdout);
   my_gets(buffer);
   // dump_memory(buffer, 4);
-  if (memcmp(buffer, password, 8) == 0) {
+  if (strcmp(buffer, password) == 0) {
     printf("Password Accepted\nFlag = %s\n", flag);
   } else {
-    printf("%s is not the password\n", buffer);
+    printf("'%s' is not the password\n", buffer);
   }
   return 0;
 }

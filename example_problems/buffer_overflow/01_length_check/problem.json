@@ -1,9 +1,9 @@
 {"name": "Password length",
  "score": 10,
- "category": "Buffers",
+ "category": "Reverse Engineering",
  "grader": "buffer_overflow/01_length_check/grader.py",
- "description": "<p>Our poor signon-o-tron team got told to build a new authentication system.</p><p>They've built an alpha, but somebody has put it into production on port 4000 to protect the flag.</p><p>See if you can guess the password</p>",
+ "description": "<p>Our poor signon-o-tron team got told to build a new authentication system.</p><p>Sadly an over excited product manager has picked C as the language to build it in, \"If it's good enough for Google, it's good enough for us\".  The team doesn't know C very well, so they built a an alpha prototype to show the Product Manager.<p>Somebody has put it into production on port 4000 to protect the flag.</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/01_length_check/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
  "autogen": false,
  "threshold": 0,
  "weightmap": {},
- "hint": "The team only implemented the most basic checking"}
+ "hint": "The team only implemented the most basic checking.  Try running the binary under GDB and see what it does to your input"}

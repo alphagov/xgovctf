@@ -1,4 +1,4 @@
-CFLAGS := -w -g -fno-stack-protector -z execstack
+CFLAGS := -w -O0 -g -fno-stack-protector -z execstack
 
 
 all:
@@ -6,6 +6,9 @@ all:
 
 host:
 	socat TCP4-LISTEN:4003,fork,reuseaddr exec:./basic &
+
+install:
+	cp basic static/
 
 clean:
 	rm -f basic

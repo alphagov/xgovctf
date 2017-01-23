@@ -1,9 +1,9 @@
 {"name": "Terminate this",
- "score": 30,
- "category": "Buffers",
+ "score": 40,
+ "category": "Reverse Engineering",
  "grader": "buffer_overflow/03_overflow_null/grader.py",
- "description": "<p>The signon-o-tron team have learnt about memory layout and fixed the problem.</p><p>However a new story came up, can the team print the incorrect password when it's not correct?</p><p>It's running on port 4002</p><p>See if you can guess the password</p>",
+ "description": "<p>The team was finally sent on C 101 course and has learnt about memory layout and buffer overflows</p><p>They've fixed up their implementation to no longer suffer from a simple buffer overflow.  They've also added a story to help their product manager, who reguarly mistypes his password, to know what he just typed</p><p>It's running on port 4002</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/03_overflow_null/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
  "autogen": false,
  "threshold": 1,
  "weightmap": {"Long passwords": 1},
- "hint": "Strings are null terminated in C"}
+ "hint": "I wonder if you can get the system to print out the wrong thing"}

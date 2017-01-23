@@ -13,10 +13,18 @@
 */
 
 int check_password() {
-  char buffer[9];
-  char *password = "B4rrista";
+  char buffer[15];
+  char password[15] = "B4rrista";
+  FILE *f;
+  
+  f = fopen("password.txt", "r");
+  if (f) {
+    fscanf(f, "%s", password);
+    fclose(f);
+  }
+
   gets(buffer);
-  if (memcmp(buffer, password, 9) == 0) {
+  if (strcmp(buffer, password) == 0) {
     return 1;
   }
   return 0;
