@@ -1,0 +1,10 @@
+{
+  "name": "SQL Injection",
+  "score": 20,
+  "category": "Web Exploitation",
+  "grader": "web/sql-injection/grader.py",
+  "description": "Find the vulnerability in the notes app that will allow you to extract the flag from the database.",
+  "threshold": 0,
+  "weightmap": {},
+  "hint": "Filter, my friend."
+}

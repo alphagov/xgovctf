@@ -1,0 +1,10 @@
+{
+  "name": "Password Brute Force",
+  "score": 20,
+  "category": "Web Exploitation",
+  "grader": "web/brute-force/grader.py",
+  "description": "Find the username and brute-force its password to be able to extract the flag from the web server.",
+  "threshold": 0,
+  "weightmap": {},
+  "hint": "Someone logged in before you."
+}
