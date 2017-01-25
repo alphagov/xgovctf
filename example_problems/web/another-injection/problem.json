@@ -1,5 +1,5 @@
 {
-  "name": "Web Scale",
+  "name": "Web Scale Vulnerabilities",
   "score": 20,
   "category": "Web Exploitation",
   "grader": "web/another-injection/grader.py",
