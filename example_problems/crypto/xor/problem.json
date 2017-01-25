@@ -5,6 +5,6 @@
  "generator": "crypto/xor/generator.py",
  "autogen": true,
  "description": "",
- "threshold": 0,
- "weightmap": {},
- "hint": "Try using <a target=_blank href='https://gchq.github.io/CyberChef/'>CyberChef</a>'"}
+ "threshold": 1,
+ "weightmap": {"Veni Vidi Vici": 1},
+ "hint": "Try using <a target=_blank href='https://gchq.github.io/CyberChef/'>CyberChef</a>.  In particular look at the XOR Brute Force decoder.  But that decoder only works on binary, and I don't think this data is in binary"}

@@ -2,13 +2,15 @@ from os import path
 import base64
 
 
-def xor(key, src):
-    return "".join([chr(key ^ ord(b)) for b in src])
+def rot_x(src, key):
+    from string import ascii_lowercase as lc, ascii_uppercase as uc
+    lookup = str.maketrans(lc + uc, lc[key:] + lc[:key] + uc[key:] + uc[:key])
+    return src.translate(lookup)
 
 
-def gen_code(n, key):
-    flag = "flag_{}_start_with_user_needs".format(n)
-    return base64.b64encode(xor(key, flag).encode("ascii")).decode()
+def gen_code(n):
+    flag = "flag_iterate_then_iterate_again."
+    return base64.b64encode(rot_x(flag, n).encode("UTF-8")).decode()
 
 
 def generate(random, pid, autogen_tools, n):
@@ -24,7 +26,7 @@ def generate(random, pid, autogen_tools, n):
 
     autogen_tools.replace_source_tokens(
         template_path,
-        {"flag": gen_code(n, 10)},
+        {"flag": gen_code(n)},
         rendered_template_path
     )
 
@@ -39,6 +41,6 @@ def generate(random, pid, autogen_tools, n):
         "static_files": {
         },
         "problem_updates": {
-            "description": "<p>The GDS security engineering team has been asked to ensure that dangerous adversaries cannot read the passwords.</p><p>We all know that the best engineers invent their own tools, so we created our own encryption scheme.  We read that <a href='https://en.wikipedia.org/XOR'>XOR is an unbreakable cipher</a> but we're not sure what this keystream stuff is about</p><p>The team have stored the password in %s.</p>" % code_link
+            "description": "<p>GDS Security engineering have the best cryptographers, so we looked back on one of the greatest of all time, and implemented his algorithm</p><p>The team have stored the password in %s. Bet you can't get into it</p>" % code_link
         }
     }

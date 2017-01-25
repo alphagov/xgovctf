@@ -1,0 +1,100 @@
+rot a
+swp g, d
+mov 1, 5
+rev 6, 7
+mov 5, 4
+rot b
+rev 6, 7
+swp h, f
+swp e, c
+rev 0, 7
+swi 6, 4
+rot e
+mov 2, 7
+swi 6, 4
+rot e
+rev 2, 3
+ror 2
+swi 7, 1
+mov 1, 2
+mov 4, 7
+mov 5, 0
+swp e, f
+mov 4, 7
+rev 1, 7
+rot g
+mov 7, 4
+ror 6
+rot g
+rev 0, 5
+rev 0, 7
+swp c, f
+swp h, f
+ror 7
+rot g
+rot c
+swi 1, 4
+mov 7, 3
+rev 2, 6
+mov 7, 0
+mov 7, 1
+mov 6, 7
+ror 5
+rev 0, 6
+mov 1, 4
+rol 3
+swp d, c
+mov 4, 5
+rot f
+ror 1
+mov 7, 6
+swi 6, 0
+mov 6, 2
+ror 1
+swi 1, 6
+mov 2, 6
+swi 2, 1
+rev 1, 7
+mov 4, 1
+mov 7, 0
+swi 6, 7
+rol 1
+rev 0, 4
+rot c
+rot b
+mov 2, 1
+ror 0
+swp b, d
+swp f, c
+swp d, a
+swi 7, 6
+ror 0
+swi 0, 3
+swi 2, 5
+swp h, f
+rev 2, 3
+rot c
+rol 2
+mov 0, 5
+swi 2, 3
+ror 1
+rol 2
+mov 0, 4
+rot c
+rot g
+swi 3, 0
+ror 3
+rev 0, 2
+mov 1, 2
+swp e, c
+ror 7
+mov 0, 7
+rol 2
+rev 0, 4
+swp e, b
+rev 2, 7
+ror 5
+swi 2, 4
+swp d, g
+rev 3, 4
+rev 4, 5
