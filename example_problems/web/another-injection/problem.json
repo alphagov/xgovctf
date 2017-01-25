@@ -1,10 +1,10 @@
 {
   "name": "Web Scale Vulnerabilities",
-  "score": 20,
+  "score": 50,
   "category": "Web Exploitation",
   "grader": "web/another-injection/grader.py",
   "description": "<p>Welcome to the <a href=\"https://fierce-springs-52697.herokuapp.com/\">Note's service administrator interface</a>. Here you can find analytics on uptake and usage.</p> <p>Please be aware that other departments within government use this application.</p>",
-  "threshold": 0,
-  "weightmap": {},
+  "threshold": 1,
+  "weightmap": {"SQL Injection": 1},
   "hint": "Hopefully the notes aren't all in the same <em>collection</em>!"
 }
