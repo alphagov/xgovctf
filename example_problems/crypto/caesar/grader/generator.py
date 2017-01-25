@@ -4,12 +4,15 @@ import base64
 
 def rot_x(src, key):
     from string import ascii_lowercase as lc, ascii_uppercase as uc
+    key = key % 26
+    if key == 0 or key == 13:
+        key += 1
     lookup = str.maketrans(lc + uc, lc[key:] + lc[:key] + uc[key:] + uc[:key])
     return src.translate(lookup)
 
 
 def gen_code(n):
-    flag = "flag_iterate_then_iterate_again."
+    flag = "flag_{}_iterate_then_iterate_again".format(n)
     return base64.b64encode(rot_x(flag, n).encode("UTF-8")).decode()
 
 
