@@ -2,7 +2,7 @@
  "score": 30,
  "category": "Reverse Engineering",
  "grader": "buffer_overflow/02_overflow_into_check/grader.py",
- "description": "<p>The team have been asked to implement the story to allow the product manager to set the password dynamically.  Now it's impossible for an attacker to reverse engineer the password</p><p>It's running on port 4001</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/02_overflow_into_check/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
+ "description": "<p>The team have been asked to implement the story to allow the product manager to set the password dynamically.  Now it's impossible for an attacker to reverse engineer the password</p><p>It's running on port 4002</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/02_overflow_into_check/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. </p>",
  "autogen": false,
  "threshold": 1,
  "weightmap": {"Static password":1},

@@ -2,7 +2,7 @@
  "score": 50,
  "category": "Reverse Engineering",
  "grader": "buffer_overflow/04_smash_the_stack/grader.py",
- "description": "<p>The team have asked for help from the security engineers, and have isolated the buffer reading and writing to it's own function so it can't read or write from the global buffers.</p><p>It's running on port 4003</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/04_smash_the_stack/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. ",
+ "description": "<p>The team have asked for help from the security engineers, and have isolated the buffer reading and writing to it's own function so it can't read or write from the global buffers.</p><p>It's running on port 4004</p><p>See if you can guess the password</p><p>Luckily, you've been able to copy the <a href=/problem-static/buffer_overflow/04_smash_the_stack/basic>binary</a> from the Ubuntu 16.10 Jenkins build machine, which might help. ",
  "autogen": false,
  "threshold": 1,
  "weightmap": {"Terminate this": 1},
