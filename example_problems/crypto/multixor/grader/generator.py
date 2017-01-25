@@ -13,7 +13,7 @@ def xor(key, src):
 
 
 def gen_code(n, key):
-    flag = "flag_{}_Make_things_open:_it_makes_things_better".format(n)
+    flag = "flag_{}_make_things_open:_it_makes_things_better".format(n)
     return base64.b64encode(xor(key, flag).encode("ascii")).decode()
 
 

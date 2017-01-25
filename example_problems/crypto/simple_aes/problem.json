@@ -1,5 +1,5 @@
 {"name": "Military grade encryption",
- "score": 20,
+ "score": 40,
  "category": "Cryptography",
  "grader": "crypto/simple_aes/grader.py",
  "generator": "crypto/simple_aes/generator.py",

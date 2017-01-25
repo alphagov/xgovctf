@@ -1,5 +1,5 @@
 {"name": "Custom encryption",
- "score": 20,
+ "score": 50,
  "category": "Cryptography",
  "grader": "crypto/custom/grader.py",
  "autogen": false,

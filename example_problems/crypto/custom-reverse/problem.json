@@ -1,0 +1,10 @@
+{"name": "Custom encryption 2",
+ "score": 60,
+ "category": "Cryptography",
+ "grader": "crypto/custom/grader.py",
+ "autogen": false,
+ "description": "<p>Now you have implemented a way to encipher 'abcdefghi' you need to see if you can crack our super secure password 'fbgdceah'</p>",
+ "threshold": 1,
+ "weightmap": {"Custom encryption": 1},
+ "hint": "<p>Applying the reverse algorithm to <em>abdec</em> should result in <em>abcde</em></p><code class=\"language-javascript\">swi 4, 0\nswp d, b\nrev 0, 4\nrol 1\nmov 1, 4\nmov 3, 0\nrot b\nrot d\nror 2</code>"
+}

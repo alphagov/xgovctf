@@ -20,7 +20,7 @@ void my_gets(char *destination) {
 int main(int argc, char *argv[]) {
   char flag[32] = "NOT_THE_FLAG";
   char buffer[15];
-  char password[15];
+  char password[15] = "Sh4rp13";
   FILE *f;
 
   f = fopen("flag.txt", "r");

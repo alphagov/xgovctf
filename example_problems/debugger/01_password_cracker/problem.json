@@ -4,6 +4,6 @@
  "grader": "debugger/01_password_cracker/grader.py",
  "description": "<p>Our poor signon-o-tron team discovered a piece of malware on a server.</p><p>Sadly the malware has dropped a program onto the filesystem.<p>To find the message from the miscreants the program needs the correct password entered.</p><p>You need to find a way of getting the message out of: <a href=/problem-static/debugger/01_password_cracker/message.bin>Linux</a>, <a href=/problem-static/debugger/01_password_cracker/message.exe>Windows</a> . </p>",
  "autogen": false,
- "threshold": 0,
- "weightmap": {},
+ "threshold": 1,
+ "weightmap": {"Terminate this": 1},
  "hint": "What is PACKED within this program is easier to read.  Try running the binary under GDB or IDA and see what it does with your input"}

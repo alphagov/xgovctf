@@ -1,5 +1,5 @@
 {"name": "Veni Vidi Vici",
- "score": 20,
+ "score": 10,
  "category": "Cryptography",
  "grader": "crypto/caesar/grader.py",
  "generator": "crypto/caesar/generator.py",

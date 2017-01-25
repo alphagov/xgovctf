@@ -4,6 +4,6 @@
  "grader": "debugger/02_password_cracker/grader.py",
  "description": "<p>The malicious party have managed to encrypt some of the files on the signon-o-tron team servers.</p><p>To taunt us they have hidden the password for the encrypted files inside another binary.<p>The say that the file can not be reverse engineered and that we have to guess the password.</p><p>Brute forcing this password could take days, so you need to find a way of getting the message out of: <a href=/problem-static/debugger/02_password_cracker/flag.bin>Linux</a>, <a href=/problem-static/debugger/02_password_cracker/flag.exe>Windows</a> . </p>",
  "autogen": false,
- "threshold": 0,
- "weightmap": {},
+ "threshold": 1,
+ "weightmap": {"Password cracker 01": 1},
  "hint": "Try watching the binary run in a Hex Editor and check what it compares your input against."}
