@@ -123,7 +123,6 @@ def get_all_user_scores():
 
     return sorted(result, key=lambda entry: entry['score'], reverse=True)
 
-@api.cache.memoize(timeout=120, fast=True)
 def get_problems_by_category():
     """
     Gets the list of all problems divided into categories
@@ -138,14 +137,12 @@ def get_problems_by_category():
     return result
 
 
-@api.cache.memoize(timeout=120, fast=True)
 def get_pids_by_category():
     result = {cat: [x['pid'] for x in api.problem.get_all_problems(category=cat)]
               for cat in api.problem.get_all_categories()}
     return result
 
 
-@api.cache.memoize(timeout=120, fast=True)
 def get_pid_categories():
     pid_map = {}
     for cat in api.problem.get_all_categories():
@@ -212,7 +209,6 @@ def get_top_teams():
     return all_teams if len(all_teams) < top_teams else all_teams[:top_teams]
 
 # Stored by the cache_stats daemon
-@api.cache.memoize(timeout=120, fast=True)
 def get_top_teams_score_progressions():
     """
     Gets the score_progressions for the top teams

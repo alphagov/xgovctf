@@ -249,7 +249,6 @@ def insert_problem_from_json(blob):
     else:
         raise InternalException("JSON blob does not appear to be a list of problems or a single problem.")
 
-@api.cache.memoize(timeout=60, fast=True)
 def get_grader(pid):
     """
     Returns the grader module for a given problem.
@@ -527,7 +526,6 @@ def reevaluate_all_submissions():
     for problem in get_all_problems(show_disabled=True):
         reevaluate_submissions_for_problem(problem["pid"])
 
-@api.cache.memoize(timeout=60, fast=True)
 def get_problem(pid=None, name=None, tid=None, show_disabled=False):
     """
     Gets a single problem.
@@ -587,7 +585,6 @@ def get_all_problems(category=None, show_disabled=False):
 
     return list(db.problems.find(match, {"_id":0}).sort('score', pymongo.ASCENDING))
 
-@api.cache.memoize(timeout=120, fast=True)
 def get_solved_pids(tid=None, uid=None, category=None):
     """
     Gets the solved pids for a given team or user.
@@ -614,7 +611,6 @@ def get_solved_problems(tid=None, uid=None, category=None):
 
     return [get_problem(pid=pid) for pid in get_solved_pids(tid=tid, uid=uid, category=category)]
 
-@api.cache.memoize(timeout=120, fast=True)
 def get_unlocked_pids(tid, category=None):
     """
     Gets the unlocked pids for a given team.
