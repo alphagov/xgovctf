@@ -3,7 +3,7 @@
   "score": 20,
   "category": "Web Exploitation",
   "grader": "web/brute-force/grader.py",
-  "description": "Find the username and brute-force its password on this <a href='http://188.166.172.136:8080/'>login site</a> to be able to extract the flag from the web server.",
+  "description": "Find the username and brute-force its password to be able to extract the flag from the web server.",
   "threshold": 1,
   "weightmap": {"Hidden Message": 1},
   "hint": "Someone logged in before you."

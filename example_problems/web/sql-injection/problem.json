@@ -3,7 +3,7 @@
   "score": 30,
   "category": "Web Exploitation",
   "grader": "web/sql-injection/grader.py",
-  "description": "Find the vulnerability in the <a href='http://188.166.172.136:8081/'>notes app</a> that will allow you to extract the flag from the database.",
+  "description": "Find the vulnerability in the notes app that will allow you to extract the flag from the database.",
   "threshold": 1,
   "weightmap": {"Password Brute Force": 1},
   "hint": "Filter, my friend."
