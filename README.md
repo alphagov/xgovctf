@@ -1,7 +1,7 @@
 The GDS CTF Platform
 ==============
 
-The Government Digital Service ran a CTF for security enthusiasts from across Government (The Cross Government CTF, or X-GOV-CTF).  We wanted a platform on which to host the questions, and so this platform was born.
+The Government Digital Service ran a [Capture The Flag](https://en.wikipedia.org/wiki/Capture_the_flag#Computer_security) for security enthusiasts from across Government (The Cross Government CTF, or X-GOV-CTF).  We wanted a platform on which to host the questions, and so this platform was used.
 
 Much of this platform is based on the picoCTF platform, which was designed to be easily adapted to other CTF or programming competitions.
 
@@ -15,14 +15,23 @@ Setting Up
 6. Run `devploy` to deploy the development version of the site
 7. Go to port 8080 on the Host Machine
 
-The Website
+Loading the Example Problems (In the vagrant VM)
+------------
+*note*: We modified the devploy script to regenerate these problems every time.  This is because for the majority of the time we were adjusting the problems
+
+1. Run `cd ~/api`
+2. Run `python3 api_manager.py -v problems load /vagrant/example_problems/ graders/ ../problem_static/`
+3. Run `python3 api_manager.py autogen build 100`
+4. Run `devploy`
+
+How we used this for X-GOV-CTF
 -----------
 
-We ran the platform on AWS, on an Ubuntu 16.10 server.  
+We ran the platform on AWS, on a single Ubuntu 16.10 server.  
 
-Note that we ran the event inside our building, with a server that was only accessible to people present.  We therefore modified the platform from the original in the following ways (which might be unsafe if you run this on the public internet):
+Note that we ran the event inside our building, with a server that was only accessible to people present.  We therefore modified the platform from the original in the following ways (which might be unsafe if you ever run this on the public internet):
 
-The X-GOV-CTF needed to look like a GDS themed website if possible.  The security team had little expertise in CoffeeScript, which the picoCTF website was written in, and so @bruntonspall decided to write a frontend in Python and Flask.
+The X-GOV-CTF needed to look like a GDS themed website if possible.  The security team had little expertise in CoffeeScript, which the picoCTF website was written in, and so we wrote a frontend in Python and Flask.
 
 Due to the extremely short timelines, and for what seemed like a good idea at the time, the new web frontend was run separately to the old python flask API.
 
@@ -51,15 +60,6 @@ The original API was clearly directly accessible and was intended to be web host
 Because we weren't implementing every user journey or feature of the original, the caches didn't work as expected, so for the purpose of the CTF, we simply removed all the caches.
 
 If we were going to setup a public facing version of this service, we would have to re-address this problem, and put caches in the right place.
-
-Loading the Example Problems (In the vagrant VM)
-------------
-*note*: We modified the devploy script to regenerate these problems every time.  This is because for the majority of the time we were adjusting the problems
-
-1. Run `cd ~/api`
-2. Run `python3 api_manager.py -v problems load /vagrant/example_problems/ graders/ ../problem_static/`
-3. Run `python3 api_manager.py autogen build 100`
-4. Run `devploy`
 
 Getting Started
 ---------------
@@ -91,13 +91,9 @@ There are some issues that are probably with picoCTF itself that could do with f
 5. Running a daemon or file that should be compiled by Makefile appears to have code to support it in the API code, but it's unclear where you would call it from.
 6. It would be really neat if the hint system could deduct points as hints are given, and have increasing numbers of hints.  Especially for the binary problems, we would have liked to give a few hints, and then a binary compiled with debugging symbols, which might have reduced the points earned. (although first completer achievement needs to not outweigh this)
 
-Contact
+Credit
 ------------
 
-Massive thanks to the original picoCTF team, we were able to go from concept of running a CTF, to having one up and running in a couple of months, as well as having a full time job.  Thats something we could only have done with the help of this tool.
+Massive thanks to the original picoCTF team, we were able to go from concept of running a CTF, to having one up and running in a couple of months, as well as having full time jobs.  This is something we could only have done with the help of this tool.
 
-Authors: Michael Brunton-Spall, David King, David Stent, Ruben Arakelyan
-
-Original picoCTF Credits: Jonathan Burket, Tim Becker, Chris Ganas, David Brumley, Peter Chapman
-
-Email: security-engineering@digital.cabinet-office.gov.uk
+Original picoCTF Team: Jonathan Burket, Tim Becker, Chris Ganas, David Brumley, Peter Chapman

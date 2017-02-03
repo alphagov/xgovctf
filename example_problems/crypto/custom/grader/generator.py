@@ -2,6 +2,11 @@ from os import path
 import Crypto.Cipher.AES
 import base64
 
+"""
+This problem was taken from the excellent AdventOfCode2016
+which you can find at http://adventofcode.com/
+In particular, Day 21.
+"""
 
 def generate(random, pid, autogen_tools, n):
     """
