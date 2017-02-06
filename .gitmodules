@@ -1,0 +1,3 @@
+[submodule "example_problems/web/another-injection/ctf-web-scale-problem"]
+	path = example_problems/web/another-injection/ctf-web-scale-problem
+	url = git@github.com:davbo/ctf-web-scale-problem.git
